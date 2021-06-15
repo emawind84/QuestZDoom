@@ -28,6 +28,7 @@
 #include "templates.h"
 #include "gl/system/gl_system.h"
 #include "gl/system/gl_interface.h"
+#include "gl/system/gl_debug.h"
 #include "gl/data/gl_data.h"
 #include "gl/data/gl_vertexbuffer.h"
 #include "gl/system/gl_cvars.h"
@@ -355,7 +356,9 @@ void FRenderState::Apply()
 
 	if (mVertexBuffer != mCurrentVertexBuffer)
 	{
-		if (mVertexBuffer == NULL) glBindBuffer(GL_ARRAY_BUFFER, 0);
+		if (mVertexBuffer == NULL) {
+			GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		}
 		else mVertexBuffer->BindVBO();
 		mCurrentVertexBuffer = mVertexBuffer;
 	}

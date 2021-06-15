@@ -576,8 +576,8 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 
 	if (!linked)
 	{
-		hVertProg = glCreateShader(GL_VERTEX_SHADER);
-		hFragProg = glCreateShader(GL_FRAGMENT_SHADER);
+		hVertProg = GL(glCreateShader(GL_VERTEX_SHADER));
+		hFragProg = GL(glCreateShader(GL_FRAGMENT_SHADER));
 
 		FGLDebug::LabelObject(GL_SHADER, hVertProg, vert_prog_lump);
 		FGLDebug::LabelObject(GL_SHADER, hFragProg, frag_prog_lump);
@@ -588,45 +588,45 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 		const char *vp_ptr = vp_comb.GetChars();
 		const char *fp_ptr = fp_comb.GetChars();
 
-		glShaderSource(hVertProg, 1, &vp_ptr, &vp_size);
-		glShaderSource(hFragProg, 1, &fp_ptr, &fp_size);
+		GL(glShaderSource(hVertProg, 1, &vp_ptr, &vp_size));
+		GL(glShaderSource(hFragProg, 1, &fp_ptr, &fp_size));
 
-		glCompileShader(hVertProg);
-		glCompileShader(hFragProg);
+		GL(glCompileShader(hVertProg));
+		GL(glCompileShader(hFragProg));
 
-		glAttachShader(hShader, hVertProg);
-		glAttachShader(hShader, hFragProg);
+		GL(glAttachShader(hShader, hVertProg));
+		GL(glAttachShader(hShader, hFragProg));
 
-		glBindAttribLocation(hShader, VATTR_VERTEX, "aPosition");
-		glBindAttribLocation(hShader, VATTR_TEXCOORD, "aTexCoord");
-		glBindAttribLocation(hShader, VATTR_COLOR, "aColor");
-		glBindAttribLocation(hShader, VATTR_VERTEX2, "aVertex2");
-		glBindAttribLocation(hShader, VATTR_NORMAL, "aNormal");
+		GL(glBindAttribLocation(hShader, VATTR_VERTEX, "aPosition"));
+		GL(glBindAttribLocation(hShader, VATTR_TEXCOORD, "aTexCoord"));
+		GL(glBindAttribLocation(hShader, VATTR_COLOR, "aColor"));
+		GL(glBindAttribLocation(hShader, VATTR_VERTEX2, "aVertex2"));
+		GL(glBindAttribLocation(hShader, VATTR_NORMAL, "aNormal"));
 #ifndef __MOBILE__
-		glBindFragDataLocation(hShader, 0, "FragColor");
-		glBindFragDataLocation(hShader, 1, "FragFog");
-		glBindFragDataLocation(hShader, 2, "FragNormal");
+		GL(glBindFragDataLocation(hShader, 0, "FragColor"));
+		GL(glBindFragDataLocation(hShader, 1, "FragFog"));
+		GL(glBindFragDataLocation(hShader, 2, "FragNormal"));
 #endif
-		glLinkProgram(hShader);
+		GL(glLinkProgram(hShader));
 
-		glGetShaderInfoLog(hVertProg, 10000, NULL, buffer);
+		GL(glGetShaderInfoLog(hVertProg, 10000, NULL, buffer));
 		if (*buffer)
 		{
 			error << "Vertex shader:\n" << buffer << "\n";
 		}
-		glGetShaderInfoLog(hFragProg, 10000, NULL, buffer);
+		GL(glGetShaderInfoLog(hFragProg, 10000, NULL, buffer));
 		if (*buffer)
 		{
 			error << "Fragment shader:\n" << buffer << "\n";
 		}
 
-		glGetProgramInfoLog(hShader, 10000, NULL, buffer);
+		GL(glGetProgramInfoLog(hShader, 10000, NULL, buffer));
 		if (*buffer)
 		{
 			error << "Linking:\n" << buffer << "\n";
 		}
 		GLint status = 0;
-		glGetProgramiv(hShader, GL_LINK_STATUS, &status);
+		GL(glGetProgramiv(hShader, GL_LINK_STATUS, &status));
 		linked = (status == GL_TRUE);
 		if (!linked)
 		{

@@ -34,6 +34,7 @@
 #include "gl/renderer/gl_lightdata.h"
 #include "gl/scene/gl_drawinfo.h"
 #include "gl/textures/gl_translate.h"
+#include "gl/system/gl_debug.h"
 #include "vectors.h"
 
 //==========================================================================
@@ -420,7 +421,7 @@ void F2DDrawer::Draw()
 			gl_RenderState.AlphaFunc(GL_GEQUAL, 0.f);
 			gl_RenderState.Apply();
 
-			glDrawArrays(GL_TRIANGLE_STRIP, dt->mVertIndex, 4);
+			GL(glDrawArrays(GL_TRIANGLE_STRIP, dt->mVertIndex, 4));
 
 			gl_RenderState.BlendEquation(GL_FUNC_ADD);
 			if (dt->mVertCount > 4)
@@ -428,7 +429,7 @@ void F2DDrawer::Draw()
 				gl_RenderState.SetTextureMode(TM_MASK);
 				gl_RenderState.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				gl_RenderState.Apply();
-				glDrawArrays(GL_TRIANGLE_STRIP, dt->mVertIndex + 4, 4);
+				GL(glDrawArrays(GL_TRIANGLE_STRIP, dt->mVertIndex + 4, 4));
 			}
 
 			const auto &viewport = GLRenderer->mScreenViewport;
@@ -447,7 +448,7 @@ void F2DDrawer::Draw()
 			gl_RenderState.SetMaterial(dsp->mTexture, CLAMP_NONE, 0, -1, false);
 			gl_RenderState.SetObjectColor(dsp->mFlatColor|0xff000000);
 			gl_RenderState.Apply();
-			glDrawArrays(GL_TRIANGLE_FAN, dsp->mVertIndex, dsp->mVertCount);
+			GL(glDrawArrays(GL_TRIANGLE_FAN, dsp->mVertIndex, dsp->mVertCount));
 			gl_RenderState.SetObjectColor(0xffffffff);
 			break;
 		}
@@ -457,7 +458,7 @@ void F2DDrawer::Draw()
 			DataFlatFill *dff = static_cast<DataFlatFill*>(dg);
 			gl_RenderState.SetMaterial(dff->mTexture, CLAMP_NONE, 0, -1, false);
 			gl_RenderState.Apply();
-			glDrawArrays(GL_TRIANGLE_STRIP, dg->mVertIndex, dg->mVertCount);
+			GL(glDrawArrays(GL_TRIANGLE_STRIP, dg->mVertIndex, dg->mVertCount));
 			break;
 		}
 
@@ -466,21 +467,21 @@ void F2DDrawer::Draw()
 			gl_RenderState.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			gl_RenderState.AlphaFunc(GL_GREATER, 0);
 			gl_RenderState.Apply();
-			glDrawArrays(GL_TRIANGLE_FAN, dg->mVertIndex, dg->mVertCount);
+			GL(glDrawArrays(GL_TRIANGLE_FAN, dg->mVertIndex, dg->mVertCount));
 			gl_RenderState.EnableTexture(true);
 			break;
 
 		case DrawTypeLine:
 			gl_RenderState.EnableTexture(false);
 			gl_RenderState.Apply();
-			glDrawArrays(GL_LINES, dg->mVertIndex, dg->mVertCount);
+			GL(glDrawArrays(GL_LINES, dg->mVertIndex, dg->mVertCount));
 			gl_RenderState.EnableTexture(true);
 			break;
 
 		case DrawTypePixel:
 			gl_RenderState.EnableTexture(false);
 			gl_RenderState.Apply();
-			glDrawArrays(GL_POINTS, dg->mVertIndex, dg->mVertCount);
+			GL(glDrawArrays(GL_POINTS, dg->mVertIndex, dg->mVertCount));
 			gl_RenderState.EnableTexture(true);
 			break;
 

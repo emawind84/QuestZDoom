@@ -27,6 +27,7 @@
 **/
 
 #include "gl/system/gl_system.h"
+#include "gl/system/gl_debug.h"
 #include "w_wad.h"
 #include "cmdlib.h"
 #include "sc_man.h"
@@ -208,11 +209,11 @@ void FModelVertexBuffer::BindVBO()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 	if (!gl.legacyMode)
 	{
-		glEnableVertexAttribArray(VATTR_VERTEX);
-		glEnableVertexAttribArray(VATTR_TEXCOORD);
-		glEnableVertexAttribArray(VATTR_VERTEX2);
-		glEnableVertexAttribArray(VATTR_NORMAL);
-		glDisableVertexAttribArray(VATTR_COLOR);
+		GL(glEnableVertexAttribArray(VATTR_VERTEX));
+		GL(glEnableVertexAttribArray(VATTR_TEXCOORD));
+		GL(glEnableVertexAttribArray(VATTR_VERTEX2));
+		GL(glEnableVertexAttribArray(VATTR_NORMAL));
+		GL(glDisableVertexAttribArray(VATTR_COLOR));
 	}
 	else
 	{

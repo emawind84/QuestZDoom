@@ -26,6 +26,7 @@
 **/
 
 #include "gl/system/gl_system.h"
+#include "gl/system/gl_debug.h"
 #include "gl/shaders/gl_shader.h"
 #include "gl/dynlights/gl_lightbuffer.h"
 #include "gl/dynlights/gl_dynlight.h"
@@ -57,17 +58,17 @@ FLightBuffer::FLightBuffer()
 		mBlockAlign = mBlockSize / 2;
 	}
 
-	glGenBuffers(1, &mBufferId);
-	glBindBufferBase(mBufferType, LIGHTBUF_BINDINGPOINT, mBufferId);
-	glBindBuffer(mBufferType, mBufferId);	// Note: Some older AMD drivers don't do that in glBindBufferBase, as they should.
+	GL(glGenBuffers(1, &mBufferId));
+	GL(glBindBufferBase(mBufferType, LIGHTBUF_BINDINGPOINT, mBufferId));
+	GL(glBindBuffer(mBufferType, mBufferId));	// Note: Some older AMD drivers don't do that in glBindBufferBase, as they should.
 	if (gl.lightmethod == LM_DIRECT)
 	{
-		glBufferStorage(mBufferType, mByteSize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-		mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+		GL(glBufferStorage(mBufferType, mByteSize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
+		mBufferPointer = (float*)GL(glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
 	}
 	else
 	{
-		glBufferData(mBufferType, mByteSize, NULL, GL_DYNAMIC_DRAW);
+		GL(glBufferData(mBufferType, mByteSize, NULL, GL_DYNAMIC_DRAW));
 		mBufferPointer = NULL;
 	}
 
