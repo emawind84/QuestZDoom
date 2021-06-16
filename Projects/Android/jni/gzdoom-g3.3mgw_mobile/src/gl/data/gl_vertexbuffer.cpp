@@ -135,9 +135,9 @@ FFlatVertexBuffer::FFlatVertexBuffer(int width, int height)
 		case BM_PERSISTENT:
 		{
 			unsigned int bytesize = BUFFER_SIZE * sizeof(FFlatVertex);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-			glBufferStorage(GL_ARRAY_BUFFER, bytesize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-			map = (FFlatVertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, bytesize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+			GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
+			GL(glBufferStorage(GL_ARRAY_BUFFER, bytesize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
+			GL(map = (FFlatVertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, bytesize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
 			DPrintf(DMSG_NOTIFY, "Using persistent buffer\n");
 			break;
 		}
@@ -195,10 +195,7 @@ FFlatVertexBuffer::FFlatVertexBuffer(int width, int height)
 	if (gl.buffermethod == BM_DEFERRED)
 	{
 		Map();
-		if (map != nullptr)
-		{
-			memcpy(map, &vbo_shadowdata[0], mNumReserved * sizeof(FFlatVertex));
-		}
+		memcpy(map, &vbo_shadowdata[0], mNumReserved * sizeof(FFlatVertex));
 		Unmap();
 	}
 
@@ -261,7 +258,7 @@ void FFlatVertexBuffer::Map()
 		unsigned int bytesize = BUFFER_SIZE * sizeof(FFlatVertex);
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
 		gl_RenderState.ResetVertexBuffer();
-		map = (FFlatVertex*)GL(glMapBufferRange(GL_ARRAY_BUFFER, 0, bytesize, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT));
+		GL(map = (FFlatVertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, bytesize, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT));
 	}
 }
 
@@ -272,14 +269,14 @@ void FFlatVertexBuffer::Unmap()
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
 		gl_RenderState.ResetVertexBuffer();
 		if (glUnmapBuffer(GL_ARRAY_BUFFER) == GL_FALSE)
-        {
+		{
 			GLenum err;
 			while((err = glGetError()) != GL_NO_ERROR)
 			{
 				Printf("ERROR: glUnmapBuffer failed to unmap with error %X\n", (int)err);
 			}
 			Printf("ERROR: glUnmapBuffer failed to unmap with error %X\n", (int)err);
-        }
+		}
 		map = nullptr;
 	}
 }
@@ -463,10 +460,7 @@ void FFlatVertexBuffer::CreateVBO()
 	CreateFlatVBO();
 	mCurIndex = mIndex = vbo_shadowdata.Size();
 	Map();
-	if (map != nullptr)
-	{
-		memcpy(map, &vbo_shadowdata[0], vbo_shadowdata.Size() * sizeof(FFlatVertex));
-	}
+	memcpy(map, &vbo_shadowdata[0], vbo_shadowdata.Size() * sizeof(FFlatVertex));
 	Unmap();
 }
 

@@ -576,8 +576,8 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 
 	if (!linked)
 	{
-		hVertProg = GL(glCreateShader(GL_VERTEX_SHADER));
-		hFragProg = GL(glCreateShader(GL_FRAGMENT_SHADER));
+		GL(hVertProg = glCreateShader(GL_VERTEX_SHADER));
+		GL(hFragProg = glCreateShader(GL_FRAGMENT_SHADER));
 
 		FGLDebug::LabelObject(GL_SHADER, hVertProg, vert_prog_lump);
 		FGLDebug::LabelObject(GL_SHADER, hFragProg, frag_prog_lump);

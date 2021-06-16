@@ -156,17 +156,19 @@ void FGLModelRenderer::SetMaterial(FTexture *skin, bool clampNoFilter, int trans
 
 void FGLModelRenderer::DrawArrays(int start, int count)
 {
-	glDrawArrays(GL_TRIANGLES, start, count);
+	GL(glDrawArrays(GL_TRIANGLES, start, count));
 }
 
 void FGLModelRenderer::DrawElements(int numIndices, size_t offset)
 {
 #ifdef __MOBILE__
     if (!(gl.flags & RFL_UINT_IDX))// Some old devices can not use integer index type
-        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, ( void*)(intptr_t)offset);
+	{
+        GL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, ( void*)(intptr_t)offset));
+	}
     else
 #endif
-	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (void*)(intptr_t)offset);
+	GL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (void*)(intptr_t)offset));
 }
 
 //===========================================================================
@@ -193,7 +195,7 @@ FModelVertexBuffer::FModelVertexBuffer(bool needindex, bool singleframe)
 
 	if (needindex)
 	{
-		glGenBuffers(1, &ibo_id);	// The index buffer can always be a real buffer.
+		GL(glGenBuffers(1, &ibo_id));	// The index buffer can always be a real buffer.
 	}
 }
 
@@ -205,8 +207,8 @@ FModelVertexBuffer::FModelVertexBuffer(bool needindex, bool singleframe)
 
 void FModelVertexBuffer::BindVBO()
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+	GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id));
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
 	if (!gl.legacyMode)
 	{
 		GL(glEnableVertexAttribArray(VATTR_VERTEX));
@@ -233,7 +235,7 @@ FModelVertexBuffer::~FModelVertexBuffer()
 {
 	if (ibo_id != 0)
 	{
-		glDeleteBuffers(1, &ibo_id);
+		GL(glDeleteBuffers(1, &ibo_id));
 	}
 	if (vbo_ptr != nullptr)
 	{
@@ -257,12 +259,18 @@ FModelVertex *FModelVertexBuffer::LockVertexBuffer(unsigned int size)
 {
 	if (vbo_id > 0)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-		glBufferData(GL_ARRAY_BUFFER, size * sizeof(FModelVertex), nullptr, GL_STATIC_DRAW);
+		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
+		GL(glBufferData(GL_ARRAY_BUFFER, size * sizeof(FModelVertex), nullptr, GL_STATIC_DRAW));
+		FModelVertex *map;
 		if (!gl.legacyMode)
-			return (FModelVertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size * sizeof(FModelVertex), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+		{
+			GL(map = (FModelVertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, size * sizeof(FModelVertex), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
+		}
 		else
-			return (FModelVertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+		{
+			GL(map = (FModelVertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+		}
+		return map;
 	}
 	else
 	{
@@ -283,8 +291,8 @@ void FModelVertexBuffer::UnlockVertexBuffer()
 {
 	if (vbo_id > 0)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-		glUnmapBuffer(GL_ARRAY_BUFFER);
+		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
+		GL(glUnmapBuffer(GL_ARRAY_BUFFER));
 	}
 }
 
@@ -320,12 +328,16 @@ unsigned int *FModelVertexBuffer::LockIndexBuffer(unsigned int size)
     	else
     	{
 #endif
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(unsigned int), NULL, GL_STATIC_DRAW);
+		GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id));
+		GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(unsigned int), NULL, GL_STATIC_DRAW));
 		if (!gl.legacyMode)
-			return (unsigned int*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, size * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+		{
+			return (unsigned int*)GL(glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, size * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
+		}
 		else
-			return (unsigned int*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+		{
+			return (unsigned int*)GL(glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
+		}
 #ifdef __MOBILE__
 		}
 #endif
@@ -349,17 +361,17 @@ void FModelVertexBuffer::UnlockIndexBuffer()
 #ifdef __MOBILE__
 		if( gl.glesVer < 3)
 		{
-	    	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, ibo_size, ibo_mem, GL_STATIC_DRAW);
+	    	GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id));
+			GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, ibo_size, ibo_mem, GL_STATIC_DRAW));
 		}
 		else
 		{
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
-			glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+			GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id));
+			GL(glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
 		}
 #else
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id);
-		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+		GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id));
+		GL(glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
 #endif
 	}
 }
@@ -375,34 +387,34 @@ static TArray<FModelVertex> iBuffer;
 
 void FModelVertexBuffer::SetupFrame(FModelRenderer *renderer, unsigned int frame1, unsigned int frame2, unsigned int size)
 {
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
 	if (vbo_id > 0)
 	{
 		if (!gl.legacyMode)
 		{
-			glVertexAttribPointer(VATTR_VERTEX, 3, GL_FLOAT, false, sizeof(FModelVertex), &VMO[frame1].x);
-			glVertexAttribPointer(VATTR_TEXCOORD, 2, GL_FLOAT, false, sizeof(FModelVertex), &VMO[frame1].u);
-			glVertexAttribPointer(VATTR_VERTEX2, 3, GL_FLOAT, false, sizeof(FModelVertex), &VMO[frame2].x);
-			glVertexAttribPointer(VATTR_NORMAL, 4, GL_INT_2_10_10_10_REV, true, sizeof(FModelVertex), &VMO[frame2].packedNormal);
+			GL(glVertexAttribPointer(VATTR_VERTEX, 3, GL_FLOAT, false, sizeof(FModelVertex), &VMO[frame1].x));
+			GL(glVertexAttribPointer(VATTR_TEXCOORD, 2, GL_FLOAT, false, sizeof(FModelVertex), &VMO[frame1].u));
+			GL(glVertexAttribPointer(VATTR_VERTEX2, 3, GL_FLOAT, false, sizeof(FModelVertex), &VMO[frame2].x));
+			GL(glVertexAttribPointer(VATTR_NORMAL, 4, GL_INT_2_10_10_10_REV, true, sizeof(FModelVertex), &VMO[frame2].packedNormal));
 		}
 		else
 		{
 			// only used for single frame models so there is no vertex2 here, which has no use without a shader.
-			glVertexPointer(3, GL_FLOAT, sizeof(FModelVertex), &VMO[frame1].x);
-			glTexCoordPointer(2, GL_FLOAT, sizeof(FModelVertex), &VMO[frame1].u);
+			GL(glVertexPointer(3, GL_FLOAT, sizeof(FModelVertex), &VMO[frame1].x));
+			GL(glTexCoordPointer(2, GL_FLOAT, sizeof(FModelVertex), &VMO[frame1].u));
 		}
 	}
 	else if (frame1 == frame2 || size == 0 || gl_RenderState.GetInterpolationFactor() == 0.f)
 	{
-		glVertexPointer(3, GL_FLOAT, sizeof(FModelVertex), &vbo_ptr[frame1].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(FModelVertex), &vbo_ptr[frame1].u);
+		GL(glVertexPointer(3, GL_FLOAT, sizeof(FModelVertex), &vbo_ptr[frame1].x));
+		GL(glTexCoordPointer(2, GL_FLOAT, sizeof(FModelVertex), &vbo_ptr[frame1].u));
 	}
 	else
 	{
 		// must interpolate
 		iBuffer.Resize(size);
-		glVertexPointer(3, GL_FLOAT, sizeof(FModelVertex), &iBuffer[0].x);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(FModelVertex), &vbo_ptr[frame1].u);
+		GL(glVertexPointer(3, GL_FLOAT, sizeof(FModelVertex), &iBuffer[0].x));
+		GL(glTexCoordPointer(2, GL_FLOAT, sizeof(FModelVertex), &vbo_ptr[frame1].u));
 		float frac = gl_RenderState.GetInterpolationFactor();
 		for (unsigned i = 0; i < size; i++)
 		{

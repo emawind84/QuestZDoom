@@ -56,6 +56,9 @@ static const char * GlErrorString( GLenum error )
 	}
 }
 
+#define LOG_TAG "QzDoom"
+#define ALOGE(...) __android_log_print( ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__ )
+
 static void GLCheckErrors( int line, const char* file )
 {
 	for ( int i = 0; i < 10; i++ )
@@ -65,7 +68,7 @@ static void GLCheckErrors( int line, const char* file )
 		{
 			break;
 		}
-		Printf( "GL error on %s line %d: %s", file, line, GlErrorString( error ) );
+		ALOGE( "GL error on %s line %d: %s", file, line, GlErrorString( error ) );
 	}
 }
 
