@@ -79,7 +79,7 @@ FLightBuffer::FLightBuffer()
 FLightBuffer::~FLightBuffer()
 {
 	GL(glBindBuffer(mBufferType, 0));
-	glDeleteBuffers(1, &mBufferId);
+	GL(glDeleteBuffers(1, &mBufferId));
 }
 
 void FLightBuffer::Clear()

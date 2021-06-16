@@ -268,15 +268,7 @@ void FFlatVertexBuffer::Unmap()
 	{
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
 		gl_RenderState.ResetVertexBuffer();
-		if (glUnmapBuffer(GL_ARRAY_BUFFER) == GL_FALSE)
-		{
-			GLenum err;
-			while((err = glGetError()) != GL_NO_ERROR)
-			{
-				Printf("ERROR: glUnmapBuffer failed to unmap with error %X\n", (int)err);
-			}
-			Printf("ERROR: glUnmapBuffer failed to unmap with error %X\n", (int)err);
-		}
+		GL(glUnmapBuffer(GL_ARRAY_BUFFER));
 		map = nullptr;
 	}
 }
