@@ -169,6 +169,8 @@ public:
 	void ApplyMatrices();
 	void ApplyLightIndex(int index);
 
+	void EnableDrawBuffers(int count);
+
 	void SetVertexBuffer(FVertexBuffer *vb)
 	{
 		mVertexBuffer = vb;
@@ -535,17 +537,6 @@ public:
 	EPassType GetPassType()
 	{
 		return mPassType;
-	}
-
-	void EnableDrawBuffers(int count)
-	{
-		count = MIN(count, 3);
-		if (mNumDrawBuffers != count)
-		{
-			static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-			glDrawBuffers(count, buffers);
-			mNumDrawBuffers = count;
-		}
 	}
 
 	int GetPassDrawBufferCount()

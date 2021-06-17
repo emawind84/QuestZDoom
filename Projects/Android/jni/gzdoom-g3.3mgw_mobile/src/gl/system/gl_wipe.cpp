@@ -33,6 +33,7 @@
 #include "vectors.h"
 
 #include "gl/system/gl_interface.h"
+#include "gl/system/gl_debug.h"
 #include "gl/renderer/gl_renderer.h"
 #include "gl/renderer/gl_renderstate.h"
 #include "gl/renderer/gl_renderbuffers.h"
@@ -132,7 +133,7 @@ bool OpenGLFrameBuffer::WipeStartScreen(int type)
 
 	const auto copyPixels = [&viewport]()
 	{
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, viewport.left, viewport.top, viewport.width, viewport.height);
+		GL(glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, viewport.left, viewport.top, viewport.width, viewport.height));
 	};
 
 	if (FGLRenderBuffers::IsEnabled())
@@ -147,14 +148,14 @@ bool OpenGLFrameBuffer::WipeStartScreen(int type)
 	else
 	{
 		GLint readbuffer = 0;
-		glGetIntegerv(GL_READ_BUFFER, &readbuffer);
-		glReadBuffer(GL_FRONT);
+		GL(glGetIntegerv(GL_READ_BUFFER, &readbuffer));
+		GL(glReadBuffer(GL_FRONT));
 		copyPixels();
-		glReadBuffer(readbuffer);
+		GL(glReadBuffer(readbuffer));
 	}
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
 	return true;
 }
@@ -182,11 +183,11 @@ void OpenGLFrameBuffer::WipeEndScreen()
 	if (FGLRenderBuffers::IsEnabled())
 		GLRenderer->mBuffers->BindCurrentFB();
 
-	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, viewport.left, viewport.top, viewport.width, viewport.height);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GL(glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, viewport.left, viewport.top, viewport.width, viewport.height));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 	Unlock();
 }
 
@@ -326,14 +327,14 @@ bool OpenGLFrameBuffer::Wiper_Crossfade::Run(int ticks, OpenGLFrameBuffer *fb)
 	gl_RenderState.ResetColor();
 	gl_RenderState.Apply();
 	fb->wipestartscreen->Bind(0, 0, false);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
 	float a = clamp(Clock / 32.f, 0.f, 1.f);
 	gl_RenderState.SetColorAlpha(0xffffff, a);
 	gl_RenderState.Apply();
 	fb->wipeendscreen->Bind(0, 0, false);
 	mVertexBuf->EnableColorArray(false);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 	gl_RenderState.AlphaFunc(GL_GEQUAL, 0.5f);
 	gl_RenderState.SetTextureMode(TM_MODULATE);
 
@@ -463,13 +464,13 @@ bool OpenGLFrameBuffer::Wiper_Melt::Run(int ticks, OpenGLFrameBuffer *fb)
 	gl_RenderState.ResetColor();
 	gl_RenderState.Apply();
 	fb->wipeendscreen->Bind(0, 0, false);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
 	fb->wipestartscreen->Bind(0, 0, false);
 	gl_RenderState.SetTextureMode(TM_MODULATE);
 	for (int i = 4; i < maxvert; i += 4)
 	{
-		glDrawArrays(GL_TRIANGLE_STRIP, i, 4);
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, i, 4));
 	}
 	return done;
 }
@@ -556,7 +557,7 @@ bool OpenGLFrameBuffer::Wiper_Burn::Run(int ticks, OpenGLFrameBuffer *fb)
 	gl_RenderState.ResetColor();
 	gl_RenderState.Apply();
 	fb->wipestartscreen->Bind(0, 0, false);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
 	gl_RenderState.SetTextureMode(TM_MODULATE);
 	gl_RenderState.SetEffect(EFF_BURN);
@@ -568,7 +569,7 @@ bool OpenGLFrameBuffer::Wiper_Burn::Run(int ticks, OpenGLFrameBuffer *fb)
 
 	BurnTexture->CreateTexture(rgb_buffer, WIDTH, HEIGHT, 1, true, 0, "BurnTexture");
 
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 	gl_RenderState.SetEffect(EFF_NONE);
 
 	// The fire may not always stabilize, so the wipe is forced to end

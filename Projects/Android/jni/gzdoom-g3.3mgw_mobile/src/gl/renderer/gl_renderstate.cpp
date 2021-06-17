@@ -438,3 +438,14 @@ void FRenderState::SetClipHeight(float height, float direction)
 		glDisable(GL_CLIP_DISTANCE0);	// GL_CLIP_PLANE0 is the same value so no need to make a distinction
 	}
 }
+
+void FRenderState::EnableDrawBuffers(int count)
+{
+	count = MIN(count, 3);
+	if (mNumDrawBuffers != count)
+	{
+		static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		GL(glDrawBuffers(count, buffers));
+		mNumDrawBuffers = count;
+	}
+}
