@@ -68,7 +68,7 @@ static void GLCheckErrors( int line, const char* file )
 		{
 			break;
 		}
-		ALOGE( "GL error on %s line %d: %s", file, line, GlErrorString( error ) );
+		ALOGE( "GL error at %s:%d %s", file, line, GlErrorString( error ) );
 	}
 }
 
