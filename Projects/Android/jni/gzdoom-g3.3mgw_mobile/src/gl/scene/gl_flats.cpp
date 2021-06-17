@@ -40,6 +40,7 @@
 
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_cvars.h"
+#include "gl/system/gl_debug.h"
 #include "gl/renderer/gl_renderer.h"
 #include "gl/renderer/gl_lightdata.h"
 #include "gl/renderer/gl_renderstate.h"
@@ -290,7 +291,7 @@ void GLFlat::DrawSubsectors(int pass, bool processlights, bool istrans)
 			{
 				if (processlights) SetupSubsectorLights(GLPASS_ALL, sub, &dli);
 				drawcalls.Clock();
-				glDrawArrays(GL_TRIANGLE_FAN, index, sub->numlines);
+				GL(glDrawArrays(GL_TRIANGLE_FAN, index, sub->numlines));
 				drawcalls.Unclock();
 				flatvertices += sub->numlines;
 				flatprimitives++;

@@ -251,6 +251,26 @@ void FFlatVertexBuffer::BindVBO()
 	}
 }
 
+#ifdef __GL_PCH_H	// we need the system includes for this but we cannot include them ourselves without creating #define clashes. The affected files wouldn't try to draw anyway.
+
+void FFlatVertexBuffer::RenderArray(unsigned int primtype, unsigned int offset, unsigned int count)
+{
+	drawcalls.Clock();
+	GL(glDrawArrays(primtype, offset, count));
+	drawcalls.Unclock();
+}
+
+void FFlatVertexBuffer::RenderCurrent(FFlatVertex *newptr, unsigned int primtype, unsigned int *poffset, unsigned int *pcount)
+{
+	unsigned int offset;
+	unsigned int count = GetCount(newptr, &offset);
+	RenderArray(primtype, offset, count);
+	if (poffset) *poffset = offset;
+	if (pcount) *pcount = count;
+}
+
+#endif
+
 void FFlatVertexBuffer::Map()
 {
 	if (gl.buffermethod == BM_DEFERRED)
