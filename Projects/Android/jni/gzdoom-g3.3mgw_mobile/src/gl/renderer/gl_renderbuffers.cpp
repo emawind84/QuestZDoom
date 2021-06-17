@@ -61,8 +61,8 @@ FGLRenderBuffers::FGLRenderBuffers()
 		AmbientRandomTexture[i] = 0;
 	}
 
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&mOutputFB);
-	glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
+	GL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&mOutputFB));
+	GL(glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples));
 }
 
 //==========================================================================
@@ -164,21 +164,27 @@ void FGLRenderBuffers::ClearAmbientOcclusion()
 void FGLRenderBuffers::DeleteTexture(GLuint &handle)
 {
 	if (handle != 0)
-		glDeleteTextures(1, &handle);
+	{
+		GL(glDeleteTextures(1, &handle));
+	}
 	handle = 0;
 }
 
 void FGLRenderBuffers::DeleteRenderBuffer(GLuint &handle)
 {
 	if (handle != 0)
-		glDeleteRenderbuffers(1, &handle);
+	{
+		GL(glDeleteRenderbuffers(1, &handle));
+	}
 	handle = 0;
 }
 
 void FGLRenderBuffers::DeleteFrameBuffer(GLuint &handle)
 {
 	if (handle != 0)
-		glDeleteFramebuffers(1, &handle);
+	{
+		GL(glDeleteFramebuffers(1, &handle));
+	}
 	handle = 0;
 }
 
@@ -194,7 +200,9 @@ bool FGLRenderBuffers::Setup(int width, int height, int sceneWidth, int sceneHei
 	if (gl_renderbuffers != BuffersActive)
 	{
 		if (BuffersActive)
-			glBindFramebuffer(GL_FRAMEBUFFER, mOutputFB);
+		{
+			GL(glBindFramebuffer(GL_FRAMEBUFFER, mOutputFB));
+		}
 		BuffersActive = gl_renderbuffers;
 		GLRenderer->mShaderManager->ResetFixedColormap();
 	}
@@ -210,9 +218,9 @@ bool FGLRenderBuffers::Setup(int width, int height, int sceneWidth, int sceneHei
 
 	GLint activeTex;
 	GLint textureBinding;
-	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTex);
-	glActiveTexture(GL_TEXTURE0);
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding);
+	GL(glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTex));
+	GL(glActiveTexture(GL_TEXTURE0));
+	GL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding));
 
 	if (width != mWidth || height != mHeight)
 		CreatePipeline(width, height);
@@ -235,10 +243,10 @@ bool FGLRenderBuffers::Setup(int width, int height, int sceneWidth, int sceneHei
 		mSceneHeight = sceneHeight;
 	}
 
-	glBindTexture(GL_TEXTURE_2D, textureBinding);
-	glActiveTexture(activeTex);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	GL(glBindTexture(GL_TEXTURE_2D, textureBinding));
+	GL(glActiveTexture(activeTex));
+	GL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	if (FailedCreate)
 	{
@@ -463,9 +471,9 @@ void FGLRenderBuffers::CreateEyeBuffers(int eye)
 		mEyeFBs.Push(CreateFrameBuffer("EyeFB", texture));
 	}
 
-	glBindTexture(GL_TEXTURE_2D, textureBinding);
-	glActiveTexture(activeTex);
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferBinding);
+	GL(glBindTexture(GL_TEXTURE_2D, textureBinding));
+	GL(glActiveTexture(activeTex));
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferBinding));
 }
 
 //==========================================================================
@@ -477,8 +485,8 @@ void FGLRenderBuffers::CreateEyeBuffers(int eye)
 GLuint FGLRenderBuffers::Create2DTexture(const FString &name, GLuint format, int width, int height, const void *data)
 {
 	GLuint handle = 0;
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_2D, handle);
+	GL(glGenTextures(1, &handle));
+	GL(glBindTexture(GL_TEXTURE_2D, handle));
 	FGLDebug::LabelObject(GL_TEXTURE, handle, name);
 
 	GLenum dataformat = 0, datatype = 0;
@@ -500,22 +508,22 @@ GLuint FGLRenderBuffers::Create2DTexture(const FString &name, GLuint format, int
 	default: I_FatalError("Unknown format passed to FGLRenderBuffers.Create2DTexture");
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, dataformat, datatype, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, dataformat, datatype, data));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 	return handle;
 }
 
 GLuint FGLRenderBuffers::Create2DMultisampleTexture(const FString &name, GLuint format, int width, int height, int samples, bool fixedSampleLocations)
 {
 	GLuint handle = 0;
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, handle);
+	GL(glGenTextures(1, &handle));
+	GL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, handle));
 	FGLDebug::LabelObject(GL_TEXTURE, handle, name);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, fixedSampleLocations);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+	GL(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, fixedSampleLocations));
+	GL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
 	return handle;
 }
 
@@ -528,10 +536,10 @@ GLuint FGLRenderBuffers::Create2DMultisampleTexture(const FString &name, GLuint 
 GLuint FGLRenderBuffers::CreateRenderBuffer(const FString &name, GLuint format, int width, int height)
 {
 	GLuint handle = 0;
-	glGenRenderbuffers(1, &handle);
-	glBindRenderbuffer(GL_RENDERBUFFER, handle);
+	GL(glGenRenderbuffers(1, &handle));
+	GL(glBindRenderbuffer(GL_RENDERBUFFER, handle));
 	FGLDebug::LabelObject(GL_RENDERBUFFER, handle, name);
-	glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
+	GL(glRenderbufferStorage(GL_RENDERBUFFER, format, width, height));
 	return handle;
 }
 
@@ -541,10 +549,10 @@ GLuint FGLRenderBuffers::CreateRenderBuffer(const FString &name, GLuint format, 
 		return CreateRenderBuffer(name, format, width, height);
 
 	GLuint handle = 0;
-	glGenRenderbuffers(1, &handle);
-	glBindRenderbuffer(GL_RENDERBUFFER, handle);
+	GL(glGenRenderbuffers(1, &handle));
+	GL(glBindRenderbuffer(GL_RENDERBUFFER, handle));
 	FGLDebug::LabelObject(GL_RENDERBUFFER, handle, name);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, format, width, height);
+	GL(glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, format, width, height));
 	return handle;
 }
 
@@ -557,10 +565,10 @@ GLuint FGLRenderBuffers::CreateRenderBuffer(const FString &name, GLuint format, 
 GLuint FGLRenderBuffers::CreateFrameBuffer(const FString &name, GLuint colorbuffer)
 {
 	GLuint handle = 0;
-	glGenFramebuffers(1, &handle);
-	glBindFramebuffer(GL_FRAMEBUFFER, handle);
+	GL(glGenFramebuffers(1, &handle));
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, handle));
 	FGLDebug::LabelObject(GL_FRAMEBUFFER, handle, name);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorbuffer, 0);
+	GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorbuffer, 0));
 	if (CheckFrameBufferCompleteness())
 		ClearFrameBuffer(false, false);
 	return handle;
@@ -569,14 +577,18 @@ GLuint FGLRenderBuffers::CreateFrameBuffer(const FString &name, GLuint colorbuff
 GLuint FGLRenderBuffers::CreateFrameBuffer(const FString &name, GLuint colorbuffer, GLuint depthstencil, bool colorIsARenderBuffer)
 {
 	GLuint handle = 0;
-	glGenFramebuffers(1, &handle);
-	glBindFramebuffer(GL_FRAMEBUFFER, handle);
+	GL(glGenFramebuffers(1, &handle));
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, handle));
 	FGLDebug::LabelObject(GL_FRAMEBUFFER, handle, name);
-	if (colorIsARenderBuffer)
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
-	else
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorbuffer, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil);
+	if (colorIsARenderBuffer) 
+	{
+		GL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer));
+	}
+	else 
+	{
+		GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorbuffer, 0));
+	}
+	GL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthstencil));
 	if (CheckFrameBufferCompleteness())
 		ClearFrameBuffer(true, true);
 	return handle;
@@ -585,26 +597,33 @@ GLuint FGLRenderBuffers::CreateFrameBuffer(const FString &name, GLuint colorbuff
 GLuint FGLRenderBuffers::CreateFrameBuffer(const FString &name, GLuint colorbuffer0, GLuint colorbuffer1, GLuint colorbuffer2, GLuint depthstencil, bool multisample)
 {
 	GLuint handle = 0;
-	glGenFramebuffers(1, &handle);
-	glBindFramebuffer(GL_FRAMEBUFFER, handle);
+	GL(glGenFramebuffers(1, &handle));
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, handle));
 	FGLDebug::LabelObject(GL_FRAMEBUFFER, handle, name);
 	if (multisample)
 	{
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorbuffer0, 0);
-		if (colorbuffer1 != 0)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D_MULTISAMPLE, colorbuffer1, 0);
-		if (colorbuffer2 != 0)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D_MULTISAMPLE, colorbuffer2, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depthstencil, 0);
+		GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorbuffer0, 0));
+		if (colorbuffer1 != 0) 
+		{
+			GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D_MULTISAMPLE, colorbuffer1, 0));
+		}
+		if (colorbuffer2 != 0) 
+		{
+			GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D_MULTISAMPLE, colorbuffer2, 0));
+		}
+		GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depthstencil, 0));
 	}
 	else
 	{
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorbuffer0, 0);
-		if (colorbuffer1 != 0)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, colorbuffer1, 0);
-		if (colorbuffer2 != 0)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, colorbuffer2, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthstencil, 0);
+		GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorbuffer0, 0));
+		if (colorbuffer1 != 0) {
+			GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, colorbuffer1, 0));
+		}
+		if (colorbuffer2 != 0) 
+		{
+			GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, colorbuffer2, 0));
+		}
+		GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthstencil, 0));
 	}
 	if (CheckFrameBufferCompleteness())
 		ClearFrameBuffer(true, true);
@@ -619,7 +638,7 @@ GLuint FGLRenderBuffers::CreateFrameBuffer(const FString &name, GLuint colorbuff
 
 bool FGLRenderBuffers::CheckFrameBufferCompleteness()
 {
-	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	GL(GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER));
 	if (result == GL_FRAMEBUFFER_COMPLETE)
 		return true;
 
@@ -695,18 +714,18 @@ void FGLRenderBuffers::BlitSceneToTexture()
 	if (mSamples <= 1)
 		return;
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, mSceneFB);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mPipelineFB[mCurrentPipelineTexture]);
-	glBlitFramebuffer(0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	GL(glBindFramebuffer(GL_READ_FRAMEBUFFER, mSceneFB));
+	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mPipelineFB[mCurrentPipelineTexture]));
+	GL(glBlitFramebuffer(0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 
 	if ((gl.flags & RFL_INVALIDATE_BUFFER) != 0)
 	{
 		GLenum attachments[2] = { GL_COLOR_ATTACHMENT0, GL_DEPTH_STENCIL_ATTACHMENT };
-		glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
+		GL(glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments));
 	}
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	GL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
+	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
 }
 
 //==========================================================================
@@ -719,31 +738,31 @@ void FGLRenderBuffers::BlitToEyeTexture(int eye)
 {
 	CreateEyeBuffers(eye);
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, mPipelineFB[mCurrentPipelineTexture]);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mEyeFBs[eye]);
-	glBlitFramebuffer(0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	GL(glBindFramebuffer(GL_READ_FRAMEBUFFER, mPipelineFB[mCurrentPipelineTexture]));
+	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mEyeFBs[eye]));
+	GL(glBlitFramebuffer(0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 
 	if ((gl.flags & RFL_INVALIDATE_BUFFER) != 0)
 	{
 		GLenum attachments[2] = { GL_COLOR_ATTACHMENT0, GL_DEPTH_STENCIL_ATTACHMENT };
-		glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments);
+		GL(glInvalidateFramebuffer(GL_READ_FRAMEBUFFER, 2, attachments));
 	}
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	GL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
+	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
 }
 
 void FGLRenderBuffers::BindEyeTexture(int eye, int texunit)
 {
 	CreateEyeBuffers(eye);
-	glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_2D, mEyeTextures[eye]);
+	GL(glActiveTexture(GL_TEXTURE0 + texunit));
+	GL(glBindTexture(GL_TEXTURE_2D, mEyeTextures[eye]));
 }
 
 void FGLRenderBuffers::BindEyeFB(int eye, bool readBuffer)
 {
 	CreateEyeBuffers(eye);
-	glBindFramebuffer(readBuffer ? GL_READ_FRAMEBUFFER : GL_FRAMEBUFFER, mEyeFBs[eye]);
+	GL(glBindFramebuffer(readBuffer ? GL_READ_FRAMEBUFFER : GL_FRAMEBUFFER, mEyeFBs[eye]));
 }
 
 void FGLRenderBuffers::BindDitherTexture(int texunit)
@@ -782,14 +801,14 @@ void FGLRenderBuffers::BindDitherTexture(int texunit)
 void FGLRenderBuffers::BindShadowMapFB()
 {
 	CreateShadowMap();
-	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB);
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB));
 }
 
 void FGLRenderBuffers::BindShadowMapTexture(int texunit)
 {
 	CreateShadowMap();
 	glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapTexture);
+	GL(glBindTexture(GL_TEXTURE_2D, mShadowMapTexture));
 }
 
 void FGLRenderBuffers::ClearShadowMap()
@@ -820,9 +839,9 @@ void FGLRenderBuffers::CreateShadowMap()
 
 	mShadowMapFB = CreateFrameBuffer("ShadowMapFB", mShadowMapTexture);
 
-	glBindTexture(GL_TEXTURE_2D, textureBinding);
-	glActiveTexture(activeTex);
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferBinding);
+	GL(glBindTexture(GL_TEXTURE_2D, textureBinding));
+	GL(glActiveTexture(activeTex));
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferBinding));
 
 	mCurrentShadowMapSize = gl_shadowmap_quality;
 }
@@ -835,7 +854,7 @@ void FGLRenderBuffers::CreateShadowMap()
 
 void FGLRenderBuffers::BindSceneFB(bool sceneData)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, sceneData ? mSceneDataFB : mSceneFB);
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, sceneData ? mSceneDataFB : mSceneFB));
 }
 
 //==========================================================================
@@ -846,11 +865,15 @@ void FGLRenderBuffers::BindSceneFB(bool sceneData)
 
 void FGLRenderBuffers::BindSceneColorTexture(int index)
 {
-	glActiveTexture(GL_TEXTURE0 + index);
+	GL(glActiveTexture(GL_TEXTURE0 + index));
 	if (mSamples > 1)
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneMultisample);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneMultisample));
+	}
 	else
-		glBindTexture(GL_TEXTURE_2D, mPipelineTexture[0]);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D, mPipelineTexture[0]));
+	}
 }
 
 //==========================================================================
@@ -861,11 +884,15 @@ void FGLRenderBuffers::BindSceneColorTexture(int index)
 
 void FGLRenderBuffers::BindSceneFogTexture(int index)
 {
-	glActiveTexture(GL_TEXTURE0 + index);
+	GL(glActiveTexture(GL_TEXTURE0 + index));
 	if (mSamples > 1)
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneFog);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneFog));
+	}
 	else
-		glBindTexture(GL_TEXTURE_2D, mSceneFog);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D, mSceneFog));
+	}
 }
 
 //==========================================================================
@@ -876,11 +903,15 @@ void FGLRenderBuffers::BindSceneFogTexture(int index)
 
 void FGLRenderBuffers::BindSceneNormalTexture(int index)
 {
-	glActiveTexture(GL_TEXTURE0 + index);
+	GL(glActiveTexture(GL_TEXTURE0 + index));
 	if (mSamples > 1)
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneNormal);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneNormal));
+	}
 	else
-		glBindTexture(GL_TEXTURE_2D, mSceneNormal);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D, mSceneNormal));
+	}
 }
 
 //==========================================================================
@@ -891,11 +922,15 @@ void FGLRenderBuffers::BindSceneNormalTexture(int index)
 
 void FGLRenderBuffers::BindSceneDepthTexture(int index)
 {
-	glActiveTexture(GL_TEXTURE0 + index);
+	GL(glActiveTexture(GL_TEXTURE0 + index));
 	if (mSamples > 1)
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneDepthStencil);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mSceneDepthStencil));
+	}
 	else
-		glBindTexture(GL_TEXTURE_2D, mSceneDepthStencil);
+	{
+		GL(glBindTexture(GL_TEXTURE_2D, mSceneDepthStencil));
+	}
 }
 
 //==========================================================================
@@ -906,8 +941,8 @@ void FGLRenderBuffers::BindSceneDepthTexture(int index)
 
 void FGLRenderBuffers::BindCurrentTexture(int index)
 {
-	glActiveTexture(GL_TEXTURE0 + index);
-	glBindTexture(GL_TEXTURE_2D, mPipelineTexture[mCurrentPipelineTexture]);
+	GL(glActiveTexture(GL_TEXTURE0 + index));
+	GL(glBindTexture(GL_TEXTURE_2D, mPipelineTexture[mCurrentPipelineTexture]));
 }
 
 //==========================================================================
@@ -918,7 +953,7 @@ void FGLRenderBuffers::BindCurrentTexture(int index)
 
 void FGLRenderBuffers::BindCurrentFB()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, mPipelineFB[mCurrentPipelineTexture]);
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, mPipelineFB[mCurrentPipelineTexture]));
 }
 
 //==========================================================================
@@ -930,7 +965,7 @@ void FGLRenderBuffers::BindCurrentFB()
 void FGLRenderBuffers::BindNextFB()
 {
 	int out = (mCurrentPipelineTexture + 1) % NumPipelineTextures;
-	glBindFramebuffer(GL_FRAMEBUFFER, mPipelineFB[out]);
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, mPipelineFB[out]));
 }
 
 //==========================================================================
@@ -952,7 +987,7 @@ void FGLRenderBuffers::NextTexture()
 
 void FGLRenderBuffers::BindOutputFB()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, mOutputFB);
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, mOutputFB));
 }
 
 //==========================================================================
