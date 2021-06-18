@@ -279,6 +279,10 @@ void FFlatVertexBuffer::Map()
 		GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
 		gl_RenderState.ResetVertexBuffer();
 		GL(map = (FFlatVertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, bytesize, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT));
+		if (map == nullptr)
+		{
+			I_Error("ERROR: glMapBufferRange failed to map");
+		}
 	}
 }
 
