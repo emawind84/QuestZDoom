@@ -330,14 +330,16 @@ unsigned int *FModelVertexBuffer::LockIndexBuffer(unsigned int size)
 #endif
 		GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_id));
 		GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(unsigned int), NULL, GL_STATIC_DRAW));
+		void *ptr;
 		if (!gl.legacyMode)
 		{
-			return (unsigned int*)GL(glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, size * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
+			GL(ptr = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, size * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
 		}
 		else
 		{
-			return (unsigned int*)GL(glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
+			GL(ptr = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY));
 		}
+		return (unsigned int*)ptr;
 #ifdef __MOBILE__
 		}
 #endif
