@@ -239,7 +239,7 @@ void PostProcessShaderInstance::BindTextures()
 
 				GLuint handle = 0;
 				glGenTextures(1, &handle);
-				glBindTexture(GL_TEXTURE_2D, handle);
+				GL(glBindTexture(GL_TEXTURE_2D, handle));
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex->GetWidth(), tex->GetHeight(), 0, GL_BGRA, GL_UNSIGNED_BYTE, bitmap.GetPixels());
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -247,7 +247,7 @@ void PostProcessShaderInstance::BindTextures()
 			}
 			else
 			{
-				glBindTexture(GL_TEXTURE_2D, it->second);
+				GL(glBindTexture(GL_TEXTURE_2D, it->second));
 			}
 
 			textureUnit++;

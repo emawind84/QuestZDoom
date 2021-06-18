@@ -245,13 +245,13 @@ void OpenGLFrameBuffer::SetVSync(bool vsync)
 	GLint oldDrawFramebufferBinding = 0, oldReadFramebufferBinding = 0;
 	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oldDrawFramebufferBinding);
 	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &oldReadFramebufferBinding);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
+	GL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
 
 	Super::SetVSync(vsync);
 
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawFramebufferBinding);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadFramebufferBinding);
+	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawFramebufferBinding));
+	GL(glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadFramebufferBinding));
 }
 
 //===========================================================================

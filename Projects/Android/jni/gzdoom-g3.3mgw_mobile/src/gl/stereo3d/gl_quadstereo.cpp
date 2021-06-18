@@ -28,6 +28,7 @@
 #include "gl_quadstereo.h"
 #include "gl/renderer/gl_renderer.h"
 #include "gl/renderer/gl_renderbuffers.h"
+#include "gl/system/gl_debug.h"
 
 namespace s3d {
 
@@ -54,7 +55,7 @@ void QuadStereo::checkInitialRenderContextState()
 	if ( (! bDecentContextWasFound) && (contextCheckCount < 200) )
 	{
 		contextCheckCount += 1;
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);  // This question is about the main screen display context
+		GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));  // This question is about the main screen display context
 		GLboolean supportsStereo, supportsBuffered;
 		glGetBooleanv(GL_DOUBLEBUFFER, &supportsBuffered);
 		if (supportsBuffered) // Finally, a useful OpenGL context
@@ -78,17 +79,17 @@ void QuadStereo::Present() const
 	{
 		GLRenderer->mBuffers->BindOutputFB();
 
-		glDrawBuffer(GL_BACK_LEFT);
+		GL(glDrawBuffer(GL_BACK_LEFT));
 		GLRenderer->ClearBorders();
 		GLRenderer->mBuffers->BindEyeTexture(0, 0);
 		GLRenderer->DrawPresentTexture(GLRenderer->mOutputLetterbox, true);
 
-		glDrawBuffer(GL_BACK_RIGHT);
+		GL(glDrawBuffer(GL_BACK_RIGHT));
 		GLRenderer->ClearBorders();
 		GLRenderer->mBuffers->BindEyeTexture(1, 0);
 		GLRenderer->DrawPresentTexture(GLRenderer->mOutputLetterbox, true);
 
-		glDrawBuffer(GL_BACK);
+		GL(glDrawBuffer(GL_BACK));
 	}
 	else
 	{

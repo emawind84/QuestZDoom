@@ -375,7 +375,7 @@ void FGLRenderer::UpdateCameraExposure()
 		mBuffers->FirstExposureFrame = false;
 	}
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mBuffers->ExposureLevels.Last().Texture);
+	GL(glBindTexture(GL_TEXTURE_2D, mBuffers->ExposureLevels.Last().Texture));
 	mExposureCombineShader->Bind();
 	mExposureCombineShader->ExposureTexture.Set(0);
 	mExposureCombineShader->ExposureBase.Set(gl_exposure_base);
@@ -468,7 +468,7 @@ void FGLRenderer::BloomScene(int fixedcm)
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, level0.VTexture);
+	GL(glBindTexture(GL_TEXTURE_2D, level0.VTexture));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	mBloomCombineShader->Bind();
@@ -585,7 +585,7 @@ void FGLRenderer::TonemapScene()
 	if (mTonemapShader->IsPaletteMode())
 	{
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, mTonemapPalette->GetTextureHandle(0));
+		GL(glBindTexture(GL_TEXTURE_2D, mTonemapPalette->GetTextureHandle(0)));
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -597,7 +597,7 @@ void FGLRenderer::TonemapScene()
 	else
 	{
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, mBuffers->ExposureTexture);
+		GL(glBindTexture(GL_TEXTURE_2D, mBuffers->ExposureTexture));
 		glActiveTexture(GL_TEXTURE0);
 
 		mTonemapShader->ExposureTexture.Set(1);

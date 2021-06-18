@@ -26,6 +26,7 @@
 #include "templates.h"
 #include "gl/system/gl_system.h"
 #include "gl/system/gl_interface.h"
+#include "gl/system/gl_debug.h"
 #include "gl/data/gl_data.h"
 #include "gl/data/gl_vertexbuffer.h"
 #include "gl/system/gl_cvars.h"
@@ -77,14 +78,14 @@ void FGLPostProcessState::SaveTextureBindings(unsigned int numUnits)
 		GLint texture;
 		glActiveTexture(GL_TEXTURE0 + i);
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		GL(glBindTexture(GL_TEXTURE_2D, 0));
 		textureBinding.Push(texture);
 
 		if (gl.flags & RFL_SAMPLER_OBJECTS)
 		{
 			GLint sampler;
 			glGetIntegerv(GL_SAMPLER_BINDING, &sampler);
-			glBindSampler(i, 0);
+			GL(glBindSampler(i, 0));
 			samplerBinding.Push(sampler);
 		}
 	}
@@ -132,18 +133,18 @@ FGLPostProcessState::~FGLPostProcessState()
 	for (unsigned int i = 0; i < textureBinding.Size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		GL(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
 	for (unsigned int i = 0; i < samplerBinding.Size(); i++)
 	{
-		glBindSampler(i, samplerBinding[i]);
+		GL(glBindSampler(i, samplerBinding[i]));
 	}
 
 	for (unsigned int i = 0; i < textureBinding.Size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, textureBinding[i]);
+		GL(glBindTexture(GL_TEXTURE_2D, textureBinding[i]));
 	}
 
 	glActiveTexture(activeTex);
