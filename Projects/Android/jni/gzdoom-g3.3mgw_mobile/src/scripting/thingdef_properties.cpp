@@ -779,7 +779,7 @@ DEFINE_PROPERTY(translation, L, Actor)
 //==========================================================================
 DEFINE_PROPERTY(stencilcolor, C, Actor)
 {
-	PROP_COLOR_PARM(color, 0);
+	PROP_COLOR_PARM(color, 0, &bag.ScriptPosition);
 
 	defaults->fillcolor = color | (ColorMatcher.Pick (RPART(color), GPART(color), BPART(color)) << 24);
 }
@@ -789,7 +789,7 @@ DEFINE_PROPERTY(stencilcolor, C, Actor)
 //==========================================================================
 DEFINE_PROPERTY(bloodcolor, C, Actor)
 {
-	PROP_COLOR_PARM(color, 0);
+	PROP_COLOR_PARM(color, 0, &bag.ScriptPosition);
 
 	defaults->BloodColor = color;
 	defaults->BloodColor.a = 255;	// a should not be 0.
@@ -955,7 +955,7 @@ DEFINE_PROPERTY(gravity, F, Actor)
 {
 	PROP_DOUBLE_PARM(i, 0);
 
-	if (i < 0) I_Error ("Gravity must not be negative.");
+	//if (i < 0) I_Error ("Gravity must not be negative.");
 	defaults->Gravity = i;
 }
 
@@ -1621,7 +1621,7 @@ DEFINE_CLASS_PROPERTY_PREFIX(player, crouchsprite, S, PlayerPawn)
 //==========================================================================
 DEFINE_CLASS_PROPERTY_PREFIX(player, damagescreencolor, Cfs, PlayerPawn)
 {
-	PROP_COLOR_PARM(c, 0);
+	PROP_COLOR_PARM(c, 0, &bag.ScriptPosition);
 
 	PalEntry color = c;
 

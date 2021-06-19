@@ -957,6 +957,8 @@ void G_SerializeLevel(FSerializer &arc, bool hubload)
 		DThinker::DestroyAllThinkers();
 		interpolator.ClearInterpolations();
 		arc.ReadObjects(hubload);
+		// If there have been object deserialization errors we must absolutely not continue here because scripted objects can do unpredictable things.
+		if (arc.mObjectErrors) I_Error("Failed to load savegame");
 	}
 
 	arc("multiplayer", multiplayer);

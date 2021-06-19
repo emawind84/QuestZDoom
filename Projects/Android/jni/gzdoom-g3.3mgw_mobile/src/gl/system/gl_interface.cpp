@@ -235,7 +235,11 @@ void gl_LoadExtensions()
 	else
 	{
 		double v1 = strtod(version, NULL);
-		if (v1 >= 3.0 && v1 < 3.3) v1 = 3.3;	// promote '3' to 3.3 to avoid falling back to the legacy path.
+		if (v1 >= 3.0 && v1 < 3.3) // promote '3' to 3.3 to avoid falling back to the legacy path.
+		{
+			v1 = 3.3;
+			version = "3.3";
+		}
 		if (realglversion < v1) version = glversion;
 		else Printf("Emulating OpenGL v %s\n", version);
 	}

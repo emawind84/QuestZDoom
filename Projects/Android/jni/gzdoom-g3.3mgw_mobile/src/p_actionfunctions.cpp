@@ -88,19 +88,19 @@
 AActor *SingleActorFromTID(int tid, AActor *defactor);
 
 
-static FRandom pr_camissile ("CustomActorfire");
-static FRandom pr_cabullet ("CustomBullet");
-static FRandom pr_cwjump ("CustomWpJump");
-static FRandom pr_cwpunch ("CustomWpPunch");
-static FRandom pr_grenade ("ThrowGrenade");
-static FRandom pr_crailgun ("CustomRailgun");
-static FRandom pr_spawndebris ("SpawnDebris");
-static FRandom pr_spawnitemex ("SpawnItemEx");
-static FRandom pr_burst ("Burst");
+static FRandom pr_camissile ("CustomActorfire", false);
+static FRandom pr_cabullet ("CustomBullet", false);
+static FRandom pr_cwjump ("CustomWpJump", false);
+static FRandom pr_cwpunch ("CustomWpPunch", false);
+static FRandom pr_grenade ("ThrowGrenade", false);
+static FRandom pr_crailgun ("CustomRailgun", false);
+static FRandom pr_spawndebris ("SpawnDebris", false);
+static FRandom pr_spawnitemex ("SpawnItemEx", false);
+static FRandom pr_burst ("Burst", false);
 static FRandom pr_monsterrefire ("MonsterRefire");
-static FRandom pr_teleport("A_Teleport");
-static FRandom pr_bfgselfdamage("BFGSelfDamage");
-FRandom pr_cajump("CustomJump");
+static FRandom pr_teleport("A_Teleport", false);
+static FRandom pr_bfgselfdamage("BFGSelfDamage", false);
+FRandom pr_cajump("CustomJump", false);
 
 CVAR(Bool, vr_recoil, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
@@ -2826,12 +2826,6 @@ DEFINE_ACTION_FUNCTION(AActor, A_MonsterRefire)
 // Set actor's angle (in degrees).
 //
 //===========================================================================
-enum
-{
-	SPF_FORCECLAMP = 1,	// players always clamp
-	SPF_INTERPOLATE = 2,
-};
-
 
 DEFINE_ACTION_FUNCTION(AActor, A_SetAngle)
 {
@@ -2851,7 +2845,7 @@ DEFINE_ACTION_FUNCTION(AActor, A_SetAngle)
 
 	if (ref != NULL)
 	{
-		ref->SetAngle(angle, !!(flags & SPF_INTERPOLATE));
+		ref->SetAngle(angle, flags);
 	}
 	return 0;
 }
@@ -2882,7 +2876,7 @@ DEFINE_ACTION_FUNCTION(AActor, A_SetPitch)
 
 	if (ref != NULL)
 	{
-		ref->SetPitch(pitch, !!(flags & SPF_INTERPOLATE), !!(flags & SPF_FORCECLAMP));
+		ref->SetPitch(pitch, flags);
 	}
 	return 0;
 }
@@ -2912,8 +2906,95 @@ DEFINE_ACTION_FUNCTION(AActor, A_SetRoll)
 
 	if (ref != NULL)
 	{
-		ref->SetRoll(roll, !!(flags & SPF_INTERPOLATE));
+		ref->SetRoll(roll, flags);
 	}
+	return 0;
+}
+
+//===========================================================================
+//
+// A_SetViewAngle
+//
+// Set actor's viewangle (in degrees).
+//
+//===========================================================================
+
+static void SetViewAngleNative(AActor* self, double angle, int flags, int ptr)
+{
+	AActor *ref = COPY_AAPTR(self, ptr);
+	if (ref != nullptr)
+	{
+		ref->SetViewAngle(angle, flags);
+	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(AActor, A_SetViewAngle, SetViewAngleNative)
+{
+	PARAM_SELF_PROLOGUE(AActor);
+	PARAM_FLOAT(angle);
+	PARAM_INT(flags);
+	PARAM_INT(ptr);
+
+	SetViewAngleNative(self, angle, flags, ptr);
+
+	return 0;
+}
+
+//===========================================================================
+//
+// A_SetViewPitch
+//
+// Set actor's viewpitch (in degrees).
+//
+//===========================================================================
+
+static void SetViewPitchNative(AActor* self, double pitch, int flags, int ptr)
+{
+	AActor *ref = COPY_AAPTR(self, ptr);
+	if (ref != nullptr)
+	{
+		ref->SetViewPitch(pitch, flags);
+	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(AActor, A_SetViewPitch, SetViewPitchNative)
+{
+	PARAM_SELF_PROLOGUE(AActor);
+	PARAM_FLOAT(pitch);
+	PARAM_INT(flags);
+	PARAM_INT(ptr);
+
+	SetViewPitchNative(self, pitch, flags, ptr);
+
+	return 0;
+}
+
+//===========================================================================
+//
+// [MC] A_SetViewRoll
+//
+// Set actor's viewroll (in degrees).
+//
+//===========================================================================
+
+static void SetViewRollNative(AActor* self, double roll, int flags, int ptr)
+{
+	AActor *ref = COPY_AAPTR(self, ptr);
+	if (ref != nullptr)
+	{
+		ref->SetViewRoll(roll, flags);
+	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(AActor, A_SetViewRoll, SetViewRollNative)
+{
+	PARAM_SELF_PROLOGUE(AActor);
+	PARAM_FLOAT(roll);
+	PARAM_INT(flags);
+	PARAM_INT(ptr);
+
+	SetViewRollNative(self, roll, flags, ptr);
+
 	return 0;
 }
 
@@ -4845,19 +4926,19 @@ DEFINE_ACTION_FUNCTION(AActor, A_SetVisibleRotation)
 		
 	if (!(flags & VRF_NOANGLESTART))
 	{
-		mobj->VisibleStartAngle = anglestart;
+		mobj->VisibleStartAngle = anglestart.Degrees;
 	}
 	if (!(flags & VRF_NOANGLEEND))
 	{
-		mobj->VisibleEndAngle = angleend;
+		mobj->VisibleEndAngle = angleend.Degrees;
 	}
 	if (!(flags & VRF_NOPITCHSTART))
 	{
-		mobj->VisibleStartPitch = pitchstart;
+		mobj->VisibleStartPitch = pitchstart.Degrees;
 	}
 	if (!(flags & VRF_NOPITCHEND))
 	{
-		mobj->VisibleEndPitch = pitchend;
+		mobj->VisibleEndPitch = pitchend.Degrees;
 	}
 
 	ACTION_RETURN_BOOL(true);

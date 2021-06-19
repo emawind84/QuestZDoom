@@ -1492,8 +1492,12 @@ bool ZCCCompiler::CompileFields(PContainerType *type, TArray<ZCC_VarDeclarator *
 		auto name = field->Names;
 		do
 		{
-			if (fieldtype->Size == 0 && !(varflags & VARF_Native))	// Size not known yet.
+			if ((fieldtype->Size == 0 || !fieldtype->SizeKnown) && !(varflags & VARF_Native))	// Size not known yet.
 			{
+				if (type != nullptr)
+				{
+					type->SizeKnown = false;
+				}
 				return false;
 			}
 
@@ -1548,6 +1552,10 @@ bool ZCCCompiler::CompileFields(PContainerType *type, TArray<ZCC_VarDeclarator *
 
 							if (OutNamespace->Symbols.AddSymbol(f) == nullptr)
 							{ // name is already in use
+								if (type != nullptr)
+								{
+									type->SizeKnown = false;
+								}
 								f->Destroy();
 								return false;
 							}
@@ -1577,6 +1585,12 @@ bool ZCCCompiler::CompileFields(PContainerType *type, TArray<ZCC_VarDeclarator *
 		} while (name != field->Names);
 		Fields.Delete(0);
 	}
+
+	if (type != nullptr)
+	{
+		type->SizeKnown = Fields.Size() == 0;
+	}
+
 	return Fields.Size() == 0;
 }
 
@@ -2999,6 +3013,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 			sym->Variants[0].Implementation->VarFlags = sym->Variants[0].Flags;
 		}
 
+		bool exactReturnType = mVersion < MakeVersion(4, 4);
 		PClass *clstype = forclass? static_cast<PClassType *>(c->Type())->Descriptor : nullptr;
 		if (varflags & VARF_Virtual)
 		{
@@ -3012,7 +3027,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 			{
 				auto parentfunc = clstype->ParentClass? dyn_cast<PFunction>(clstype->ParentClass->VMType->Symbols.FindSymbol(sym->SymbolName, true)) : nullptr;
 
-				int vindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], parentfunc);
+				int vindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], parentfunc, exactReturnType);
 				// specifying 'override' is necessary to prevent one of the biggest problem spots with virtual inheritance: Mismatching argument types.
 				if (varflags & VARF_Override)
 				{
@@ -3092,7 +3107,7 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 		}
 		else if (forclass)
 		{
-			int vindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], nullptr);
+			int vindex = clstype->FindVirtualIndex(sym->SymbolName, &sym->Variants[0], nullptr, exactReturnType);
 			if (vindex != -1)
 			{
 				Error(f, "Function %s attempts to override parent function without 'override' qualifier", FName(f->Name).GetChars());

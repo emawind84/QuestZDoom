@@ -25,8 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <string.h>
-
 #include "timidity.h"
 #include "common.h"
 #include "instrum.h"

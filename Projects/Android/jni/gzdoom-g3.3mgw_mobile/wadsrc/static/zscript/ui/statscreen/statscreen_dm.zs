@@ -48,9 +48,8 @@ class DeathmatchStatusScreen : StatusScreen
 
 		int i;
 		bool stillticking;
-		bool doautoskip = autoSkip();
 
-		if ((acceleratestage || doautoskip) && ng_state != 6)
+		if (acceleratestage && ng_state != 6)
 		{
 			acceleratestage = 0;
 
@@ -117,16 +116,7 @@ class DeathmatchStatusScreen : StatusScreen
 		}
 		else if (ng_state == 6)
 		{
-			int i;
-			for (i = 0; i < MAXPLAYERS; i++)
-			{
-				// If the player is in the game and not ready, stop checking
-				if (playeringame[i] && players[i].Bot == NULL && !playerready[i])
-					break;
-			}
-
-			// All players are ready; proceed.
-			if ((i == MAXPLAYERS && acceleratestage) || doautoskip)
+			if (acceleratestage)
 			{
 				PlaySound("intermission/pastdmstats");
 				initShowNextLoc();

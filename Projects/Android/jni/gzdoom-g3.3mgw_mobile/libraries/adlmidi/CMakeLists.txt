@@ -6,7 +6,6 @@ use_fast_math()
 add_definitions(-DADLMIDI_DISABLE_MIDI_SEQUENCER)
 
 add_library( adl STATIC
-	adldata.cpp
 	adlmidi.cpp
 	adlmidi_load.cpp
 	adlmidi_midiplay.cpp
@@ -14,10 +13,13 @@ add_library( adl STATIC
 	adlmidi_private.cpp
 	chips/dosbox/dbopl.cpp
 	chips/dosbox_opl3.cpp
-	chips/nuked/nukedopl3_174.c
-	chips/nuked/nukedopl3.c
+	chips/java_opl3.cpp
 	chips/nuked_opl3.cpp
 	chips/nuked_opl3_v174.cpp
+	chips/opal_opl3.cpp
+	inst_db.cpp
+	chips/nuked/nukedopl3_174.c
+	chips/nuked/nukedopl3.c
 	wopl/wopl_file.c
 	)
 target_link_libraries( adl )

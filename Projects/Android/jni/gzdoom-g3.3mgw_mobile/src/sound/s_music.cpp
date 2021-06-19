@@ -468,7 +468,9 @@ bool S_ChangeMusic (const char *musicname, int order, bool looping, bool force)
 		FileReader reader;
 		if (!FileExists (musicname))
 		{
-			if ((lumpnum = Wads.CheckNumForFullName (musicname, true, ns_music)) == -1)
+			lumpnum = Wads.CheckNumForFullName (musicname);
+			if (lumpnum == -1) lumpnum = Wads.CheckNumForName (musicname, ns_music);
+			if (lumpnum == -1)
 			{
 				Printf ("Music \"%s\" not found\n", musicname);
 				return false;

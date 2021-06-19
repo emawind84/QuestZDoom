@@ -246,11 +246,45 @@ void SetupPlayerClasses ()
 	}
 }
 
+// Strict handling of SetSlot and ClearPlayerClasses in KEYCONF (see a_weapons.cpp)
+EXTERN_CVAR (Bool, setslotstrict)
+
+// Specifically hunt for and remove IWAD playerclasses
+void ClearIWADPlayerClasses (PClassActor *ti)
+{
+	for(unsigned i=0; i < PlayerClasses.Size(); i++)
+	{
+		if(PlayerClasses[i].Type==ti)
+		{
+			for(unsigned j = i; j < PlayerClasses.Size()-1; j++)
+			{
+				PlayerClasses[j] = PlayerClasses[j+1];
+			}
+			PlayerClasses.Pop();
+		}
+	}
+}
+
 CCMD (clearplayerclasses)
 {
 	if (ParsingKeyConf)
 	{
-		PlayerClasses.Clear ();
+		// Only clear the playerclasses first if setslotstrict is true
+		// If not, we'll only remove the IWAD playerclasses
+		if(setslotstrict)
+			PlayerClasses.Clear();
+		else
+		{
+			// I wish I had a better way to pick out IWAD playerclasses
+			// without having to explicitly name them here...
+			ClearIWADPlayerClasses(PClass::FindActor("DoomPlayer"));
+			ClearIWADPlayerClasses(PClass::FindActor("HereticPlayer"));
+			ClearIWADPlayerClasses(PClass::FindActor("StrifePlayer"));
+			ClearIWADPlayerClasses(PClass::FindActor("FighterPlayer"));
+			ClearIWADPlayerClasses(PClass::FindActor("ClericPlayer"));
+			ClearIWADPlayerClasses(PClass::FindActor("MagePlayer"));
+			ClearIWADPlayerClasses(PClass::FindActor("ChexPlayer"));
+		}
 	}
 }
 
@@ -1301,6 +1335,7 @@ void P_PlayerThink (player_t *player)
 	player->original_cmd = cmd->ucmd;
 	// Don't interpolate the view for more than one tic
 	player->cheats &= ~CF_INTERPVIEW;
+	player->mo->FloatVar("prevBob") = player->bob;
 
 
 	IFVIRTUALPTRNAME(player->mo, NAME_PlayerPawn, PlayerThink)

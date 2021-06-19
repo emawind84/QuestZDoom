@@ -75,7 +75,8 @@ CUSTOM_CVAR(Float, i_timescale, 1.0f, CVAR_NOINITCALL)
 static uint64_t GetClockTimeNS()
 {
 	using namespace std::chrono;
-	return (uint64_t)((duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count()) * (uint64_t)(TimeScale * 1000));
+	if (TimeScale == 1.0) return (uint64_t)(duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count());
+	else return (uint64_t)((duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count()) * (uint64_t)(TimeScale * 1000));
 }
 
 static uint64_t MSToNS(unsigned int ms)
@@ -164,9 +165,19 @@ uint64_t I_msTime()
 	return NSToMS(I_nsTime());
 }
 
+double I_msTimeF(void)
+{
+	return I_nsTime() / 1'000'000.;
+}
+
 uint64_t I_msTimeFS() // from "start"
 {
 	return (FirstFrameStartTime == 0) ? 0 : NSToMS(I_nsTime() - FirstFrameStartTime);
+}
+
+uint64_t I_GetTimeNS()
+{
+	return CurrentFrameStartTime - FirstFrameStartTime;
 }
 
 int I_GetTime()

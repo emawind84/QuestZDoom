@@ -64,10 +64,11 @@
 #include "g_levellocals.h"
 #include "vm.h"
 
+#define ScaleToFit43 3
+
 CVAR(Bool, wi_percents, true, CVAR_ARCHIVE)
 CVAR(Bool, wi_showtotaltime, true, CVAR_ARCHIVE)
 CVAR(Bool, wi_noautostartmap, false, CVAR_USERINFO | CVAR_ARCHIVE)
-CVAR(Int, wi_autoadvance, 0, CVAR_SERVERINFO)
 
 // States for the intermission
 enum EState
@@ -215,7 +216,7 @@ private:
 	//
 	//====================================================================
 
-	void drawOnLnode(int   n, FTexture * c[], int numc)
+	void drawOnLnode(int   n, FTexture * c[], int numc, double backwidth, double backheight)
 	{
 		int   i;
 		for (i = 0; i<numc; i++)
@@ -235,7 +236,7 @@ private:
 
 			if (left >= 0 && right < 320 && top >= 0 && bottom < 200)
 			{
-				screen->DrawTexture(c[i], lnodes[n].x, lnodes[n].y, DTA_320x200, true, TAG_DONE);
+				screen->DrawTexture(c[i], lnodes[n].x, lnodes[n].y, DTA_FullscreenScale, ScaleToFit43, DTA_VirtualWidthF, backwidth, DTA_VirtualHeightF, backheight, TAG_DONE);
 				break;
 			}
 		}
@@ -605,8 +606,8 @@ void DInterBackground::drawBackground(int state, bool drawsplat, bool snl_pointe
 			// placing the animations precisely where they belong on the base pic
 			animwidth = background->GetScaledWidthDouble();
 			animheight = background->GetScaledHeightDouble();
-			if (gameinfo.fullscreenautoaspect > 0) animwidth = 320;	// deal with widescreen replacements that keep the original coordinates.
-			screen->DrawTexture(background, 0, 0, DTA_Fullscreen, true, TAG_DONE);
+			if (animheight == 200) animwidth = 320;	// deal with widescreen replacements that keep the original coordinates.
+			screen->DrawTexture(background, 0, 0, DTA_FullscreenEx, ScaleToFit43, TAG_DONE);
 		}
 		else
 		{
@@ -662,7 +663,7 @@ void DInterBackground::drawBackground(int state, bool drawsplat, bool snl_pointe
 		}
 		if (a->ctr >= 0)
 			screen->DrawTexture(a->frames[a->ctr], a->loc.x, a->loc.y,
-				DTA_VirtualWidthF, animwidth, DTA_VirtualHeightF, animheight, DTA_FullscreenScale, gameinfo.fullscreenautoaspect, TAG_DONE);
+				DTA_VirtualWidthF, animwidth, DTA_VirtualHeightF, animheight, DTA_FullscreenScale, ScaleToFit43, TAG_DONE);
 	}
 
 	if (drawsplat)
@@ -670,7 +671,7 @@ void DInterBackground::drawBackground(int state, bool drawsplat, bool snl_pointe
 		for (i = 0; i<lnodes.Size(); i++)
 		{
 			level_info_t * li = FindLevelInfo(lnodes[i].Level);
-			if (li && li->flags & LEVEL_VISITED) drawOnLnode(i, &splat, 1);  // draw a splat on taken cities.
+			if (li && li->flags & LEVEL_VISITED) drawOnLnode(i, &splat, 1, animwidth, animheight);  // draw a splat on taken cities.
 		}
 	}
 
@@ -679,7 +680,7 @@ void DInterBackground::drawBackground(int state, bool drawsplat, bool snl_pointe
 	{
 		unsigned int v = MapToIndex(wbs->next);
 		// Draw only if it points to a valid level on the current screen!
-		if (v<lnodes.Size()) drawOnLnode(v, &yah[0], yah.Size());
+		if (v<lnodes.Size()) drawOnLnode(v, &yah[0], yah.Size(), animwidth, animheight);
 	}
 }
 

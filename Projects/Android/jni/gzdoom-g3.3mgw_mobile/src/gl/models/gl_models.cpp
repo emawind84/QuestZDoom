@@ -188,7 +188,9 @@ FModelVertexBuffer::FModelVertexBuffer(bool needindex, bool singleframe)
 {
 	vbo_ptr = nullptr;
 	ibo_id = 0;
+#ifdef __MOBILE__
 	ibo_mem = nullptr;
+#endif
 
 	if (needindex)
 	{

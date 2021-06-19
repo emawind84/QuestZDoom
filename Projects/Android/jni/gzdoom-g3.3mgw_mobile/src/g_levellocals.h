@@ -212,6 +212,7 @@ struct FLevelLocals : public FLevelData
 #ifndef NO_DEFINE_LEVEL
 
 extern FLevelLocals level;
+extern FLevelLocals *currentVMLevel;
 
 inline int vertex_t::Index() const
 {

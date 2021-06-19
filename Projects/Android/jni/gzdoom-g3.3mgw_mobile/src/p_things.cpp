@@ -58,7 +58,7 @@
 // Set of spawnable things for the Thing_Spawn and Thing_Projectile specials.
 FClassMap SpawnableThings;
 
-static FRandom pr_leadtarget ("LeadTarget");
+static FRandom pr_leadtarget ("LeadTarget", false);
 
 bool P_Thing_Spawn (int tid, AActor *source, int type, DAngle angle, bool fog, int newtid)
 {

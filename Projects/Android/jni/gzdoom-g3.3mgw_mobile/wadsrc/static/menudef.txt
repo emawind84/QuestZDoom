@@ -487,12 +487,12 @@ OptionMenu "CustomizeControls" protected
 	Title "$CNTRLMNU_TITLE"
 
 	Submenu    "$CNTRLMNU_ACTION"      , "ActionControlsMenu"
-	Submenu    "$CNTRLMNU_CHAT"        , "ChatControlsMenu"
 	Submenu    "$CNTRLMNU_WEAPONS"     , "WeaponsControlMenu"
 	Submenu    "$CNTRLMNU_INVENTORY"   , "InventoryControlsMenu"
+	Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu"
 	Submenu    "$CNTRLMNU_OTHER"       , "OtherControlsMenu"
 	Submenu    "$CNTRLMNU_POPUPS"      , "StrifeControlsMenu"
-	Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu"
+	Submenu    "$MNU_MULTIPLAYER"      , "ChatControlsMenu"
 	StaticText " "
 	Option "$CNTRLMNU_LAYOUT",			"k_modern", "Layouts"
 	SafeCommand "$OPTMNU_DEFAULTS",		"resetb2defaults"
@@ -545,23 +545,17 @@ OptionMenu "ActionControlsMenu" protected
 	Control    "$CNTRLMNU_RUN"              , "+speed"
 	Control    "$CNTRLMNU_TOGGLERUN"        , "toggle cl_run"
 	Control    "$CNTRLMNU_STRAFE"           , "+strafe"
-
-	StaticText ""
-	Control    "$CNTRLMNU_SCOREBOARD"       , "+showscores"
-	Control    "$CNTRLMNU_TOGGLESCOREBOARD" , "togglescoreboard"
-
-	StaticText ""
-	Control    "$CNTRLMNU_USER1"            , "+user1"
-	Control    "$CNTRLMNU_USER2"            , "+user2"
-	Control    "$CNTRLMNU_USER3"            , "+user3"
-	Control    "$CNTRLMNU_USER4"            , "+user4"
 }
 
 OptionMenu "ChatControlsMenu" protected
 {
-	Title "$CNTRLMNU_CHAT_TITLE"
+	Title "$MNU_MULTIPLAYER"
 	ScrollTop 2
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
+
+	StaticText ""
+	Control    "$CNTRLMNU_SCOREBOARD"       , "+showscores"
+	Control    "$CNTRLMNU_TOGGLESCOREBOARD" , "togglescoreboard"
 
 	StaticText ""
 	Control    "$CNTRLMNU_SAY"     , "messagemode"
@@ -589,6 +583,12 @@ OptionMenu "WeaponsControlMenu" protected
 	Control    "$CNTRLMNU_SLOT8"          , "slot 8"
 	Control    "$CNTRLMNU_SLOT9"          , "slot 9"
 	Control    "$CNTRLMNU_SLOT0"          , "slot 0"
+
+	StaticText ""
+	Control    "$CNTRLMNU_USER1"            , "+user1"
+	Control    "$CNTRLMNU_USER2"            , "+user2"
+	Control    "$CNTRLMNU_USER3"            , "+user3"
+	Control    "$CNTRLMNU_USER4"            , "+user4"
 }
 
 OptionMenu "InventoryControlsMenu" protected
@@ -1152,6 +1152,13 @@ OptionValue dehopt
 	2,	"$OPTVAL_ONLYLASTONE"
 }
 
+OptionValue AlwaysTally
+{
+	0,	"$OPTVAL_MODDEFINED"
+	1,	"$OPTVAL_NOTHUBS"
+	2,	"$OPTVAL_WITHHUBS"
+}
+
 OptionMenu "MiscOptions" protected
 {
 	Title "$MISCMNU_TITLE"
@@ -1167,15 +1174,16 @@ OptionMenu "MiscOptions" protected
 	}
 	Option "$MISCMNU_QUERYIWAD",				"queryiwad", "OnOff"
 	StaticText " "
-	Option "$MISCMNU_NOCHEATS",				"nocheats", "OnOff"
+	Option "$MISCMNU_NOCHEATS",					"nocheats", "OnOff"
 	Option "$MISCMNU_ALLCHEATS",				"allcheats", "OnOff"
 	Option "$MISCMNU_ENABLEAUTOSAVES",			"disableautosave", "Autosave"
 	Option "$MISCMNU_SAVELOADCONFIRMATION",		"saveloadconfirmation", "OnOff"
 	Slider "$MISCMNU_AUTOSAVECOUNT",			"autosavecount", 1, 20, 1, 0
-	Option "$MISCMNU_QUICKSAVEROTATION",			"quicksaverotation", "OnOff"
+	Option "$MISCMNU_QUICKSAVEROTATION",		"quicksaverotation", "OnOff"
 	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksaverotationcount", 1, 20, 1, 0
 	Option "$MISCMNU_DEHLOAD",					"dehload", "dehopt"
 	Option "$MISCMNU_ENABLESCRIPTSCREENSHOTS",	"enablescriptscreenshot", "OnOff"
+	Option "$MISCMNU_SETSLOTSTRICT",			"setslotstrict", "YesNo"
 	Option "$MISCMNU_INTERSCROLL",				"nointerscrollabort", "OffOn"
 	StaticText " "
 	Option "$MISCMNU_CACHENODES",				"gl_cachenodes", "OnOff"
@@ -1187,6 +1195,9 @@ OptionMenu "MiscOptions" protected
 	{
 		Option	"$DSPLYMNU_SHOWENDOOM",			"showendoom", "Endoom"
 	}
+
+	StaticText " "
+	Option "$MISCMNU_ALWAYSTALLY",				"sv_alwaystally", "AlwaysTally"
 
 }
 
@@ -1559,6 +1570,7 @@ OptionMenu GameplayOptions protected
 	Option "$GMPLYMNU_ITEMSRESPAWN",			"sv_itemrespawn", "YesNo"
 	Option "$GMPLYMNU_SUPERRESPAWN",			"sv_respawnsuper", "YesNo"
 	Option "$GMPLYMNU_FASTMONSTERS",			"sv_fastmonsters", "YesNo"
+	Option "$GMPLYMNU_INSTANTREACTION",			"sv_instantreaction", "YesNo"
 	Option "$GMPLYMNU_DEGENERATION",			"sv_degeneration", "YesNo"
 	Option "$GMPLYMNU_NOAUTOAIM",				"sv_noautoaim", "NoYes"
 	Option "$GMPLYMNU_ALLOWSUICIDE",			"sv_disallowsuicide", "NoYes"
@@ -1601,6 +1613,7 @@ OptionMenu CoopOptions protected
 {
 	Title 	"$GMPLYMNU_COOPERATIVE"
 
+	Option "$GMPLYMNU_MULTIPLAYERTHINGS",	 	"sv_nothingspawn", "NoYes"
 	Option "$GMPLYMNU_MULTIPLAYERWEAPONS",	 	"sv_noweaponspawn", "NoYes"
 	Option "$GMPLYMNU_LOSEINVENTORY",			"sv_cooploseinventory", "YesNo"
 	Option "$GMPLYMNU_KEEPKEYS",				"sv_cooplosekeys", "NoYes"
@@ -1657,6 +1670,7 @@ OptionMenu "CompatActorMenu" protected
 	Option "$CMPTMNU_INVISIBILITY",					"compat_INVISIBILITY", "YesNo"
 	Option "$CMPTMNU_MINOTAUR",						"compat_MINOTAUR", "YesNo"
 	Option "$CMPTMNU_NOTOSSDROPS",					"compat_NOTOSSDROPS", "YesNo"
+	Option "$CMPTMNU_OLDRANDOM",					"compat_oldrandom", "YesNo"
 	Class "CompatibilityMenu"
 }
 
@@ -2080,6 +2094,12 @@ OptionMenu ModReplayerOptions protected
 	3, "$ADLVLMODEL_DMX"
 	4, "$ADLVLMODEL_APOGEE"
 	5, "$ADLVLMODEL_WIN9X"
+	6, "$ADLVLMODEL_DMX_FIXED"
+	7, "$ADLVLMODEL_APOGEE_FIXED"
+	8, "$ADLVLMODEL_AIL"
+	9, "$ADLVLMODEL_WIN9XGENERIC"
+	10, "$ADLVLMODEL_HMI"
+	11, "$ADLVLMODEL_HMIOLD"
  }
 
  OptionValue ADLOplCores
@@ -2087,6 +2107,8 @@ OptionMenu ModReplayerOptions protected
 	0, "$OPTVAL_NUKEDOPL3"
 	1, "$OPTVAL_NUKEDOPL3174"
 	2, "$OPTVAL_DOSBOXOPL3"
+	3, "$OPTVAL_OPALOPL3"
+	4, "$OPTVAL_JAVAOPL3"
  }
 
  OptionValue OpnCores
@@ -2094,6 +2116,9 @@ OptionMenu ModReplayerOptions protected
 	0, "$OPTVAL_MAMEOPN2"
 	1, "$OPTVAL_NUKEDOPN2"
 	2, "$OPTVAL_GENSOPN2"
+	4, "$OPTVAL_NP2OPNA"
+	5, "$OPTVAL_MAMEOPNA"
+	6, "$OPTVAL_PMDWINOPNA"
  }
 
  OptionMenu ADLOptions protected

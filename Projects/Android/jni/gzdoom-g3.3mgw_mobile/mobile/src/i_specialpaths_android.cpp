@@ -123,20 +123,14 @@ FString M_GetAutoexecPath()
 
 FString M_GetCajunPath(const char *botfilename)
 {
-	FString path;
+	FString path = NicePath("./user_files/bots/");
 
-	// Check first in ~/.config/zdoom/botfilename.
-	path = GetUserFile(botfilename);
+	path << botfilename;
 	if (!FileExists(path))
 	{
-		// Then check in SHARE_DIR/botfilename.
-		path = SHARE_DIR;
-		path << botfilename;
-		if (!FileExists(path))
-		{
-			path = "";
-		}
+		path = "";
 	}
+
 	return path;
 }
 

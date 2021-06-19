@@ -953,7 +953,7 @@ DEFINE_MAP_OPTION(sky1, true)
 		{
 			parse.sc.Float /= 256;
 		}
-		info->skyspeed1 = float(parse.sc.Float * (35. / 1000.));
+		info->skyspeed1 = float(parse.sc.Float * (TICRATE / 1000.));
 	}
 }
 
@@ -967,7 +967,7 @@ DEFINE_MAP_OPTION(sky2, true)
 		{
 			parse.sc.Float /= 256;
 		}
-		info->skyspeed2 = float(parse.sc.Float * (35. / 1000.));
+		info->skyspeed2 = float(parse.sc.Float * (TICRATE / 1000.));
 	}
 }
 
@@ -1516,6 +1516,7 @@ MapFlagHandlers[] =
 	{ "nolightfade",					MITYPE_SETFLAG3,	LEVEL3_NOLIGHTFADE, 0 },
 	{ "nocoloredspritelighting",		MITYPE_SETFLAG3,	LEVEL3_NOCOLOREDSPRITELIGHTING, 0 },
 	{ "forceworldpanning",				MITYPE_SETFLAG3,	LEVEL3_FORCEWORLDPANNING, 0 },
+	{ "propermonsterfallingdamage",		MITYPE_SETFLAG3,	LEVEL3_PROPERMONSTERFALLINGDAMAGE, 0 },
 	{ "nobotnodes",						MITYPE_IGNORE,	0, 0 },		// Skulltag option: nobotnodes
 	{ "compat_shorttex",				MITYPE_COMPATFLAG, COMPATF_SHORTTEX, 0 },
 	{ "compat_stairs",					MITYPE_COMPATFLAG, COMPATF_STAIRINDEX, 0 },

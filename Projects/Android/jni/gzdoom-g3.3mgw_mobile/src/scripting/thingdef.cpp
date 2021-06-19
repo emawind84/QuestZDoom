@@ -106,7 +106,7 @@ void FinalizeClass(PClass *ccls, FStateDefinitions &statedef)
 		def->flags |= MF_SPECIAL;
 	}
 
-	if (cls->IsDescendantOf(NAME_Weapon))
+	if (cls->IsDescendantOf(NAME_Weapon) && !cls->bAbstract)
 	{
 		FState *ready = def->FindState(NAME_Ready);
 		FState *select = def->FindState(NAME_Select);
@@ -376,7 +376,7 @@ static void CheckLabel(PClassActor *obj, FStateLabel *slb, int useflag, FName st
 		if (!(state->UseFlags & useflag))
 		{
 			GetStateSource(state).Message(MSG_ERROR, TEXTCOLOR_RED "%s references state %s as %s state, but this state is not flagged for use as %s.\n",
-				obj->TypeName.GetChars(), FState::StaticGetStateName(state).GetChars(), statename.GetChars(), descript);
+				obj->TypeName.GetChars(), FState::StaticGetStateName(state, obj).GetChars(), statename.GetChars(), descript);
 		}
 	}
 	if (slb->Children != nullptr)
@@ -427,7 +427,7 @@ static void CheckStates(PClassActor *obj)
 		if (state->NextState && (state->UseFlags & state->NextState->UseFlags) != state->UseFlags)
 		{
 			GetStateSource(state).Message(MSG_ERROR, TEXTCOLOR_RED "State %s links to a state with incompatible restrictions.\n",
-				FState::StaticGetStateName(state).GetChars());
+				FState::StaticGetStateName(state, obj).GetChars());
 		}
 	}
 }

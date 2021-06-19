@@ -7,6 +7,8 @@ void I_SetFrameTime();
 
 // Called by D_DoomLoop, returns current time in tics.
 int I_GetTime();
+// same, but using nanoseconds
+uint64_t I_GetTimeNS();
 
 double I_GetTimeFrac();
 
@@ -21,6 +23,9 @@ void I_FreezeTime(bool frozen);
 
 // [RH] Returns millisecond-accurate time
 uint64_t I_msTime();
+
+// [RH] Returns nanosecond-accurate time in milliseconds
+double I_msTimeF(void);
 
 // [SP] Returns millisecond-accurate time from start
 uint64_t I_msTimeFS();

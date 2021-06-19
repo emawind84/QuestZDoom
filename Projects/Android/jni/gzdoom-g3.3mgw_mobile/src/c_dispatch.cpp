@@ -677,7 +677,8 @@ void C_DoCommand (const char *cmd, int keynum)
 			}
 			else
 			{ // Get the variable's value
-				Printf ("\"%s\" is \"%s\"\n", var->GetName(), var->GetHumanString());
+				Printf ("\"%s\" is \"%s\" ", var->GetName(), var->GetHumanString());
+				Printf ("(default: \"%s\")\n", var->GetHumanStringDefault());
 			}
 		}
 		else
@@ -1686,4 +1687,3 @@ CCMD (pullin)
 	Printf (TEXTCOLOR_BOLD "Pullin" TEXTCOLOR_NORMAL " is only valid from .cfg\n"
 			"files and only when used at startup.\n");
 }
-

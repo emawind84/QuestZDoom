@@ -90,7 +90,6 @@ EXTERN_CVAR (Float, underwater_fade_scalar)
 EXTERN_CVAR (Float, r_visibility)
 EXTERN_CVAR (Bool, gl_legacy_mode)
 EXTERN_CVAR (Bool, r_drawvoxels)
-EXTERN_CVAR(Bool, gl_sync)
 
 extern bool NoInterpolateView;
 
@@ -944,14 +943,6 @@ sector_t * GLSceneDrawer::RenderViewpoint (AActor * camera, GL_IRECT * bounds, f
 
 void FGLRenderer::RenderView (player_t* player)
 {
-	GLRenderer->NextVtxBuffer();
-	GLRenderer->NextSkyBuffer();
-	GLRenderer->NextLightBuffer();
-
-	if (gl_sync) {
-		GLRenderer->GPUWaitSync();
-	}
-
 	gl_ClearFakeFlat();
 
 	checkBenchActive();

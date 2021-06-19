@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stddef.h>
+#include <string>
 #include "tarray.h"
 #include "name.h"
 

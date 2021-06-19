@@ -501,7 +501,7 @@ void FDInputJoystick::ProcessInput(unsigned int joynum)
 		{
 			// Since we sorted the axes, we know that the first two are definitely X and Y.
 			// They are probably a single stick, so use angular position to determine buttons.
-			buttonstate = Joy_XYAxesToButtons(axisval, Axes[0].Value);
+			buttonstate = Joy_XYAxesToButtons(Axes[0].Value, axisval);
 			Joy_GenerateButtonEvents(info->ButtonValue, buttonstate, 4, keyjoynaxis1plus);
 		}
 		info->ButtonValue = buttonstate;

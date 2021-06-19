@@ -132,6 +132,7 @@ public:
 	virtual UCVarValue GetGenericRep (ECVarType type) const = 0;
 	virtual UCVarValue GetFavoriteRep (ECVarType *type) const = 0;
 
+	virtual const char *GetHumanStringDefault(int precision = -1) const;
 	virtual UCVarValue GetGenericRepDefault (ECVarType type) const = 0;
 	virtual UCVarValue GetFavoriteRepDefault (ECVarType *type) const = 0;
 	virtual void SetGenericRepDefault (UCVarValue value, ECVarType type) = 0;
@@ -306,6 +307,7 @@ public:
 	virtual UCVarValue GetFavoriteRepDefault (ECVarType *type) const;
 	virtual void SetGenericRepDefault (UCVarValue value, ECVarType type);
 	const char *GetHumanString(int precision) const override;
+	const char *GetHumanStringDefault(int precision) const override;
 
 	float operator= (float floatval)
 		{ UCVarValue val; val.Float = floatval; SetGenericRep (val, CVAR_Float); return floatval; }

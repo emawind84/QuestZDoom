@@ -45,9 +45,8 @@ class CoopStatusScreen : StatusScreen
 		int i;
 		int fsum;
 		bool stillticking;
-		bool autoskip = autoSkip();
 
-		if ((acceleratestage || autoskip) && ng_state != 10)
+		if (acceleratestage && ng_state != 10)
 		{
 			acceleratestage = 0;
 
@@ -171,16 +170,7 @@ class CoopStatusScreen : StatusScreen
 		}
 		else if (ng_state == 10)
 		{
-			int i;
-			for (i = 0; i < MAXPLAYERS; i++)
-			{
-				// If the player is in the game and not ready, stop checking
-				if (playeringame[i] && players[i].Bot == NULL && !playerready[i])
-					break;
-			}
-
-			// All players are ready; proceed.
-			if ((i == MAXPLAYERS && acceleratestage) || autoskip)
+			if (acceleratestage)
 			{
 				PlaySound("intermission/pastcoopstats");
 				initShowNextLoc();

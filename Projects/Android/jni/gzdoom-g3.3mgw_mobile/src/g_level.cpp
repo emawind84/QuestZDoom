@@ -118,10 +118,12 @@ EXTERN_CVAR (String, playerclass)
 #define RCLS_ID			MAKE_ID('r','c','L','s')
 #define PCLS_ID			MAKE_ID('p','c','L','s')
 
+CVAR(Int, sv_alwaystally, 0, CVAR_ARCHIVE | CVAR_SERVERINFO)
+
 void G_VerifySkill();
 
 
-static FRandom pr_classchoice ("RandomPlayerClassChoice");
+static FRandom pr_classchoice ("RandomPlayerClassChoice", false);
 
 extern level_info_t TheDefaultLevelInfo;
 extern bool timingdemo;
@@ -141,6 +143,7 @@ extern bool sendpause, sendsave, sendturn180, SendLand;
 void *statcopy;					// for statistics driver
 
 FLevelLocals level;			// info about current level
+FLevelLocals *currentVMLevel = &level;	// level which currently ticks. Used as global input to the VM and some functions called by it.
 
 
 //==========================================================================
@@ -472,6 +475,7 @@ void G_InitNew (const char *mapname, bool bTitleLevel)
 			rngseed = use_staticrng ? staticrngseed : (rngseed + 1);
 		}
 		FRandom::StaticClearRandom ();
+		M_ClearRandom();
 		P_ClearACSVars(true);
 		level.time = 0;
 		level.maptime = 0;
@@ -545,6 +549,26 @@ static bool		unloading;
 
 EXTERN_CVAR(Bool, sv_singleplayerrespawn)
 
+bool ShouldDoIntermission(cluster_info_t* nextcluster, cluster_info_t* thiscluster)
+{
+	// this is here to remove some code duplication
+
+	if ((sv_alwaystally == 2) || (deathmatch))
+		return true;
+
+	if ((sv_alwaystally == 0) && (level.flags & LEVEL_NOINTERMISSION))
+		return false;
+
+	bool withinSameCluster = (nextcluster == thiscluster);
+	bool clusterIsHub = (thiscluster->flags & CLUSTER_HUB);
+	bool hubNoIntermission = !(thiscluster->flags & CLUSTER_ALLOWINTERMISSION);
+
+	if (withinSameCluster && clusterIsHub && hubNoIntermission)
+		return false;
+
+	return true;
+}
+
 void G_ChangeLevel(const char *levelname, int position, int flags, int nextSkill)
 {
 	level_info_t *nextinfo = NULL;
@@ -596,7 +620,8 @@ void G_ChangeLevel(const char *levelname, int position, int flags, int nextSkill
 		nextlevel = levelname;
 	}
 
-	NextSkill = (unsigned)nextSkill < AllSkills.Size() ? nextSkill : -1;
+	if (nextSkill != -1)
+		NextSkill = (unsigned)nextSkill < AllSkills.Size() ? nextSkill : -1;
 
 	if (flags & CHANGELEVEL_NOINTERMISSION)
 	{
@@ -641,7 +666,7 @@ void G_ChangeLevel(const char *levelname, int position, int flags, int nextSkill
 
 	if (thiscluster && (thiscluster->flags & CLUSTER_HUB))
 	{
-		if ((level.flags & LEVEL_NOINTERMISSION) || ((nextcluster == thiscluster) && !(thiscluster->flags & CLUSTER_ALLOWINTERMISSION)))
+		if (!ShouldDoIntermission(nextcluster, thiscluster))
 			NoWipe = 35;
 		D_DrawIcon = "TELEICON";
 	}
@@ -674,6 +699,17 @@ void G_ChangeLevel(const char *levelname, int position, int flags, int nextSkill
 	}
 }
 
+DEFINE_ACTION_FUNCTION(FLevelLocals, ChangeLevel)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(levelname);
+	PARAM_INT(position);
+	PARAM_INT(inflags);
+	PARAM_INT(nextSkill);
+	G_ChangeLevel(levelname, position, inflags, nextSkill);
+	return 0;
+}
+
 //==========================================================================
 //
 //
@@ -690,7 +726,7 @@ const char *G_GetSecretExitMap()
 
 	if (level.NextSecretMap.Len() > 0)
 	{
-		if (P_CheckMapData(level.NextSecretMap))
+		if (level.NextSecretMap.Compare("enDSeQ", 6) == 0 || P_CheckMapData(level.NextSecretMap))
 		{
 			nextmap = level.NextSecretMap;
 		}
@@ -765,9 +801,6 @@ void G_DoCompleted (void)
 
 	if (automapactive)
 		AM_Stop ();
-
-	S_StopAllChannels();
-	SN_StopAllSequences();
 
 	wminfo.finished_ep = level.cluster - 1;
 	wminfo.LName0 = TexMan.CheckForTexture(level.info->PName, ETextureType::MiscPatch);
@@ -892,9 +925,10 @@ void G_DoCompleted (void)
 
 	finishstate = mode;
 
-	if (!deathmatch &&
-		((level.flags & LEVEL_NOINTERMISSION) ||
-		((nextcluster == thiscluster) && (thiscluster->flags & CLUSTER_HUB) && !(thiscluster->flags & CLUSTER_ALLOWINTERMISSION))))
+	S_StopAllChannels();
+	SN_StopAllSequences();
+
+	if (!ShouldDoIntermission(nextcluster, thiscluster))
 	{
 		G_WorldDone ();
 		return;
@@ -1276,7 +1310,7 @@ DEFINE_ACTION_FUNCTION(FLevelLocals, WorldDone)
 void G_DoWorldDone (void) 
 {		 
 	gamestate = GS_LEVEL;
-	if (wminfo.next[0] == 0)
+	if (nextlevel.IsEmpty())
 	{
 		// Don't crash if no next map is given. Just repeat the current one.
 		Printf ("No next map specified.\n");
@@ -1442,6 +1476,7 @@ int G_FinishTravel ()
 		{
 			inv->ChangeStatNum (STAT_INVENTORY);
 			inv->LinkToWorld (nullptr);
+			P_FindFloorCeiling(inv, FFCF_ONLYSPAWNPOS);
 
 			IFVIRTUALPTRNAME(inv, NAME_Inventory, Travelled)
 			{
@@ -1452,6 +1487,12 @@ int G_FinishTravel ()
 		if (ib_compatflags & BCOMPATF_RESETPLAYERSPEED)
 		{
 			pawn->Speed = pawn->GetDefault()->Speed;
+		}
+
+		IFVIRTUALPTRNAME(pawn, NAME_PlayerPawn, Travelled)
+		{
+			VMValue params[1] = { pawn };
+			VMCall(func, params, 1, nullptr, 0);
 		}
 		// [ZZ] we probably don't want to fire any scripts before all players are in, especially with runNow = true.
 		pawns[pawnsnum++] = pawn;
@@ -2184,8 +2225,14 @@ CCMD(listmaps)
 
 		if (map != NULL)
 		{
-			Printf("%s: '%s' (%s)\n", info->MapName.GetChars(), info->LookupLevelName().GetChars(),
-				Wads.GetWadName(Wads.GetLumpFile(map->lumpnum)));
+			if (argv.argc() == 1 
+			    || CheckWildcards(argv[1], info->MapName.GetChars()) 
+			    || CheckWildcards(argv[1], info->LookupLevelName().GetChars())
+			    || CheckWildcards(argv[1], Wads.GetWadName(Wads.GetLumpFile(map->lumpnum))))
+			{
+				Printf("%s: '%s' (%s)\n", info->MapName.GetChars(), info->LookupLevelName().GetChars(),
+					Wads.GetWadName(Wads.GetLumpFile(map->lumpnum)));
+			}
 			delete map;
 		}
 	}

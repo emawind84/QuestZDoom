@@ -51,7 +51,7 @@
 #include "doomstat.h"
 #include "backend/codegen.h"
 
-FRandom pr_exrandom ("EX_Random");
+FRandom pr_exrandom ("EX_Random", false);
 
 static FxExpression *ParseRandom(FScanner &sc, FName identifier, PClassActor *cls);
 static FxExpression *ParseRandomPick(FScanner &sc, FName identifier, PClassActor *cls);

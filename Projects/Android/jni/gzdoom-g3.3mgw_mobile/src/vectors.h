@@ -1149,7 +1149,7 @@ struct TAngle
 
 	TAngle &operator= (double other)
 	{
-		Degrees = other;
+		Degrees = (decltype(Degrees))other;
 		return *this;
 	}
 

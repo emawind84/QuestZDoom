@@ -15,7 +15,7 @@ struct WorldEvent native play version("2.4")
     native readonly bool IsSaveGame;
     // this will be true if we are re-entering the hub level.
     native readonly bool IsReopen;
-    // for thingspawned/thingdied/thingdestroyed
+    // for thingspawned/thingdied/thingdestroyed/thingground
     native readonly Actor Thing;
     // for thingdied. can be null
     native readonly Actor Inflictor;
@@ -328,6 +328,7 @@ class StaticEventHandler : Object native play version("2.4")
     virtual void WorldUnloaded(WorldEvent e) {}
     virtual void WorldThingSpawned(WorldEvent e) {}
     virtual void WorldThingDied(WorldEvent e) {}
+    virtual void WorldThingGround(WorldEvent e) {}
     virtual void WorldThingRevived(WorldEvent e) {}
     virtual void WorldThingDamaged(WorldEvent e) {}
     virtual void WorldThingDestroyed(WorldEvent e) {}
@@ -345,6 +346,7 @@ class StaticEventHandler : Object native play version("2.4")
     
     //
     virtual void PlayerEntered(PlayerEvent e) {}
+    virtual void PlayerSpawned(PlayerEvent e) {}
     virtual void PlayerRespawned(PlayerEvent e) {}
     virtual void PlayerDied(PlayerEvent e) {}
     virtual void PlayerDisconnected(PlayerEvent e) {}

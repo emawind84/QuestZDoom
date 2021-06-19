@@ -543,7 +543,7 @@
 
 extern FILE *Logfile;
 
-FRandom pr_acs ("ACS");
+FRandom pr_acs ("ACS", false);
 
 // I imagine this much stack space is probably overkill, but it could
 // potentially get used with recursive functions.
@@ -5381,7 +5381,7 @@ static int ScriptCall(AActor *activator, unsigned argc, int32_t *args)
 			if (rettype == TypeSInt32 || rettype == TypeBool || rettype == TypeColor || rettype == TypeName || rettype == TypeSound)
 			{
 				VMReturn ret(&retval);
-				VMCall(func, &params[0], params.Size(), &ret, 1);
+				VMCallWithDefaults(func, params, &ret, 1);
 				if (rettype == TypeName)
 				{
 					retval = GlobalACSStrings.AddString(FName(ENamedName(retval)));
@@ -6564,7 +6564,7 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 		{
 			PalEntry color = args[0];
 			bool fullbright = argCount > 1 ? !!args[1] : false;
-			int lifetime = argCount > 2 ? args[2] : 35;
+			int lifetime = argCount > 2 ? args[2] : TICRATE;
 			double size = argCount > 3 ? args[3] : 1.;
 			int x = argCount > 4 ? args[4] : 0;
 			int y = argCount > 5 ? args[5] : 0;

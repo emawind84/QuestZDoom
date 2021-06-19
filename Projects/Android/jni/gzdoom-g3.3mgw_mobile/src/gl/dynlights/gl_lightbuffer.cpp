@@ -69,6 +69,10 @@ FLightBuffer::FLightBuffer()
 	{
 		glBufferData(mBufferType, mByteSize, NULL, GL_DYNAMIC_DRAW);
 		mBufferPointer = NULL;
+#ifdef __ANDROID__	// This is needed to stop Ardeno 530 from crashing on the first drawer
+		Begin();
+		Finish();
+#endif
 	}
 
 	Clear();
@@ -200,7 +204,7 @@ int FLightBuffer::BindUBO(unsigned int index)
 {
 	unsigned int offset = (index / mBlockAlign) * mBlockAlign;
 
-
+	if (offset != mLastMappedIndex)
 	{
 		// this will only get called if a uniform buffer is used. For a shader storage buffer we only need to bind the buffer once at the start to all shader programs
 		mLastMappedIndex = offset;

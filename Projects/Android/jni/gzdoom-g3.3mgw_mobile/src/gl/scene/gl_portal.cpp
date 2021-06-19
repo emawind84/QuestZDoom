@@ -1272,8 +1272,8 @@ void GLEEHorizonPortal::DrawContents()
 void GLPortal::Initialize()
 {
 	assert(0 == QueryObject);
-#ifndef __MOBILE__
-    if(gl.glesVer => 3 )
+#ifdef __MOBILE__
+    if(gl.glesVer >= 3 )
 	glGenQueries(1, &QueryObject);
 #endif
 }

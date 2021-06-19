@@ -1679,11 +1679,11 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Sector, RemoveForceField, RemoveForceField)
 	 ACTION_RETURN_POINTER(self->V2());
  }
 
- static void SetSideSpecialColor(side_t *self, int tier, int position, int color)
+ static void SetSideSpecialColor(side_t *self, int tier, int position, int color, int useown)
  {
 	 if (tier >= 0 && tier < 3 && position >= 0 && position < 2)
 	 {
-		 self->SetSpecialColor(tier, position, color);
+		 self->SetSpecialColor(tier, position, color, useown);
 	 }
  }
 
@@ -1693,7 +1693,8 @@ DEFINE_ACTION_FUNCTION_NATIVE(_Sector, RemoveForceField, RemoveForceField)
 	 PARAM_INT(tier);
 	 PARAM_INT(position);
 	 PARAM_COLOR(color);
-	 SetSideSpecialColor(self, tier, position, color);
+	 PARAM_BOOL(useown)
+	 SetSideSpecialColor(self, tier, position, color, useown);
 	 return 0;
  }
 
@@ -2867,19 +2868,83 @@ DEFINE_ACTION_FUNCTION_NATIVE(FLevelLocals, setFrozen, setFrozen)
 //
 //=====================================================================================
 
-static int GetRealTime()
+extern time_t epochoffset;
+
+static int GetEpochTime()
 {
 	time_t now;
 	time(&now);
-	struct tm* timeinfo = localtime(&now);
-	return timeinfo ? timeinfo->tm_sec + timeinfo->tm_min * 60 + timeinfo->tm_hour * 3600 : 0;
+	return now != (time_t)(-1) ? int(now + epochoffset) : -1;
 }
 
-DEFINE_ACTION_FUNCTION_NATIVE(_AltHUD, GetRealTime, GetRealTime)
+//Returns an empty string if the Strf tokens are valid, otherwise returns the problematic token
+static FString CheckStrfString(FString timeForm)
+{
+	// Valid Characters after %
+	const char validSingles[] = { 'a','A','b','B','c','C','d','D','e','F','g','G','h','H','I','j','m','M','n','p','r','R','S','t','T','u','U','V','w','W','x','X','y','Y','z','Z' };
+
+	timeForm.Substitute("%%", "%a"); //Prevent %% from causing tokenizing problems
+	timeForm = "a" + timeForm; //Prevent %* at the beginning from causing a false error from tokenizing
+
+	auto tokens = timeForm.Split("%");
+	for (auto t : tokens)
+	{
+		bool found = false;
+		// % at end
+		if (t.Len() == 0) return FString("%");
+
+		// Single Character
+		for (size_t i = 0; i < sizeof(validSingles)/sizeof(validSingles[0]); i++)
+		{
+			if (t[0] == validSingles[i])
+			{
+				found = true;
+				break;
+			}
+		}
+		if (found) continue;
+		return FString("%") + t[0];
+	}
+	return "";
+}
+
+static void FormatTime(const FString& timeForm, int timeVal, FString* result)
+{
+	FString error = CheckStrfString(timeForm);
+	if (!error.IsEmpty())
+		ThrowAbortException(X_FORMAT_ERROR, "'%s' is not a valid format specifier of SystemTime.Format()", error.GetChars());
+
+	time_t val = timeVal;
+	struct tm* timeinfo = localtime(&val);
+	if (timeinfo != nullptr)
+	{
+		char timeString[1024];
+		if (strftime(timeString, sizeof(timeString), timeForm, timeinfo))
+			*result = timeString;
+	}
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(_SystemTime, Now, GetEpochTime)
 {
 	PARAM_PROLOGUE;
-	ACTION_RETURN_INT(GetRealTime());
+	ACTION_RETURN_INT(GetEpochTime());
 }
+
+DEFINE_ACTION_FUNCTION_NATIVE(_SystemTime, Format, FormatTime)
+{
+	PARAM_PROLOGUE;
+	PARAM_STRING(timeForm);
+	PARAM_INT(timeVal);
+	FString result;
+	FormatTime(timeForm, timeVal, &result);
+	ACTION_RETURN_STRING(result);
+}
+
+//=====================================================================================
+//
+//
+//
+//=====================================================================================
 
 DEFINE_ACTION_FUNCTION_NATIVE(_AltHUD, GetLatency, Net_GetLatency)
 {
@@ -2897,7 +2962,7 @@ DEFINE_ACTION_FUNCTION_NATIVE(_AltHUD, GetLatency, Net_GetLatency)
 //
 //
 //==========================================================================
-DEFINE_GLOBAL(level);
+DEFINE_GLOBAL_NAMED(currentVMLevel, level)
 DEFINE_FIELD(FLevelLocals, sectors)
 DEFINE_FIELD(FLevelLocals, lines)
 DEFINE_FIELD(FLevelLocals, sides)

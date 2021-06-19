@@ -1418,12 +1418,15 @@ public:
 
 			case NAME_useowncoloradd_top:
 				sd->textures[side_t::top].flags |= side_t::part::UseOwnAdditiveColor * CheckBool(key);
+				break;
 
 			case NAME_useowncoloradd_mid:
 				sd->textures[side_t::mid].flags |= side_t::part::UseOwnAdditiveColor * CheckBool(key);
+				break;
 
 			case NAME_useowncoloradd_bottom:
 				sd->textures[side_t::bottom].flags |= side_t::part::UseOwnAdditiveColor * CheckBool(key);
+				break;
 
 			default:
 				break;

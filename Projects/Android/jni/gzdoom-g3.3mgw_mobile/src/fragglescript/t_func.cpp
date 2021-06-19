@@ -64,7 +64,7 @@
 #include "vm.h"
 #include "s_music.h"
 
-static FRandom pr_script("FScript");
+static FRandom pr_script("FScript", false);
 
 // functions. FParser::SF_ means Script Function not, well.. heh, me
 

@@ -53,6 +53,10 @@ extern cycle_t BotSupportCycles;
 extern cycle_t ActionCycles;
 extern int BotWTG;
 
+EXTERN_CVAR (Int, vid_renderer)
+EXTERN_CVAR (Bool, gl_lights)
+EXTERN_CVAR (Bool, r_dynlights)
+
 IMPLEMENT_CLASS(DThinker, false, false)
 
 DThinker *NextToThink;
@@ -624,11 +628,14 @@ void DThinker::RunThinkers ()
 			}
 		} while (count != 0);
 
-		for (auto light = level.lights; light;)
+		if (level.lights && (vid_renderer && gl_lights || !vid_renderer && r_dynlights))
 		{
-			auto next = light->next;
-			light->Tick();
-			light = next;
+			for (auto light = level.lights; light;)
+			{
+				auto next = light->next;
+				light->Tick();
+				light = next;
+			}
 		}
 	}
 	else
@@ -650,7 +657,7 @@ void DThinker::RunThinkers ()
 			}
 		} while (count != 0);
 
-		if (level.lights)
+		if (level.lights && (vid_renderer && gl_lights || !vid_renderer && r_dynlights))
 		{
 			// Also profile the internal dynamic lights, even though they are not implemented as thinkers.
 			auto &prof = Profiles[NAME_InternalDynamicLight];

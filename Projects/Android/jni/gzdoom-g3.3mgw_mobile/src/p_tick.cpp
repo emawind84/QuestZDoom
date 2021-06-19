@@ -104,6 +104,8 @@ void P_Ticker (void)
 				ac->flags8 &= ~MF8_RECREATELIGHTS;
 				ac->SetDynamicLights();
 			}
+			if (!(ac->ObjectFlags & OF_EuthanizeMe))
+				GC::CheckGC();
 		}
 		return;
 	}

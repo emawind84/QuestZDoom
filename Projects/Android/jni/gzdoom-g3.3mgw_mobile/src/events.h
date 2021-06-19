@@ -40,6 +40,8 @@ void E_WorldUnloadedUnsafe();
 void E_WorldThingSpawned(AActor* actor);
 // called after AActor::Die of each actor.
 void E_WorldThingDied(AActor* actor, AActor* inflictor);
+// called inside AActor::Grind just before the corpse is destroyed
+void E_WorldThingGround(AActor* actor);
 // called after AActor::Revive.
 void E_WorldThingRevived(AActor* actor);
 // called before P_DamageMobj and before AActor::DamageMobj virtuals.
@@ -70,6 +72,8 @@ void E_RenderOverlay(EHudState state);
 void E_RenderUnderlay(EHudState state);
 // this executes when a player enters the level (once). PlayerEnter+inhub = RETURN
 void E_PlayerEntered(int num, bool fromhub);
+// this executes at the same time as ENTER scripts
+void E_PlayerSpawned(int num);
 // this executes when a player respawns. includes resurrect cheat.
 void E_PlayerRespawned(int num);
 // this executes when a player dies (partially duplicating worldthingdied, but whatever)
@@ -160,6 +164,7 @@ public:
 	void WorldUnloaded();
 	void WorldThingSpawned(AActor* actor);
 	void WorldThingDied(AActor* actor, AActor* inflictor);
+	void WorldThingGround(AActor* actor);
 	void WorldThingRevived(AActor* actor);
 	void WorldThingDamaged(AActor* actor, AActor* inflictor, AActor* source, int damage, FName mod, int flags, DAngle angle);
 	void WorldThingDestroyed(AActor* actor);
@@ -177,6 +182,7 @@ public:
 
 	//
 	void PlayerEntered(int num, bool fromhub);
+	void PlayerSpawned(int num);
 	void PlayerRespawned(int num);
 	void PlayerDied(int num);
 	void PlayerDisconnected(int num);

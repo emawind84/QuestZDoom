@@ -38,7 +38,10 @@ class DoomStatusBar : BaseStatusBar
 
 	protected void DrawMainBar (double TicFrac)
 	{
-		DrawImage("STBAR", (0, 168), DI_ITEM_OFFSETS);
+		if (!fixunitystatusbar)
+			DrawImage("STBAR", (0, 168), DI_ITEM_OFFSETS);
+		else
+			DrawImage("STBAR", (160, 200), DI_ITEM_CENTER_BOTTOM);
 		DrawImage("STTPRCNT", (90, 171), DI_ITEM_OFFSETS);
 		DrawImage("STTPRCNT", (221, 171), DI_ITEM_OFFSETS);
 		

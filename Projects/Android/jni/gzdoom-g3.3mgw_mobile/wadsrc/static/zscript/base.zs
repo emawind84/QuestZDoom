@@ -7,7 +7,7 @@ struct _ native	// These are the global variables, the struct is only here to av
 	native readonly Array<@Team> Teams;
 	native int validcount;
 	native readonly bool multiplayer;
-	native play @LevelLocals level;
+	native play LevelLocals level;
 	native @KeyBindings Bindings;
 	native @KeyBindings AutomapBindings;
 	native play @DehInfo deh;
@@ -414,8 +414,15 @@ struct GameInfoStruct native
 	native double normsidemove[2];
 }
 
+struct SystemTime
+{
+	native static ui int Now(); // This returns the epoch time
+	native static clearscope String Format(String timeForm, int timeVal); // This converts an epoch time to a local time, then uses the strftime syntax to format it
+}
+
 class Object native
 {
+	const TICRATE = 35;
 	native bool bDestroyed;
 
 	// These must be defined in some class, so that the compiler can find them. Object is just fine, as long as they are private to external code.
@@ -434,7 +441,7 @@ class Object native
 	native static double G_SkillPropertyFloat(int p);
 	native static vector3, int G_PickDeathmatchStart();
 	native static vector3, int G_PickPlayerStart(int pnum, int flags = 0);
-	deprecated("4.3", "Use S_StartSound() instead") native static void S_Sound (Sound sound_id, int channel, float volume = 1, float attenuation = ATTN_NORM, float pitch = 0.0);
+	deprecated("4.3", "Use S_StartSound() instead") native static void S_Sound (Sound sound_id, int channel, float volume = 1, float attenuation = ATTN_NORM, float pitch = 0.0, float startTime = 0.0);
 	native static void S_StartSound (Sound sound_id, int channel, int flags = 0, float volume = 1, float attenuation = ATTN_NORM, float pitch = 0.0, float startTime = 0.0);
 	native static void S_PauseSound (bool notmusic, bool notsfx);
 	native static void S_ResumeSound (bool notsfx);
@@ -496,8 +503,8 @@ class Thinker : Object native play
 		MAX_STATNUM = 127
 	}
 
-	const TICRATE = 35;
-	
+	native LevelLocals Level; // hack hack
+
 	virtual native void Tick();
 	virtual native void PostBeginPlay();
 	native void ChangeStatNum(int stat);
@@ -781,6 +788,7 @@ struct LevelLocals native
 
 	native static void ExitLevel(int position, bool keepFacing);
 	native static void SecretExitLevel(int position);
+	native static void ChangeLevel(string levelname, int position = 0, int flags = 0, int skill = -1);
 }
 
 struct StringTable native

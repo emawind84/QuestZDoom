@@ -27,6 +27,10 @@ xx(Spray)
 xx(Ghost)
 xx(Reflective)
 
+// Iron Feet types
+//xx(Normal)	// defined below
+xx(Full)
+
 // Invisibility types
 xx(Additive)
 xx(Cumulative)
@@ -1058,6 +1062,9 @@ xx(AttackZOffset)
 xx(SpawnMask)
 xx(ScoreIcon)
 xx(ViewHeight)
+xx(ViewAngle)
+xx(ViewPitch)
+xx(ViewRoll)
 xx(FallingScreamMinSpeed)
 xx(FallingScreamMaxSpeed)
 xx(GruntSpeed)

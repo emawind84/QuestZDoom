@@ -45,6 +45,7 @@
 #include "g_levellocals.h"
 #include "actorinlines.h"
 #include "v_text.h"
+#include "s_sndseq.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -1561,7 +1562,7 @@ static void SpawnPolyobj (int index, int tag, int type)
 				po->bHurtOnTouch = (type == SMT_PolySpawnHurt);
 				po->tag = tag;
 				po->seqType = sd->linedef->args[2];
-				if (po->seqType < 0 || po->seqType > 63)
+				if (po->seqType < 0 || po->seqType > (MAX_SNDSEQS - 1))
 				{
 					po->seqType = 0;
 				}

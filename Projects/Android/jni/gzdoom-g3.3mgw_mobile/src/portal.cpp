@@ -274,7 +274,6 @@ void P_SpawnLinePortal(line_t* line)
 		line->portalindex = linePortals.Reserve(1);
 		FLinePortal *port = &linePortals.Last();
 
-		memset(port, 0, sizeof(FLinePortal));
 		port->mOrigin = line;
 		port->mDestination = dst;
 		port->mType = uint8_t(line->args[2]);	// range check is done above.
@@ -669,7 +668,6 @@ unsigned P_GetSkyboxPortal(AActor *actor)
 		if (level.sectorPortals[i].mSkybox == actor) return i;
 	}
 	unsigned i = level.sectorPortals.Reserve(1);
-	memset(&level.sectorPortals[i], 0, sizeof(level.sectorPortals[i]));
 	level.sectorPortals[i].mType = PORTS_SKYVIEWPOINT;
 	level.sectorPortals[i].mFlags = actor->GetClass()->IsDescendantOf("SkyCamCompat") ? 0 : PORTSF_SKYFLATONLY;
 	level.sectorPortals[i].mSkybox = actor;
@@ -694,7 +692,6 @@ DEFINE_ACTION_FUNCTION(FSectorPortal, GetSkyboxPortal)
 unsigned P_GetPortal(int type, int plane, sector_t *from, sector_t *to, const DVector2 &displacement)
 {
 	unsigned i = level.sectorPortals.Reserve(1);
-	memset(&level.sectorPortals[i], 0, sizeof(level.sectorPortals[i]));
 	level.sectorPortals[i].mType = type;
 	level.sectorPortals[i].mPlane = plane;
 	level.sectorPortals[i].mOrigin = from;
@@ -715,7 +712,6 @@ unsigned P_GetPortal(int type, int plane, sector_t *from, sector_t *to, const DV
 unsigned P_GetStackPortal(AActor *point, int plane)
 {
 	unsigned i = level.sectorPortals.Reserve(1);
-	memset(&level.sectorPortals[i], 0, sizeof(level.sectorPortals[i]));
 	level.sectorPortals[i].mType = PORTS_STACKEDSECTORTHING;
 	level.sectorPortals[i].mPlane = plane;
 	level.sectorPortals[i].mOrigin = point->target->Sector;

@@ -12,14 +12,32 @@ add_definitions(-DOPNMIDI_DISABLE_GX_EMULATOR)
 add_library( opn STATIC
 	chips/gens_opn2.cpp
 	chips/gens/Ym2612_Emu.cpp
-	chips/mame/mame_ym2612fm.c
+	chips/gx_opn2.cpp
+	chips/mamefm/fm.cpp
+	chips/mamefm/resampler.cpp
+	chips/mamefm/ymdeltat.cpp
 	chips/mame_opn2.cpp
+	chips/mame_opna.cpp
+	chips/np2/fmgen_file.cpp
+	chips/np2/fmgen_fmgen.cpp
+	chips/np2/fmgen_fmtimer.cpp
+	chips/np2/fmgen_opna.cpp
+	chips/np2/fmgen_psg.cpp
+	chips/np2_opna.cpp
 	chips/nuked_opn2.cpp
-	chips/nuked/ym3438.c
+	chips/pmdwin_opna.cpp
 	opnmidi.cpp
 	opnmidi_load.cpp
 	opnmidi_midiplay.cpp
 	opnmidi_opn2.cpp
 	opnmidi_private.cpp
-	wopn/wopn_file.c	)
+	chips/gx/gx_ym2612.c
+	chips/mamefm/emu2149.c
+	chips/mame/mame_ym2612fm.c
+	chips/nuked/ym3438.c
+	chips/pmdwin/opna.c
+	chips/pmdwin/psg.c
+	chips/pmdwin/rhythmdata.c
+	wopn/wopn_file.c
+	)
 target_link_libraries( opn )

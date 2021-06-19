@@ -52,6 +52,11 @@ FModule OpenALModule{"OpenAL"};
 
 #include "oalload.h"
 
+CUSTOM_CVAR(Int, snd_channels, 128, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)	// number of channels available
+{
+	if (self < 64) self = 64;
+}
+CVAR(Bool, snd_waterreverb, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) 
 CVAR (String, snd_aldevice, "Default", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Bool, snd_efx, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (String, snd_alresampler, "Default", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -176,7 +181,7 @@ class OpenALSoundStream : public SoundStream
 	ALuint Source;
 
 	std::atomic<bool> Playing;
-	bool Looping;
+	//bool Looping;
 	ALfloat Volume;
 
 	bool SetupSource()
@@ -222,7 +227,7 @@ class OpenALSoundStream : public SoundStream
 
 public:
 	OpenALSoundStream(OpenALSoundRenderer *renderer)
-	  : Renderer(renderer), Source(0), Playing(false), Looping(false), Volume(1.0f)
+	  : Renderer(renderer), Source(0), Playing(false), Volume(1.0f)
 	{
 		memset(Buffers, 0, sizeof(Buffers));
 		Renderer->AddStream(this);
@@ -1101,6 +1106,10 @@ SoundHandle OpenALSoundRenderer::LoadSound(uint8_t *sfxdata, int length)
 		data.resize(total * 2);
 	}
 	data.resize(total);
+	if (total == 0)
+	{
+		return retval;
+	}
 	SoundDecoder_Close(decoder);
 
 #ifdef __MOBILE__
@@ -1335,7 +1344,7 @@ FISoundChannel *OpenALSoundRenderer::StartSound3D(SoundHandle sfx, SoundListener
 		if(AL.EXT_source_distance_model)
 			alSourcei(source, AL_DISTANCE_MODEL, AL_INVERSE_DISTANCE);
 		alSourcef(source, AL_REFERENCE_DISTANCE, rolloff->MinDistance/distscale);
-		alSourcef(source, AL_MAX_DISTANCE, (1000.f+rolloff->MinDistance)/distscale);
+		alSourcef(source, AL_MAX_DISTANCE, std::numeric_limits<float>::max());
 		alSourcef(source, AL_ROLLOFF_FACTOR, rolloff->RolloffFactor);
 		manualRolloff = false;
 	}
@@ -1355,77 +1364,49 @@ FISoundChannel *OpenALSoundRenderer::StartSound3D(SoundHandle sfx, SoundListener
 		// when AL_EXT_source_distance_model is not supported, we have to play
 		// around a bit to get appropriate distance attenation. What we do is
 		// calculate the attenuation that should be applied, then given an
-		// Inverse Distance rolloff model with OpenAL, reverse the calculation
-		// to get the distance needed for that much attenuation. The Inverse
-		// Distance calculation is:
+		// Inverse Distance rolloff model with OpenAL, calculate the reference
+		// distance that will achieve that much attenuation with the current
+		// distance. The Inverse Distance calculation is:
 		//
 		// Gain = MinDist / (MinDist + RolloffFactor*(Distance - MinDist))
 		//
-		// Thus, the reverse is:
+		// Simplifying for RolloffFactor=1, it can be broken down by:
 		//
-		// Distance = (MinDist/Gain - MinDist)/RolloffFactor + MinDist
+		// Gain = MinDist / (MinDist + (Distance - MinDist))
+		// Gain = MinDist / Distance
+		// Gain * Distance = MinDist
 		//
-		// This can be simplified by using a MinDist and RolloffFactor of 1,
-		// which makes it:
-		//
-		// Distance = 1.0f/Gain;
-		//
-		// The source position is then set that many units away from the
-		// listener position, and OpenAL takes care of the rest.
+		// The source's reference distance is then set according to the desired
+		// gain and effective distance from the listener, and OpenAL takes care
+		// of the rest.
 		if(AL.EXT_source_distance_model)
 			alSourcei(source, AL_DISTANCE_MODEL, AL_INVERSE_DISTANCE);
-		alSourcef(source, AL_REFERENCE_DISTANCE, 1.f);
-		alSourcef(source, AL_MAX_DISTANCE, 100000.f);
+
+		float dist = sqrtf(dist_sqr);
+		float gain = GetRolloff(rolloff, dist * distscale);
+		// Don't let the ref distance go to 0, or else distance attenuation is
+		// lost with the inverse distance model.
+		alSourcef(source, AL_REFERENCE_DISTANCE, std::max<float>(gain*dist, 0.0004f));
+		alSourcef(source, AL_MAX_DISTANCE, std::numeric_limits<float>::max());
 		alSourcef(source, AL_ROLLOFF_FACTOR, 1.f);
+	}
 
-		if(AL.EXT_SOURCE_RADIUS)
-		{
-			/* Since the OpenAL distance is decoupled from the sound's distance, get the OpenAL
-			 * distance that corresponds to the area radius. */
-			float gain = GetRolloff(rolloff, AREA_SOUND_RADIUS);
-			alSourcef(source, AL_SOURCE_RADIUS, (chanflags&SNDF_AREA) ?
-				// Clamp in case the max distance is <= the area radius
-				((gain > 0.00001f) ? 1.f/gain : 100000.f) : 0.f
-			);
-		}
-
-		if(dist_sqr < (0.0004f*0.0004f))
-		{
-			// Head relative
-			alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
-			alSource3f(source, AL_POSITION, 0.f, 0.f, 0.f);
-		}
-		else
-		{
-			float gain = GetRolloff(rolloff, sqrtf(dist_sqr) * distscale);
-			FVector3 dir = pos - listener->position;
-			dir.MakeResize((gain > 0.00001f) ? 1.f/gain : 100000.f);
-			dir += listener->position;
-
-			alSourcei(source, AL_SOURCE_RELATIVE, AL_FALSE);
-			alSource3f(source, AL_POSITION, dir[0], dir[1], -dir[2]);
-		}
+	if(dist_sqr < (0.0004f*0.0004f))
+	{
+		// Head relative
+		alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+		alSource3f(source, AL_POSITION, 0.f, 0.f, 0.f);
 	}
 	else
 	{
-		if(AL.EXT_SOURCE_RADIUS)
-			alSourcef(source, AL_SOURCE_RADIUS, (chanflags&SNDF_AREA) ? AREA_SOUND_RADIUS : 0.f);
-
-		if(dist_sqr < (0.0004f*0.0004f))
-		{
-			// Head relative
-			alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
-			alSource3f(source, AL_POSITION, 0.f, 0.f, 0.f);
-		}
-		else
-		{
-			alSourcei(source, AL_SOURCE_RELATIVE, AL_FALSE);
-			alSource3f(source, AL_POSITION, pos[0], pos[1], -pos[2]);
-		}
+		alSourcei(source, AL_SOURCE_RELATIVE, AL_FALSE);
+		alSource3f(source, AL_POSITION, pos[0], pos[1], -pos[2]);
 	}
 	alSource3f(source, AL_VELOCITY, vel[0], vel[1], -vel[2]);
 	alSource3f(source, AL_DIRECTION, 0.f, 0.f, 0.f);
 	alSourcef(source, AL_DOPPLER_FACTOR, 0.f);
+	if(AL.EXT_SOURCE_RADIUS)
+		alSourcef(source, AL_SOURCE_RADIUS, (chanflags&SNDF_AREA) ? AREA_SOUND_RADIUS : 0.f);
 
 	alSourcei(source, AL_LOOPING, (chanflags&SNDF_LOOP) ? AL_TRUE : AL_FALSE);
 
@@ -1551,6 +1532,9 @@ void OpenALSoundRenderer::StopChannel(FISoundChannel *chan)
 	if((i=SfxGroup.Find(source)) < SfxGroup.Size())
 		SfxGroup.Delete(i);
 
+	if (!(chan->ChanFlags & CHANF_EVICTED))
+		soundEngine->SoundDone(chan);
+
 	FreeSfx.Push(source);
 }
 
@@ -1671,8 +1655,7 @@ void OpenALSoundRenderer::UpdateSoundParams3D(SoundListener *listener, FISoundCh
 	if(chan == NULL || chan->SysChannel == NULL)
 		return;
 
-	FVector3 dir = pos - listener->position;
-	float dist_sqr = (float)dir.LengthSquared();
+	float dist_sqr = (float)(pos - listener->position).LengthSquared();
 	chan->DistanceSqr = dist_sqr;
 
 	alDeferUpdatesSOFT();
@@ -1687,13 +1670,13 @@ void OpenALSoundRenderer::UpdateSoundParams3D(SoundListener *listener, FISoundCh
 	{
 		if(chan->ManualRolloff)
 		{
-			float gain = GetRolloff(&chan->Rolloff, sqrtf(dist_sqr)*chan->DistanceScale);
-			dir.MakeResize((gain > 0.00001f) ? 1.f/gain : 100000.f);
+			float dist = sqrtf(dist_sqr);
+			float gain = GetRolloff(&chan->Rolloff, dist * chan->DistanceScale);
+			alSourcef(source, AL_REFERENCE_DISTANCE, std::max<float>(gain*dist, 0.0004f));
 		}
-		dir += listener->position;
 
 		alSourcei(source, AL_SOURCE_RELATIVE, AL_FALSE);
-		alSource3f(source, AL_POSITION, dir[0], dir[1], -dir[2]);
+		alSource3f(source, AL_POSITION, pos[0], pos[1], -pos[2]);
 	}
 	alSource3f(source, AL_VELOCITY, vel[0], vel[1], -vel[2]);
 	getALError();

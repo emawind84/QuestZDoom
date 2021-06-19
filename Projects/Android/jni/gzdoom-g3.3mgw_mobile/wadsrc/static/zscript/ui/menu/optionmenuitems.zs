@@ -44,20 +44,32 @@ class OptionMenuItem : MenuItemBase
 		mCentered = center;
 	}
 
+	protected void drawText(int x, int y, int color, String text, bool grayed = false)
+	{
+		String label = Stringtable.Localize(mLabel);
+
+		int overlay = grayed? Color(96,48,0,0) : 0;
+
+		screen.DrawText (SmallFont, Menu.OptionColor(color), x, y, text, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay);
+	}
+
 	protected int drawLabel(int indent, int y, int color, bool grayed = false)
 	{
 		String label = Stringtable.Localize(mLabel);
-		
-		int overlay = grayed? Color(96,48,0,0) : 0;
 
 		int x;
 		int w = SmallFont.StringWidth(label) * CleanXfac_1;
 		if (!mCentered) x = indent - w;
 		else x = (screen.GetWidth() - w) / 2;
-		screen.DrawText (SmallFont, color, x, y, label, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay);
+		DrawText(x, y, color, label, grayed);
 		return x;
 	}
-	
+
+	protected void drawValue(int indent, int y, int color, String text, bool grayed = false)
+	{
+		DrawText(indent + CursorSpace(), y, color, text, grayed);
+	}
+
 	int CursorSpace()
 	{
 		return (14 * CleanXfac_1);
@@ -836,7 +848,7 @@ class OptionMenuItemSlider : OptionMenuSliderBase
 {
 	CVar mCVar;
 	
-	OptionMenuItemSlider Init(String label, Name command, double min, double max, double step, int showval = 1)
+	OptionMenuItemSlider Init(String label, Name command, double min, double max, double step, int showval = 1, CVar graycheck = NULL)
 	{
 		Super.Init(label, min, max, step, showval, command);
 		mCVar =CVar.FindCVar(command);

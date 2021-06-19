@@ -11,7 +11,7 @@ public:
 		PT_TwoSided = 1,	// like normal, but don't cull backfaces
 		PT_Translucent = 2,	// additive blending
 		PT_Masked = 3,		// draw with alpha testing
-		PT_Modulated = 4,	// overlay-like blending (rgb values below 128 darken, 128 is unchanged, and above 128 lighten)
+		PT_Modulated = 4,	// modulated blending (src*dest*2)
 		// types mask
 		PT_Type = 7,
 		// flags
@@ -84,6 +84,8 @@ private:
 	struct UE1Vertex
 	{
 		FVector3 Pos, Normal;
+		TArray<int> P;	// polys that reference this vertex, used in normal computation to save time
+		int nP;	// count of those polys
 	};
 	struct UE1Poly
 	{
@@ -101,7 +103,7 @@ private:
 	int numFrames;
 	int numPolys;
 	int numGroups;
-	int weaponPoly;	// for future model attachment support, unused for now
+	TArray<int> specialPolys;	// for future model attachment support, unused for now
 
 	TArray<UE1Vertex> verts;
 	TArray<UE1Poly> polys;

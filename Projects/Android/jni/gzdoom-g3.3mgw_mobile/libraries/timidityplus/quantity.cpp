@@ -30,7 +30,6 @@
 #include "timidity.h"
 #include "common.h"
 #include "instrum.h"
-#include "playmidi.h"
 #include "tables.h"
 
 #include "quantity.h"

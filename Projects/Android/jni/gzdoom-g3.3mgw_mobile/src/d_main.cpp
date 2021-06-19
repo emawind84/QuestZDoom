@@ -204,6 +204,7 @@ CUSTOM_CVAR (Int, fraglimit, 0, CVAR_SERVERINFO)
 CVAR (Float, timelimit, 0.f, CVAR_SERVERINFO);
 CVAR (Int, wipetype, 1, CVAR_ARCHIVE);
 CVAR (Int, snd_drawoutput, 0, 0);
+CVAR (Bool, fixunitystatusbar, false, 0);
 CUSTOM_CVAR (String, vid_cursor, "None", CVAR_ARCHIVE | CVAR_NOINITCALL)
 {
 	bool res = false;
@@ -226,6 +227,8 @@ CUSTOM_CVAR (String, vid_cursor, "None", CVAR_ARCHIVE | CVAR_NOINITCALL)
 CVAR (Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 CVAR (Bool, autoloadbrightmaps, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 CVAR (Bool, autoloadlights, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
+CVAR (Bool, autoloadwidescreen, true, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
+CVAR (Bool, autoloadconpics, true, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 CVAR (Bool, r_debug_disable_vis_filter, false, 0)
 
 bool wantToRestart;
@@ -455,6 +458,7 @@ CVAR (Flag, sv_cooplosearmor,	dmflags, DF_COOP_LOSE_ARMOR);
 CVAR (Flag, sv_cooplosepowerups,	dmflags, DF_COOP_LOSE_POWERUPS);
 CVAR (Flag, sv_cooploseammo,	dmflags, DF_COOP_LOSE_AMMO);
 CVAR (Flag, sv_coophalveammo,	dmflags, DF_COOP_HALVE_AMMO);
+CVAR (Flag, sv_instantreaction,	dmflags, DF_INSTANT_REACTION);
 
 // Some (hopefully cleaner) interface to these settings.
 CVAR (Mask, sv_crouch,			dmflags, DF_NO_CROUCH|DF_YES_CROUCH);
@@ -533,6 +537,7 @@ CVAR (Flag, sv_dontcheckammo,		dmflags2, DF2_DONTCHECKAMMO);
 CVAR (Flag, sv_killbossmonst,		dmflags2, DF2_KILLBOSSMONST);
 CVAR (Flag, sv_nocountendmonst,		dmflags2, DF2_NOCOUNTENDMONST);
 CVAR (Flag, sv_respawnsuper,		dmflags2, DF2_RESPAWN_SUPER);
+CVAR (Flag, sv_nothingspawn,		dmflags2, DF2_NO_COOP_THING_SPAWN);
 
 //==========================================================================
 //
@@ -595,7 +600,7 @@ CUSTOM_CVAR(Int, compatmode, 0, CVAR_ARCHIVE|CVAR_NOINITCALL)
 			COMPATF_TRACE | COMPATF_MISSILECLIP | COMPATF_SOUNDTARGET | COMPATF_NO_PASSMOBJ | COMPATF_LIMITPAIN |
 			COMPATF_DEHHEALTH | COMPATF_INVISIBILITY | COMPATF_CROSSDROPOFF | COMPATF_CORPSEGIBS | COMPATF_HITSCAN |
 			COMPATF_WALLRUN | COMPATF_NOTOSSDROPS | COMPATF_LIGHT | COMPATF_MASKEDMIDTEX;
-		w = COMPATF2_BADANGLES | COMPATF2_FLOORMOVE | COMPATF2_POINTONLINE | COMPATF2_EXPLODE2;
+		w = COMPATF2_BADANGLES | COMPATF2_FLOORMOVE | COMPATF2_POINTONLINE | COMPATF2_EXPLODE2 | COMPATF2_OLD_RANDOM_GENERATOR;
 		break;
 
 	case 3: // Boom compat mode
@@ -674,6 +679,7 @@ CVAR (Flag, compat_checkswitchrange,	compatflags2, COMPATF2_CHECKSWITCHRANGE);
 CVAR (Flag, compat_explode1,			compatflags2, COMPATF2_EXPLODE1);
 CVAR (Flag, compat_explode2,			compatflags2, COMPATF2_EXPLODE2);
 CVAR (Flag, compat_railing,				compatflags2, COMPATF2_RAILING);
+CVAR (Flag, compat_oldrandom,			compatflags2, COMPATF2_OLD_RANDOM_GENERATOR);
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
@@ -1017,6 +1023,8 @@ void D_Display ()
 
 void D_ErrorCleanup ()
 {
+	bool aux;
+
 	savegamerestore = false;
 	if (screen)
 	screen->Unlock ();
@@ -1025,7 +1033,9 @@ void D_ErrorCleanup ()
 	if (demorecording || demoplayback)
 		G_CheckDemoStatus ();
 	Net_ClearBuffers ();
+	aux = netgame; // for NetServerInfo
 	G_NewInit ();
+	netgame = aux;
 	M_ClearMenus ();
 	singletics = false;
 	playeringame[0] = 1;
@@ -1823,6 +1833,14 @@ const char *BaseFileSearch (const char *file, const char *ext, bool lookfirstinp
 		}
 	}
 
+#ifdef __MOBILE__
+	mysnprintf(wad, countof(wad), "./res/%s", file);
+	if (DirEntryExists(wad))
+	{
+		return wad;
+	}
+#endif
+
 	// Retry, this time with a default extension
 	if (ext != NULL)
 	{
@@ -1991,6 +2009,16 @@ static FString ParseGameInfo(TArray<FString> &pwads, const char *fn, const char 
 			sc.MustGetNumber();
 			DoomStartupInfo.LoadBrightmaps = !!sc.Number;
 		}
+		else if (!nextKey.CompareNoCase("LOADWIDESCREEN"))
+		{
+			sc.MustGetNumber();
+			DoomStartupInfo.LoadWidescreen = !!sc.Number;
+		}
+		else if (!nextKey.CompareNoCase("LOADCONPICS"))
+		{
+			sc.MustGetNumber();
+			DoomStartupInfo.LoadConpics = !!sc.Number;
+		}
 		else
 		{
 			// Silently ignore unknown properties
@@ -2121,6 +2149,7 @@ static void D_DoomInit()
 	srand(rngseed);
 		
 	FRandom::StaticClearRandom ();
+	M_ClearRandom();
 
 	if (!batchrun) Printf ("M_LoadDefaults: Load system defaults.\n");
 	M_LoadDefaults ();			// load before initing other systems
@@ -2141,15 +2170,27 @@ static void AddAutoloadFiles(const char *autoname)
 	{
 		if (DoomStartupInfo.LoadLights == 1 || (DoomStartupInfo.LoadLights != 0 && autoloadlights))
 		{
-			const char *lightswad = BaseFileSearch ("lights.pk3", NULL);
+			const char *lightswad = BaseFileSearch ("lights.pk3", NULL, true);
 			if (lightswad)
 				D_AddFile (allwads, lightswad);
 		}
 		if (DoomStartupInfo.LoadBrightmaps == 1 || (DoomStartupInfo.LoadBrightmaps != 0 && autoloadbrightmaps))
 		{
-			const char *bmwad = BaseFileSearch ("brightmaps.pk3", NULL);
+			const char *bmwad = BaseFileSearch ("brightmaps.pk3", NULL, true);
 			if (bmwad)
 				D_AddFile (allwads, bmwad);
+		}
+		if (DoomStartupInfo.LoadWidescreen == 1 || (DoomStartupInfo.LoadWidescreen != 0 && autoloadwidescreen))
+		{
+			const char *wswad = BaseFileSearch ("game_widescreen_gfx.pk3", NULL, true);
+			if (wswad)
+				D_AddFile (allwads, wswad);
+		}
+		if (DoomStartupInfo.LoadConpics == 1 || (DoomStartupInfo.LoadConpics != 0 && autoloadconpics))
+		{
+			const char *conpicswad = BaseFileSearch ("game_conpics_gfx.pk3", NULL, true);
+			if (conpicswad)
+				D_AddFile (allwads, conpicswad);
 		}
 	}
 
@@ -2334,6 +2375,29 @@ static void CheckCmdLine()
 }
 
 
+static void FixUnityStatusBar()
+{
+	if (gameinfo.flags & GI_FIXUNITYSBAR)
+	{
+		FTexture* sbartex = TexMan.FindTexture("stbar", ETextureType::MiscPatch);
+
+		// texture not found, we're not here to operate on a non-existent texture so just exit
+		if (!sbartex)
+			return;
+
+		// where is this texture located? if it's not in an iwad, then exit
+		int lumpnum = sbartex->GetSourceLump();
+		if (lumpnum >= 0 && lumpnum < Wads.GetNumLumps())
+		{
+			int wadno = Wads.GetLumpFile(lumpnum);
+			if (wadno != Wads.GetIwadNum())
+				return;
+		}
+
+		fixunitystatusbar = true;
+	}
+}
+
 //==========================================================================
 //
 // D_DoomMain
@@ -2365,6 +2429,7 @@ static int D_DoomMain_Internal (void)
 	else if (batchout != NULL && *batchout != 0)
 	{
 		batchrun = true;
+		nosound = true;
 		execLogfile(batchout, true);
 		Printf("Command line: ");
 		for (int i = 0; i < Args->NumArgs(); i++)
@@ -2571,6 +2636,8 @@ static int D_DoomMain_Internal (void)
 		if (!batchrun) Printf ("Texman.Init: Init texture manager.\n");
 		TexMan.Init();
 		C_InitConback();
+
+		FixUnityStatusBar();
 
 		StartScreen->Progress();
 		V_InitFonts();
@@ -2915,10 +2982,10 @@ void D_Cleanup()
 		DeinitMenus();
 		LightDefaults.Clear();			// this can leak heap memory if it isn't cleared.
 
-		// delete DoomStartupInfo data
-		DoomStartupInfo.Name = "";
-		DoomStartupInfo.BkColor = DoomStartupInfo.FgColor = DoomStartupInfo.Type = 0;
-		DoomStartupInfo.LoadLights = DoomStartupInfo.LoadBrightmaps = -1;
+	// delete DoomStartupInfo data
+	DoomStartupInfo.Name = "";
+	DoomStartupInfo.BkColor = DoomStartupInfo.FgColor = DoomStartupInfo.Type = 0;
+	DoomStartupInfo.LoadConpics = DoomStartupInfo.LoadWidescreen = DoomStartupInfo.LoadLights = DoomStartupInfo.LoadBrightmaps = -1;
 
 		GC::FullGC();					// clean up before taking down the object list.
 

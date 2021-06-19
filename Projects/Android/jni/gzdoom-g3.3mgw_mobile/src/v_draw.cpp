@@ -375,9 +375,9 @@ void DCanvas::CalcFullscreenScale(double srcwidth, double srcheight, int autoasp
 {
 	double aspect;
 
-	if (srcheight == 200) aspect = srcwidth / 240.;
-	else if (srcheight == 400) aspect = srcwidth / 480;
-	else aspect = srcwidth / srcheight;
+	if (srcheight == 200) srcheight = 240.;
+	else if (srcheight == 400) srcheight = 480;
+	aspect = srcwidth / srcheight;
 	rect.left = rect.top = 0;
 	auto screenratio = ActiveRatio(GetWidth(), GetHeight());
 	if (autoaspect == 3)
@@ -391,7 +391,7 @@ void DCanvas::CalcFullscreenScale(double srcwidth, double srcheight, int autoasp
 			rect.width = (double)GetWidth() * srcwidth / width4_3;
 			rect.height = GetHeight() * screenratio * (3. / 4.);	// use 4:3 for the image
 			rect.top = (GetHeight() - rect.height) / 2;
-			rect.left = -(srcwidth - width4_3) / 2;
+			rect.left = (double)GetWidth() * (-(srcwidth - width4_3) / 2) / width4_3;
 			return;
 		}
 	}

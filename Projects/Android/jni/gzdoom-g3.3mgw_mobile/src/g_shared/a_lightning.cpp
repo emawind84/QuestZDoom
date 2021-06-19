@@ -47,7 +47,7 @@ DLightningThinker::DLightningThinker ()
 {
 	Stopped = false;
 	LightningFlashCount = 0;
-	NextLightningFlash = ((pr_lightning()&15)+5)*35; // don't flash at level start
+	NextLightningFlash = ((pr_lightning()&15)+5)*TICRATE; // don't flash at level start
 
 	LightningLightLevels.Resize(level.sectors.Size());
 	fillshort(&LightningLightLevels[0], LightningLightLevels.Size(), SHRT_MAX);
@@ -171,11 +171,11 @@ void DLightningThinker::LightningFlash ()
 		{
 			if (pr_lightning() < 128 && !(level.time&32))
 			{
-				NextLightningFlash = ((pr_lightning()&7)+2)*35;
+				NextLightningFlash = ((pr_lightning()&7)+2)*TICRATE;
 			}
 			else
 			{
-				NextLightningFlash = ((pr_lightning()&15)+5)*35;
+				NextLightningFlash = ((pr_lightning()&15)+5)*TICRATE;
 			}
 		}
 	}

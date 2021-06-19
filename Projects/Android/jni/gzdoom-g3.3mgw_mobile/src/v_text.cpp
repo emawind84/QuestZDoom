@@ -303,6 +303,11 @@ TArray<FBrokenLines> V_BreakLines (FFont *font, int maxwidth, const uint8_t *str
 {
 	TArray<FBrokenLines> Lines(128);
 
+#ifdef __ANDROID__ // Trying to fix crash seen in console
+	if(!string || !font)
+		return Lines;
+#endif
+
 	const uint8_t *space = NULL, *start = string;
 	int c, w, nw;
 	FString lastcolor, linecolor;

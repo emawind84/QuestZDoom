@@ -73,6 +73,7 @@ class Actor : Thinker native
 	const DEFAULT_HEALTH = 1000;
 	const ONFLOORZ = -2147483648.0;
 	const ONCEILINGZ = 2147483647.0;
+	const STEEPSLOPE = (46342./65536.);	// [RH] Minimum floorplane.c value for walking
 	const FLOATRANDZ = ONCEILINGZ-1;
 	const TELEFRAG_DAMAGE = 1000000;
 	const MinVel = 1./65536;
@@ -91,10 +92,10 @@ class Actor : Thinker native
 	native vector3 Prev;
 	native double spriteAngle;
 	native double spriteRotation;
-	native double VisibleStartAngle;
-	native double VisibleStartPitch;
-	native double VisibleEndAngle;
-	native double VisibleEndPitch;
+	native float VisibleStartAngle;
+	native float VisibleStartPitch;
+	native float VisibleEndAngle;
+	native float VisibleEndPitch;
 	native double Angle;
 	native double Pitch;
 	native double Roll;
@@ -148,7 +149,7 @@ class Actor : Thinker native
 	native int StartHealth;
 	native uint8 WeaveIndexXY;
 	native uint8 WeaveIndexZ;
-	native int skillrespawncount;
+	native uint16 skillrespawncount;
 	native int Args[5];
 	native int Mass;
 	native int Special;
@@ -216,6 +217,7 @@ class Actor : Thinker native
 	native sound CrushPainSound;
 	native double MaxDropoffHeight;
 	native double MaxStepHeight;
+	native double MaxSlopeSteepness;
 	native int16 PainChance;
 	native name PainType;
 	native name DeathType;
@@ -231,6 +233,7 @@ class Actor : Thinker native
 	native uint8 fountaincolor;
 	native double CameraHeight;	// Height of camera when used as such
 	native double CameraFOV;
+	native double ViewAngle, ViewPitch, ViewRoll;
 	native double RadiusDamageFactor;		// Radius damage factor
 	native double SelfDamageFactor;
 	native double StealthAlpha;
@@ -311,6 +314,7 @@ class Actor : Thinker native
 	property MinMissileChance: MinMissileChance;
 	property MaxStepHeight: MaxStepHeight;
 	property MaxDropoffHeight: MaxDropoffHeight;
+	property MaxSlopeSteepness: MaxSlopeSteepness;
 	property PoisonDamageType: PoisonDamageType;
 	property RadiusDamageFactor: RadiusDamageFactor;
 	property SelfDamageFactor: SelfDamageFactor;
@@ -369,6 +373,7 @@ class Actor : Thinker native
 		MeleeRange 64 - 20;
 		MaxDropoffHeight 24;
 		MaxStepHeight 24;
+		MaxSlopeSteepness STEEPSLOPE;
 		BounceFactor 0.7;
 		WallBounceFactor 0.75;
 		BounceCount -1;
@@ -584,6 +589,11 @@ class Actor : Thinker native
 
 	// called on getting a secret, return false to disable default "secret found" message/sound
 	virtual bool OnGiveSecret(bool printmsg, bool playsound) { return true; }
+
+	// called before and after triggering a teleporter
+	// return false in PreTeleport() to cancel the action early
+	virtual bool PreTeleport( Vector3 destpos, double destangle, int flags ) { return true; }
+	virtual void PostTeleport( Vector3 destpos, double destangle, int flags ) {}
 	
 	native virtual bool OkayToSwitchTarget(Actor other);
 	native static class<Actor> GetReplacement(class<Actor> cls);
@@ -857,9 +867,9 @@ class Actor : Thinker native
 		return SpawnMissileAngleZSpeed (pos.z + 32 + GetBobOffset(), type, angle, vz, GetDefaultSpeed (type));
 	}
 
-	Actor SpawnMissileAngleZ (double z, class<Actor> type, double angle, double vz)
+	Actor SpawnMissileAngleZ (double z, class<Actor> type, double angle, double vz, Actor owner = null)
 	{
-		return SpawnMissileAngleZSpeed (z, type, angle, vz, GetDefaultSpeed (type));
+		return SpawnMissileAngleZSpeed (z, type, angle, vz, GetDefaultSpeed (type), owner);
 	}
 	
 
@@ -1076,7 +1086,7 @@ class Actor : Thinker native
 	native void A_FadeOut(double reduce = 0.1, int flags = 1); //bool remove == true
 	native void A_FadeTo(double target, double amount = 0.1, int flags = 0);
 	native void A_SpawnDebris(class<Actor> spawntype, bool transfer_translation = false, double mult_h = 1, double mult_v = 1);
-	native void A_SpawnParticle(color color1, int flags = 0, int lifetime = 35, double size = 1, double angle = 0, double xoff = 0, double yoff = 0, double zoff = 0, double velx = 0, double vely = 0, double velz = 0, double accelx = 0, double accely = 0, double accelz = 0, double startalphaf = 1, double fadestepf = -1, double sizestep = 0);
+	native void A_SpawnParticle(color color1, int flags = 0, int lifetime = TICRATE, double size = 1, double angle = 0, double xoff = 0, double yoff = 0, double zoff = 0, double velx = 0, double vely = 0, double velz = 0, double accelx = 0, double accely = 0, double accelz = 0, double startalphaf = 1, double fadestepf = -1, double sizestep = 0);
 	native void A_ExtChase(bool usemelee, bool usemissile, bool playactive = true, bool nightmarefast = false);
 	native void A_DropInventory(class<Inventory> itemtype, int amount = -1);
 	native void A_SetBlend(color color1, double alpha, int tics, color color2 = 0, double alpha2 = 0.);
@@ -1104,7 +1114,7 @@ class Actor : Thinker native
 	native void A_Burst(class<Actor> chunktype);
 	native void A_RadiusDamageSelf(int damage = 128, double distance = 128, int flags = 0, class<Actor> flashtype = null);
 	native int GetRadiusDamage(Actor thing, int damage, int distance, int fulldmgdistance = 0, bool oldradiusdmg = false);
-	native int RadiusAttack(Actor bombsource, int bombdamage, int bombdistance, Name bombmod = 'none', int flags = RADF_HURTSOURCE, int fulldamagedistance = 0);
+	native int RadiusAttack(Actor bombsource, int bombdamage, int bombdistance, Name bombmod = 'none', int flags = RADF_HURTSOURCE, int fulldamagedistance = 0, name species = "None");
 	
 	native void A_Respawn(int flags = 1);
 	native void A_RestoreSpecialPosition();
@@ -1116,6 +1126,9 @@ class Actor : Thinker native
 	native void A_SetAngle(double angle = 0, int flags = 0, int ptr = AAPTR_DEFAULT);
 	native void A_SetPitch(double pitch, int flags = 0, int ptr = AAPTR_DEFAULT);
 	native void A_SetRoll(double roll, int flags = 0, int ptr = AAPTR_DEFAULT);
+	native void A_SetViewAngle(double angle = 0, int flags = 0, int ptr = AAPTR_DEFAULT);
+	native void A_SetViewPitch(double pitch, int flags = 0, int ptr = AAPTR_DEFAULT);
+	native void A_SetViewRoll(double roll, int flags = 0, int ptr = AAPTR_DEFAULT);
 	deprecated("2.3", "User variables are deprecated in ZScript. Actor variables are directly accessible") native void A_SetUserVar(name varname, int value);
 	deprecated("2.3", "User variables are deprecated in ZScript. Actor variables are directly accessible") native void A_SetUserArray(name varname, int index, int value);
 	deprecated("2.3", "User variables are deprecated in ZScript. Actor variables are directly accessible") native void A_SetUserVarFloat(name varname, double value);

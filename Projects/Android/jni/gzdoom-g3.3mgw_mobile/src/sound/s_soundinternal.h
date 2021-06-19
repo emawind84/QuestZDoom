@@ -8,7 +8,12 @@ struct FRandomSoundList
 	uint32_t Owner = 0;
 };
 
-extern int sfx_empty;
+enum
+{
+	sfx_empty = -1
+};
+
+
 
 //
 // SoundFX struct.
@@ -17,71 +22,38 @@ struct sfxinfo_t
 {
 	// Next field is for use by the system sound interface.
 	// A non-null data means the sound has been loaded.
-	SoundHandle	data;
+	SoundHandle	data{};
 
-	FString		name;					// [RH] Sound name defined in SNDINFO
-	int 		lumpnum;				// lump number of sfx
+	FString		name;								// [RH] Sound name defined in SNDINFO
+	int 		lumpnum = sfx_empty;				// lump number of sfx
 
-	unsigned int next, index;			// [RH] For hashing
-	float		Volume;
+	unsigned int next = -1, index = 0;				// [RH] For hashing
+	float		Volume = 1.f;
 
-	int			ResourceId;				// Resource ID as implemented by Blood. Not used by Doom but added for completeness.
-	uint8_t		PitchMask;
-	int16_t		NearLimit;				// 0 means unlimited
-	float		LimitRange;				// Range for sound limiting (squared for faster computations)
+	int			ResourceId = -1;					// Resource ID as implemented by Blood. Not used by Doom but added for completeness.
+	float		LimitRange = 256*256;				// Range for sound limiting (squared for faster computations)
+	float		DefPitch = 0.f;						// A defined pitch instead of a random one the sound plays at, similar to A_StartSound.
+	float		DefPitchMax = 0.f;					// Randomized range with stronger control over pitch itself.
 
-	unsigned		bRandomHeader:1;
-	unsigned		bLoadRAW:1;
-	unsigned		b16bit:1;
-	unsigned		bUsed:1;
-	unsigned		bSingular:1;
+	int16_t		NearLimit = 4;						// 0 means unlimited.
+	uint8_t		PitchMask = 0;
+	bool		bRandomHeader = false;
+	bool		bLoadRAW = false;
+	bool		b16bit = false;
+	bool		bUsed = false;
+	bool		bSingular = false;
+	bool		bTentative = true;
 
-	unsigned		bTentative:1;
-	unsigned		bPlayerReserve : 1;
-	unsigned		bPlayerCompat : 1;
-	unsigned		bPlayerSilent:1;		// This player sound is intentionally silent.
+	TArray<int> UserData;
 
-	int		RawRate;				// Sample rate to use when bLoadRAW is true
+	int			RawRate = 0;				// Sample rate to use when bLoadRAW is true
+	int			LoopStart = -1;				// -1 means no specific loop defined
 
-	int			LoopStart;				// -1 means no specific loop defined
-
-	unsigned int link;
+	unsigned int link = NO_LINK;;
 	enum { NO_LINK = 0xffffffff };
 
-	FRolloffInfo	Rolloff;
-	float		Attenuation;			// Multiplies the attenuation passed to S_Sound.
-
-	void		MarkUsed();				// Marks this sound as used.
-
-	void Clear()
-	{
-		data.Clear();
-		lumpnum = -1;				// lump number of sfx
-		next = -1;
-		index = 0;			// [RH] For hashing
-		Volume = 1.f;
-		ResourceId = -1;
-		PitchMask = 0;
-		NearLimit = 4;				// 0 means unlimited
-		LimitRange = 256*256;
-
-		bRandomHeader = false;
-		bLoadRAW = false;
-		b16bit= false;
-		bUsed = false;
-		bSingular = false;
-
-		bTentative = true;
-
-		RawRate = 0;				// Sample rate to use when bLoadRAW is true
-
-		LoopStart = 0;				// -1 means no specific loop defined
-
-		link = NO_LINK;
-
-		Rolloff = {};
-		Attenuation = 1.f;
-	}
+	FRolloffInfo	Rolloff{};
+	float		Attenuation = 1.f;			// Multiplies the attenuation passed to S_Sound.
 };
 
 // Rolloff types
@@ -166,16 +138,14 @@ struct FSoundChan : public FISoundChannel
 	FSoundID	OrgID;		// Sound ID of sound used to start this channel.
 	float		Volume;
 	int 		EntChannel;	// Actor's sound channel.
+	int			UserData;	// Not used by the engine, the caller can use this to store some additional info.
 	int16_t		Pitch;		// Pitch variation.
 	int16_t		NearLimit;
 	int8_t		Priority;
 	uint8_t		SourceType;
 	float		LimitRange;
-	union
-	{
-		const void *Source;
-		float Point[3];	// Sound is not attached to any source.
-	};
+	const void *Source;
+	float Point[3];	// Sound is not attached to any source.
 };
 
 
@@ -209,14 +179,11 @@ enum EChannel
 #define ATTN_IDLE				1.001f
 #define ATTN_STATIC				3.f	// diminish very rapidly with distance
 
-enum // This cannot be remain as this, but for now it has to suffice.
+enum // The core source types, implementations may extend this list as they see fit.
 {
 	SOURCE_Any = -1,	// Input for check functions meaning 'any source'
-	SOURCE_None,		// Sound is always on top of the listener.
-	SOURCE_Actor,		// Sound is coming from an actor.
-	SOURCE_Sector,		// Sound is coming from a sector.
-	SOURCE_Polyobj,		// Sound is coming from a polyobject.
 	SOURCE_Unattached,	// Sound is not attached to any particular emitter.
+	SOURCE_None,		// Sound is always on top of the listener.
 };
 
 
@@ -265,13 +232,16 @@ private:
 
 	// Checks if a copy of this sound is already playing.
 	bool CheckSingular(int sound_id);
-	bool CheckSoundLimit(sfxinfo_t* sfx, const FVector3& pos, int near_limit, float limit_range, int sourcetype, const void* actor, int channel);
 	virtual TArray<uint8_t> ReadSound(int lumpnum) = 0;
 protected:
+	virtual bool CheckSoundLimit(sfxinfo_t* sfx, const FVector3& pos, int near_limit, float limit_range, int sourcetype, const void* actor, int channel, float attenuation);
 	virtual FSoundID ResolveSound(const void *ent, int srctype, FSoundID soundid, float &attenuation);
 
 public:
-	virtual ~SoundEngine() = default;
+	virtual ~SoundEngine()
+	{
+		Shutdown();
+	}
 	void EvictAllChannels();
 
 	void BlockNewSounds(bool on)
@@ -279,7 +249,10 @@ public:
 		blockNewSounds = on;
 	}
 
-	void StopChannel(FSoundChan* chan);
+	virtual int SoundSourceIndex(FSoundChan* chan) { return 0; }
+	virtual void SetSource(FSoundChan* chan, int index) {}
+
+	virtual void StopChannel(FSoundChan* chan);
 	sfxinfo_t* LoadSound(sfxinfo_t* sfx);
 
 	// Initializes sound stuff, including volume
@@ -300,9 +273,13 @@ public:
 	void CalcPosVel(FSoundChan* chan, FVector3* pos, FVector3* vel);
 
 	// Loads a sound, including any random sounds it might reference.
-	void CacheSound(sfxinfo_t* sfx);
+	virtual void CacheSound(sfxinfo_t* sfx);
 	void CacheSound(int sfx) { CacheSound(&S_sfx[sfx]); }
 	void UnloadSound(sfxinfo_t* sfx);
+	void UnloadSound(int sfx)
+	{
+		UnloadSound(&S_sfx[sfx]);
+	}
 
 	void UpdateSounds(int time);
 
@@ -337,13 +314,13 @@ public:
 	{
 		return object && listener.ListenerObject == object;
 	}
-	bool isPlayerReserve(int snd_id)
-	{
-		return S_sfx[snd_id].bPlayerReserve;	// Later this needs to be abstracted out of the engine itself. Right now that cannot be done.
-	}
 	void SetListener(SoundListener& l)
 	{
 		listener = l;
+	}
+	const SoundListener& GetListener() const
+	{
+		return listener;
 	}
 	void SetRestartTime(int time)
 	{
@@ -377,6 +354,10 @@ public:
 	{
 		S_rnd.Clear();
 	}
+	int *GetUserData(int snd)
+	{
+		return S_sfx[snd].UserData.Data();
+	}
 	bool isValidSoundId(int id)
 	{
 		return id > 0 && id < (int)S_sfx.Size() && !S_sfx[id].bTentative && S_sfx[id].lumpnum != sfx_empty;
@@ -384,10 +365,13 @@ public:
 
 	template<class func> bool EnumerateChannels(func callback)
 	{
-		for (FSoundChan* chan = Channels; chan; chan = chan->NextChan)
+		FSoundChan* chan = Channels;
+		while (chan)
 		{
+			auto next = chan->NextChan;
 			int res = callback(chan);
 			if (res) return res > 0;
+			chan = next;
 		}
 		return false;
 	}
@@ -403,14 +387,14 @@ public:
 	// Allow this to be overridden for special needs.
 	virtual float GetRolloff(const FRolloffInfo* rolloff, float distance);
 	virtual void ChannelEnded(FISoundChannel* ichan); // allows the client to do bookkeeping on the sound.
+	virtual void SoundDone(FISoundChannel* ichan); // gets called when the sound has been completely taken down.
 
 	// Lookup utilities.
 	int FindSound(const char* logicalname);
 	int FindSoundByResID(int rid);
 	int FindSoundNoHash(const char* logicalname);
 	int FindSoundByLump(int lump);
-	int AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid = -1, int nearlimit = 2);
-	int AddSfx(sfxinfo_t &sfx);
+	virtual int AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid = -1, int nearlimit = 2);
 	int FindSoundTentative(const char* name);
 	void CacheRandomSound(sfxinfo_t* sfx);
 	unsigned int GetMSLength(FSoundID sound);
