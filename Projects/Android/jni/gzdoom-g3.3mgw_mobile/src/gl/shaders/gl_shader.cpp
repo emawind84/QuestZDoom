@@ -576,8 +576,8 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 
 	if (!linked)
 	{
-		hVertProg = glCreateShader(GL_VERTEX_SHADER);
-		hFragProg = glCreateShader(GL_FRAGMENT_SHADER);
+		GL(hVertProg = glCreateShader(GL_VERTEX_SHADER));
+		GL(hFragProg = glCreateShader(GL_FRAGMENT_SHADER));
 
 		FGLDebug::LabelObject(GL_SHADER, hVertProg, vert_prog_lump);
 		FGLDebug::LabelObject(GL_SHADER, hFragProg, frag_prog_lump);
@@ -588,45 +588,45 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 		const char *vp_ptr = vp_comb.GetChars();
 		const char *fp_ptr = fp_comb.GetChars();
 
-		glShaderSource(hVertProg, 1, &vp_ptr, &vp_size);
-		glShaderSource(hFragProg, 1, &fp_ptr, &fp_size);
+		GL(glShaderSource(hVertProg, 1, &vp_ptr, &vp_size));
+		GL(glShaderSource(hFragProg, 1, &fp_ptr, &fp_size));
 
-		glCompileShader(hVertProg);
-		glCompileShader(hFragProg);
+		GL(glCompileShader(hVertProg));
+		GL(glCompileShader(hFragProg));
 
-		glAttachShader(hShader, hVertProg);
-		glAttachShader(hShader, hFragProg);
+		GL(glAttachShader(hShader, hVertProg));
+		GL(glAttachShader(hShader, hFragProg));
 
-		glBindAttribLocation(hShader, VATTR_VERTEX, "aPosition");
-		glBindAttribLocation(hShader, VATTR_TEXCOORD, "aTexCoord");
-		glBindAttribLocation(hShader, VATTR_COLOR, "aColor");
-		glBindAttribLocation(hShader, VATTR_VERTEX2, "aVertex2");
-		glBindAttribLocation(hShader, VATTR_NORMAL, "aNormal");
+		GL(glBindAttribLocation(hShader, VATTR_VERTEX, "aPosition"));
+		GL(glBindAttribLocation(hShader, VATTR_TEXCOORD, "aTexCoord"));
+		GL(glBindAttribLocation(hShader, VATTR_COLOR, "aColor"));
+		GL(glBindAttribLocation(hShader, VATTR_VERTEX2, "aVertex2"));
+		GL(glBindAttribLocation(hShader, VATTR_NORMAL, "aNormal"));
 #ifndef __MOBILE__
-		glBindFragDataLocation(hShader, 0, "FragColor");
-		glBindFragDataLocation(hShader, 1, "FragFog");
-		glBindFragDataLocation(hShader, 2, "FragNormal");
+		GL(glBindFragDataLocation(hShader, 0, "FragColor"));
+		GL(glBindFragDataLocation(hShader, 1, "FragFog"));
+		GL(glBindFragDataLocation(hShader, 2, "FragNormal"));
 #endif
-		glLinkProgram(hShader);
+		GL(glLinkProgram(hShader));
 
-		glGetShaderInfoLog(hVertProg, 10000, NULL, buffer);
+		GL(glGetShaderInfoLog(hVertProg, 10000, NULL, buffer));
 		if (*buffer)
 		{
 			error << "Vertex shader:\n" << buffer << "\n";
 		}
-		glGetShaderInfoLog(hFragProg, 10000, NULL, buffer);
+		GL(glGetShaderInfoLog(hFragProg, 10000, NULL, buffer));
 		if (*buffer)
 		{
 			error << "Fragment shader:\n" << buffer << "\n";
 		}
 
-		glGetProgramInfoLog(hShader, 10000, NULL, buffer);
+		GL(glGetProgramInfoLog(hShader, 10000, NULL, buffer));
 		if (*buffer)
 		{
 			error << "Linking:\n" << buffer << "\n";
 		}
 		GLint status = 0;
-		glGetProgramiv(hShader, GL_LINK_STATUS, &status);
+		GL(glGetProgramiv(hShader, GL_LINK_STATUS, &status));
 		linked = (status == GL_TRUE);
 		if (!linked)
 		{
@@ -698,33 +698,33 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 
 	if (!gl.legacyMode && lightbuffertype == GL_UNIFORM_BUFFER)
 	{
-		int tempindex = glGetUniformBlockIndex(hShader, "LightBufferUBO");
-		if (tempindex != -1) glUniformBlockBinding(hShader, tempindex, LIGHTBUF_BINDINGPOINT);
+		GL(int tempindex = glGetUniformBlockIndex(hShader, "LightBufferUBO"));
+		if (tempindex != -1) GL(glUniformBlockBinding(hShader, tempindex, LIGHTBUF_BINDINGPOINT));
 	}
 
-	glUseProgram(hShader);
-	if (quadmode_index > 0) glUniform1i(quadmode_index, 0);
+	GL(glUseProgram(hShader));
+	if (quadmode_index > 0) GL(glUniform1i(quadmode_index, 0));
 
 	// set up other texture units (if needed by the shader)
 	for (int i = 2; i<16; i++)
 	{
 		char stringbuf[20];
 		mysnprintf(stringbuf, 20, "texture%d", i);
-		int tempindex = glGetUniformLocation(hShader, stringbuf);
+		GL(int tempindex = glGetUniformLocation(hShader, stringbuf));
 #ifdef __ANDROID__
-		if (tempindex >= 0) glUniform1i(tempindex, i - 1);
+		if (tempindex >= 0) GL(glUniform1i(tempindex, i - 1));
 #else
-		if (tempindex > 0) glUniform1i(tempindex, i - 1);
+		if (tempindex > 0) GL(glUniform1i(tempindex, i - 1));
 #endif
 	}
 
-	int shadowmapindex = glGetUniformLocation(hShader, "ShadowMap");
+	GL(int shadowmapindex = glGetUniformLocation(hShader, "ShadowMap"));
 #ifdef __ANDROID__
-	if (shadowmapindex >= 0) glUniform1i(shadowmapindex, 16);
+	if (shadowmapindex >= 0) GL(glUniform1i(shadowmapindex, 16));
 #else
-		if (shadowmapindex > 0) glUniform1i(shadowmapindex, 16);
+	if (shadowmapindex > 0) GL(glUniform1i(shadowmapindex, 16));
 #endif
-	glUseProgram(0);
+	GL(glUseProgram(0));
 	return linked;
 }
 
@@ -736,11 +736,11 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 
 FShader::~FShader()
 {
-	glDeleteProgram(hShader);
+	GL(glDeleteProgram(hShader));
 	if (hVertProg != 0)
-		glDeleteShader(hVertProg);
+		GL(glDeleteShader(hVertProg));
 	if (hFragProg != 0)
-		glDeleteShader(hFragProg);
+		GL(glDeleteShader(hFragProg));
 }
 
 
@@ -798,9 +798,9 @@ FShader *FShaderCollection::Compile (const char *ShaderName, const char *ShaderP
 void FShader::ApplyMatrices(VSMatrix *proj, VSMatrix *view, VSMatrix *norm)
 {
 	Bind();
-	glUniformMatrix4fv(projectionmatrix_index, 1, false, proj->get());
-	glUniformMatrix4fv(viewmatrix_index, 1, false, view->get());
-	glUniformMatrix4fv(normalviewmatrix_index, 1, false, norm->get());
+	GL(glUniformMatrix4fv(projectionmatrix_index, 1, false, proj->get()));
+	GL(glUniformMatrix4fv(viewmatrix_index, 1, false, view->get()));
+	GL(glUniformMatrix4fv(normalviewmatrix_index, 1, false, norm->get()));
 }
 
 //==========================================================================
@@ -879,7 +879,7 @@ FShaderManager::~FShaderManager()
 {
 	if (!gl.legacyMode)
 	{
-		glUseProgram(0);
+		GL(glUseProgram(0));
 		mActiveShader = NULL;
 
 		for (auto collection : mPassShaders)
@@ -891,7 +891,7 @@ void FShaderManager::SetActiveShader(FShader *sh)
 {
 	if (mActiveShader != sh)
 	{
-		glUseProgram(sh!= NULL? sh->GetHandle() : 0);
+		GL(glUseProgram(sh!= NULL? sh->GetHandle() : 0));
 		mActiveShader = sh;
 	}
 }

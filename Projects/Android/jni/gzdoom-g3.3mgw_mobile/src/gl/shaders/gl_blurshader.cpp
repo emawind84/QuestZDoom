@@ -33,6 +33,7 @@
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
 #include "gl/system/gl_cvars.h"
+#include "gl/system/gl_debug.h"
 #include "gl/shaders/gl_blurshader.h"
 #include "gl/data/gl_vertexbuffer.h"
 #include "gl/renderer/gl_renderer.h"
@@ -74,13 +75,13 @@ void FBlurShader::Blur(FGLRenderer *renderer, float blurAmount, int sampleCount,
 		setup->HorizontalShader->Bind();
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, inputTexture);
+	GL(glBindTexture(GL_TEXTURE_2D, inputTexture));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, outputFrameBuffer);
+	GL(glBindFramebuffer(GL_FRAMEBUFFER, outputFrameBuffer));
 	glViewport(0, 0, width, height);
 	glDisable(GL_BLEND);
 

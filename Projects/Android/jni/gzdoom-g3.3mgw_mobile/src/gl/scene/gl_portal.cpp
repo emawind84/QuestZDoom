@@ -41,6 +41,7 @@
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
 #include "gl/system/gl_cvars.h"
+#include "gl/system/gl_debug.h"
 #include "gl/renderer/gl_lightdata.h"
 #include "gl/renderer/gl_renderer.h"
 #include "gl/renderer/gl_renderstate.h"
@@ -124,7 +125,7 @@ void GLPortal::ClearScreen()
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DEPTH_TEST);
 
-	glDrawArrays(GL_TRIANGLE_STRIP, FFlatVertexBuffer::FULLSCREEN_INDEX, 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, FFlatVertexBuffer::FULLSCREEN_INDEX, 4));
 
 	glEnable(GL_DEPTH_TEST);
 	gl_MatrixStack.Pop(gl_RenderState.mProjectionMatrix);

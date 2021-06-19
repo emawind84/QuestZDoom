@@ -26,6 +26,7 @@
 **/
 
 #include "gl/system/gl_system.h"
+#include "gl/system/gl_debug.h"
 #include "gl/shaders/gl_shader.h"
 #include "gl/dynlights/gl_lightbuffer.h"
 #include "gl/dynlights/gl_dynlight.h"
@@ -57,17 +58,17 @@ FLightBuffer::FLightBuffer()
 		mBlockAlign = mBlockSize / 2;
 	}
 
-	glGenBuffers(1, &mBufferId);
-	glBindBufferBase(mBufferType, LIGHTBUF_BINDINGPOINT, mBufferId);
-	glBindBuffer(mBufferType, mBufferId);	// Note: Some older AMD drivers don't do that in glBindBufferBase, as they should.
+	GL(glGenBuffers(1, &mBufferId));
+	GL(glBindBufferBase(mBufferType, LIGHTBUF_BINDINGPOINT, mBufferId));
+	GL(glBindBuffer(mBufferType, mBufferId));	// Note: Some older AMD drivers don't do that in glBindBufferBase, as they should.
 	if (gl.lightmethod == LM_DIRECT)
 	{
-		glBufferStorage(mBufferType, mByteSize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-		mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+		GL(glBufferStorage(mBufferType, mByteSize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
+		GL(mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
 	}
 	else
 	{
-		glBufferData(mBufferType, mByteSize, NULL, GL_DYNAMIC_DRAW);
+		GL(glBufferData(mBufferType, mByteSize, NULL, GL_DYNAMIC_DRAW));
 		mBufferPointer = NULL;
 #ifdef __ANDROID__	// This is needed to stop Ardeno 530 from crashing on the first drawer
 		Begin();
@@ -81,8 +82,8 @@ FLightBuffer::FLightBuffer()
 
 FLightBuffer::~FLightBuffer()
 {
-	glBindBuffer(mBufferType, 0);
-	glDeleteBuffers(1, &mBufferId);
+	GL(glBindBuffer(mBufferType, 0));
+	GL(glDeleteBuffers(1, &mBufferId));
 }
 
 void FLightBuffer::Clear()
@@ -132,33 +133,33 @@ int FLightBuffer::UploadLights(FDynLightData &data)
 		unsigned int newbuffer;
 
 		// first unmap the old buffer
-		glBindBuffer(mBufferType, mBufferId);
-		glUnmapBuffer(mBufferType);
+		GL(glBindBuffer(mBufferType, mBufferId));
+		GL(glUnmapBuffer(mBufferType));
 
 		// create and bind the new buffer, bind the old one to a copy target (too bad that DSA is not yet supported well enough to omit this crap.)
-		glGenBuffers(1, &newbuffer);
-		glBindBufferBase(mBufferType, LIGHTBUF_BINDINGPOINT, newbuffer);
-		glBindBuffer(mBufferType, newbuffer);	// Note: Some older AMD drivers don't do that in glBindBufferBase, as they should.
-		glBindBuffer(GL_COPY_READ_BUFFER, mBufferId);
+		GL(glGenBuffers(1, &newbuffer));
+		GL(glBindBufferBase(mBufferType, LIGHTBUF_BINDINGPOINT, newbuffer));
+		GL(glBindBuffer(mBufferType, newbuffer));	// Note: Some older AMD drivers don't do that in glBindBufferBase, as they should.
+		GL(glBindBuffer(GL_COPY_READ_BUFFER, mBufferId));
 
 		// create the new buffer's storage (twice as large as the old one)
 		mBufferSize *= 2;
 		mByteSize *= 2;
 		if (gl.lightmethod == LM_DIRECT)
 		{
-			glBufferStorage(mBufferType, mByteSize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-			mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+			GL(glBufferStorage(mBufferType, mByteSize, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
+			GL(mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
 		}
 		else
 		{
-			glBufferData(mBufferType, mByteSize, NULL, GL_DYNAMIC_DRAW);
-			mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+			GL(glBufferData(mBufferType, mByteSize, NULL, GL_DYNAMIC_DRAW));
+			GL(mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT));
 		}
 
 		// copy contents and delete the old buffer.
-		glCopyBufferSubData(GL_COPY_READ_BUFFER, mBufferType, 0, 0, mByteSize/2);
-		glBindBuffer(GL_COPY_READ_BUFFER, 0);
-		glDeleteBuffers(1, &mBufferId);
+		GL(glCopyBufferSubData(GL_COPY_READ_BUFFER, mBufferType, 0, 0, mByteSize/2));
+		GL(glBindBuffer(GL_COPY_READ_BUFFER, 0));
+		GL(glDeleteBuffers(1, &mBufferId));
 		mBufferId = newbuffer;
 	}
 
@@ -185,8 +186,8 @@ void FLightBuffer::Begin()
 {
 	if (gl.lightmethod == LM_DEFERRED)
 	{
-		glBindBuffer(mBufferType, mBufferId);
-		mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+		GL(glBindBuffer(mBufferType, mBufferId));
+		GL(mBufferPointer = (float*)glMapBufferRange(mBufferType, 0, mByteSize, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT));
 	}
 }
 
@@ -194,8 +195,8 @@ void FLightBuffer::Finish()
 {
 	if (gl.lightmethod == LM_DEFERRED)
 	{
-		glBindBuffer(mBufferType, mBufferId);
-		glUnmapBuffer(mBufferType);
+		GL(glBindBuffer(mBufferType, mBufferId));
+		GL(glUnmapBuffer(mBufferType));
 		mBufferPointer = NULL;
 	}
 }
@@ -208,7 +209,7 @@ int FLightBuffer::BindUBO(unsigned int index)
 	{
 		// this will only get called if a uniform buffer is used. For a shader storage buffer we only need to bind the buffer once at the start to all shader programs
 		mLastMappedIndex = offset;
-		glBindBufferRange(GL_UNIFORM_BUFFER, LIGHTBUF_BINDINGPOINT, mBufferId, offset*16, mBlockSize*16);	// we go from counting vec4's to counting bytes here.
+		GL(glBindBufferRange(GL_UNIFORM_BUFFER, LIGHTBUF_BINDINGPOINT, mBufferId, offset*16, mBlockSize*16));	// we go from counting vec4's to counting bytes here.
 	}
 	return (index - offset);
 }

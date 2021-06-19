@@ -46,12 +46,13 @@ android {
         targetCompatibility = '1.8'
     }
     compileSdkVersion = 24
-    buildToolsVersion = '29.0.1'
+    buildToolsVersion = '29.0.2'
     buildTypes {
         release {
             debuggable true
         }
     }
+    ndkVersion '21.0.6113669'
 }
 
 dependencies {

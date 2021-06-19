@@ -127,9 +127,9 @@ void FShadowMap::Update()
 
 	GLRenderer->mShadowMapShader->Bind();
 	GLRenderer->mShadowMapShader->ShadowmapQuality.Set(gl_shadowmap_quality);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, mLightList);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mNodesBuffer);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mLinesBuffer);
+	GL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, mLightList));
+	GL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mNodesBuffer));
+	GL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mLinesBuffer));
 
 	glViewport(0, 0, gl_shadowmap_quality, 1024);
 	GLRenderer->RenderScreenQuad();
@@ -137,9 +137,9 @@ void FShadowMap::Update()
 	const auto &viewport = GLRenderer->mScreenViewport;
 	glViewport(viewport.left, viewport.top, viewport.width, viewport.height);
 
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0);
+	GL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, 0));
+	GL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, 0));
+	GL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, 0));
 
 	GLRenderer->mBuffers->BindShadowMapTexture(16);
 
@@ -195,13 +195,13 @@ void FShadowMap::UploadLights()
 	}
 
 	if (mLightList == 0)
-		glGenBuffers(1, (GLuint*)&mLightList);
+		GL(glGenBuffers(1, (GLuint*)&mLightList));
 
 	int oldBinding = 0;
-	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_BINDING, &oldBinding);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, mLightList);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * mLights.Size(), &mLights[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, oldBinding);
+	GL(glGetIntegerv(GL_SHADER_STORAGE_BUFFER_BINDING, &oldBinding));
+	GL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, mLightList));
+	GL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * mLights.Size(), &mLights[0], GL_STATIC_DRAW));
+	GL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, oldBinding));
 }
 
 void FShadowMap::UploadAABBTree()
@@ -217,36 +217,36 @@ void FShadowMap::UploadAABBTree()
 	mAABBTree.reset(new LevelAABBTree());
 
 	int oldBinding = 0;
-	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_BINDING, &oldBinding);
+	GL(glGetIntegerv(GL_SHADER_STORAGE_BUFFER_BINDING, &oldBinding));
 
-	glGenBuffers(1, (GLuint*)&mNodesBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, mNodesBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(AABBTreeNode) * mAABBTree->nodes.Size(), &mAABBTree->nodes[0], GL_STATIC_DRAW);
+	GL(glGenBuffers(1, (GLuint*)&mNodesBuffer));
+	GL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, mNodesBuffer));
+	GL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(AABBTreeNode) * mAABBTree->nodes.Size(), &mAABBTree->nodes[0], GL_STATIC_DRAW));
 
-	glGenBuffers(1, (GLuint*)&mLinesBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, mLinesBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(AABBTreeLine) * mAABBTree->lines.Size(), &mAABBTree->lines[0], GL_STATIC_DRAW);
+	GL(glGenBuffers(1, (GLuint*)&mLinesBuffer));
+	GL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, mLinesBuffer));
+	GL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(AABBTreeLine) * mAABBTree->lines.Size(), &mAABBTree->lines[0], GL_STATIC_DRAW));
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, oldBinding);
+	GL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, oldBinding));
 }
 
 void FShadowMap::Clear()
 {
 	if (mLightList != 0)
 	{
-		glDeleteBuffers(1, (GLuint*)&mLightList);
+		GL(glDeleteBuffers(1, (GLuint*)&mLightList));
 		mLightList = 0;
 	}
 
 	if (mNodesBuffer != 0)
 	{
-		glDeleteBuffers(1, (GLuint*)&mNodesBuffer);
+		GL(glDeleteBuffers(1, (GLuint*)&mNodesBuffer));
 		mNodesBuffer = 0;
 	}
 
 	if (mLinesBuffer != 0)
 	{
-		glDeleteBuffers(1, (GLuint*)&mLinesBuffer);
+		GL(glDeleteBuffers(1, (GLuint*)&mLinesBuffer));
 		mLinesBuffer = 0;
 	}
 

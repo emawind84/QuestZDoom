@@ -28,6 +28,7 @@
 #include "templates.h"
 #include "gl/system/gl_system.h"
 #include "gl/system/gl_interface.h"
+#include "gl/system/gl_debug.h"
 #include "gl/data/gl_data.h"
 #include "gl/data/gl_vertexbuffer.h"
 #include "gl/system/gl_cvars.h"
@@ -355,7 +356,9 @@ void FRenderState::Apply()
 
 	if (mVertexBuffer != mCurrentVertexBuffer)
 	{
-		if (mVertexBuffer == NULL) glBindBuffer(GL_ARRAY_BUFFER, 0);
+		if (mVertexBuffer == NULL) {
+			GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		}
 		else mVertexBuffer->BindVBO();
 		mCurrentVertexBuffer = mVertexBuffer;
 	}
@@ -433,5 +436,16 @@ void FRenderState::SetClipHeight(float height, float direction)
 	else
 	{
 		glDisable(GL_CLIP_DISTANCE0);	// GL_CLIP_PLANE0 is the same value so no need to make a distinction
+	}
+}
+
+void FRenderState::EnableDrawBuffers(int count)
+{
+	count = MIN(count, 3);
+	if (mNumDrawBuffers != count)
+	{
+		static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		GL(glDrawBuffers(count, buffers));
+		mNumDrawBuffers = count;
 	}
 }

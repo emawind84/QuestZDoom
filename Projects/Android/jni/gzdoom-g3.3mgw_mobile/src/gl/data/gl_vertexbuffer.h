@@ -28,8 +28,6 @@
 #include "gl/system/gl_interface.h"
 #include "r_data/models/models.h"
 
-EXTERN_CVAR(Int, gl_buffer_size);
-
 struct vertex_t;
 struct secplane_t;
 struct subsector_t;
@@ -115,6 +113,9 @@ class FFlatVertexBuffer : public FVertexBuffer
 
 	void CheckPlanes(sector_t *sector);
 
+	static const unsigned int BUFFER_SIZE = 2000000;
+	static const unsigned int BUFFER_SIZE_TO_USE = 1999500;
+
 public:
 	enum
 	{
@@ -141,37 +142,15 @@ public:
 
 	FFlatVertex *GetBuffer()
 	{
-        if (mCurIndex >= gl_buffer_size)
-        {
-            Printf("ERROR - Trying to index an invalid BUFFER!, mCurIndex=%d\n", mCurIndex);
-            mCurIndex = mIndex;
-            return nullptr;
-        }
 		return &map[mCurIndex];
 	}
-
 	FFlatVertex *Alloc(int num, int *poffset)
 	{
 		FFlatVertex *p = GetBuffer();
 		*poffset = mCurIndex;
 		mCurIndex += num;
-		if (mCurIndex >= (gl_buffer_size - 500))
-		{
-			Printf("ERROR - We have run out of BUFFERS!, mCurIndex=%d\n", mCurIndex);
-			mCurIndex = mIndex;
-		}
+		if (mCurIndex >= BUFFER_SIZE_TO_USE) mCurIndex = mIndex;
 		return p;
-	}
-
-	bool IsValid(FFlatVertex *newptr)
-	{
-		unsigned int newofs = (unsigned int)(newptr - map);
-		if (newofs >= (gl_buffer_size - 500))
-		{
-			Printf("ERROR - Trying to index an invalid BUFFER!, newofs=%d\n", newofs);
-			return false;
-		}
-		return true;
 	}
 
 	unsigned int GetCount(FFlatVertex *newptr, unsigned int *poffset)
@@ -180,34 +159,12 @@ public:
 		unsigned int diff = newofs - mCurIndex;
 		*poffset = mCurIndex;
 		mCurIndex = newofs;
-		if (mCurIndex >= (gl_buffer_size - 500))
-		{
-			Printf("ERROR - We have run out of BUFFERS!, mCurIndex=%d\n", mCurIndex);
-			mCurIndex = mIndex;
-		}
+		if (mCurIndex >= BUFFER_SIZE_TO_USE) mCurIndex = mIndex;
 		return diff;
 	}
 #ifdef __GL_PCH_H	// we need the system includes for this but we cannot include them ourselves without creating #define clashes. The affected files wouldn't try to draw anyway.
-	void RenderArray(unsigned int primtype, unsigned int offset, unsigned int count)
-	{
-#ifdef NO_VBO // OK there are still things using the VBO, we may have unbound it so always try to bind it again
-        if(gl.novbo)
-            BindVBO();
-#endif
-		drawcalls.Clock();
-		glDrawArrays(primtype, offset, count);
-		drawcalls.Unclock();
-	}
-
-	void RenderCurrent(FFlatVertex *newptr, unsigned int primtype, unsigned int *poffset = NULL, unsigned int *pcount = NULL)
-	{
-		unsigned int offset;
-		unsigned int count = GetCount(newptr, &offset);
-		RenderArray(primtype, offset, count);
-		if (poffset) *poffset = offset;
-		if (pcount) *pcount = count;
-	}
-
+	void RenderArray(unsigned int primtype, unsigned int offset, unsigned int count);
+	void RenderCurrent(FFlatVertex *newptr, unsigned int primtype, unsigned int *poffset = NULL, unsigned int *pcount = NULL);
 #endif
 	void Reset()
 	{

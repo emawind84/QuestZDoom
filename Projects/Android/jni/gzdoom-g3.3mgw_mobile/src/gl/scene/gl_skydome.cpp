@@ -64,6 +64,7 @@
 #include "textures/skyboxtexture.h"
 
 #include "gl/system/gl_interface.h"
+#include "gl/system/gl_debug.h"
 #include "gl/data/gl_data.h"
 #include "gl/data/gl_vertexbuffer.h"
 #include "gl/renderer/gl_lightdata.h"
@@ -78,7 +79,7 @@
 
 //-----------------------------------------------------------------------------
 //
-// Shamelessly lifted from Doomsday (written by Jaakko Keränen)
+// Shamelessly lifted from Doomsday (written by Jaakko Kerï¿½nen)
 // also shamelessly lifted from ZDoomGL! ;)
 //
 //-----------------------------------------------------------------------------
@@ -102,17 +103,17 @@ FSkyVertexBuffer::~FSkyVertexBuffer()
 
 void FSkyVertexBuffer::BindVBO()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
 	if (!gl.legacyMode)
 	{
-		glVertexAttribPointer(VATTR_VERTEX, 3, GL_FLOAT, false, sizeof(FSkyVertex), &VSO->x);
-		glVertexAttribPointer(VATTR_TEXCOORD, 2, GL_FLOAT, false, sizeof(FSkyVertex), &VSO->u);
-		glVertexAttribPointer(VATTR_COLOR, 4, GL_UNSIGNED_BYTE, true, sizeof(FSkyVertex), &VSO->color);
-		glEnableVertexAttribArray(VATTR_VERTEX);
-		glEnableVertexAttribArray(VATTR_TEXCOORD);
-		glEnableVertexAttribArray(VATTR_COLOR);
-		glDisableVertexAttribArray(VATTR_VERTEX2);
-		glDisableVertexAttribArray(VATTR_NORMAL);
+		GL(glVertexAttribPointer(VATTR_VERTEX, 3, GL_FLOAT, false, sizeof(FSkyVertex), &VSO->x));
+		GL(glVertexAttribPointer(VATTR_TEXCOORD, 2, GL_FLOAT, false, sizeof(FSkyVertex), &VSO->u));
+		GL(glVertexAttribPointer(VATTR_COLOR, 4, GL_UNSIGNED_BYTE, true, sizeof(FSkyVertex), &VSO->color));
+		GL(glEnableVertexAttribArray(VATTR_VERTEX));
+		GL(glEnableVertexAttribArray(VATTR_TEXCOORD));
+		GL(glEnableVertexAttribArray(VATTR_COLOR));
+		GL(glDisableVertexAttribArray(VATTR_VERTEX2));
+		GL(glDisableVertexAttribArray(VATTR_NORMAL));
 	}
 	else
 	{
@@ -298,8 +299,8 @@ void FSkyVertexBuffer::CreateDome()
 	ptr[36].SetXYZ(128.f, 128.f, 128.f, 0, 0);
 	ptr[37].SetXYZ(-128.f, 128.f, 128.f, 1, 0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-	glBufferData(GL_ARRAY_BUFFER, mVertices.Size() * sizeof(FSkyVertex), &mVertices[0], GL_STATIC_DRAW);
+	GL(glBindBuffer(GL_ARRAY_BUFFER, vbo_id));
+	GL(glBufferData(GL_ARRAY_BUFFER, mVertices.Size() * sizeof(FSkyVertex), &mVertices[0], GL_STATIC_DRAW));
 }
 
 //-----------------------------------------------------------------------------
@@ -310,7 +311,7 @@ void FSkyVertexBuffer::CreateDome()
 
 inline void FSkyVertexBuffer::RenderRow(int prim, int row)
 {
-	glDrawArrays(prim, mPrimStart[row], mPrimStart[row + 1] - mPrimStart[row]);
+	GL(glDrawArrays(prim, mPrimStart[row], mPrimStart[row + 1] - mPrimStart[row]));
 }
 
 //-----------------------------------------------------------------------------
@@ -448,25 +449,25 @@ static void RenderBox(FTextureID texno, FMaterial * gltex, float x_offset, bool 
 		tex = FMaterial::ValidateTexture(sb->faces[0], false);
 		gl_RenderState.SetMaterial(tex, CLAMP_XY, 0, -1, false);
 		gl_RenderState.Apply();
-		glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(0), 4);
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(0), 4));
 
 		// east
 		tex = FMaterial::ValidateTexture(sb->faces[1], false);
 		gl_RenderState.SetMaterial(tex, CLAMP_XY, 0, -1, false);
 		gl_RenderState.Apply();
-		glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(1), 4);
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(1), 4));
 
 		// south
 		tex = FMaterial::ValidateTexture(sb->faces[2], false);
 		gl_RenderState.SetMaterial(tex, CLAMP_XY, 0, -1, false);
 		gl_RenderState.Apply();
-		glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(2), 4);
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(2), 4));
 
 		// west
 		tex = FMaterial::ValidateTexture(sb->faces[3], false);
 		gl_RenderState.SetMaterial(tex, CLAMP_XY, 0, -1, false);
 		gl_RenderState.Apply();
-		glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(3), 4);
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(3), 4));
 	}
 	else 
 	{
@@ -474,20 +475,20 @@ static void RenderBox(FTextureID texno, FMaterial * gltex, float x_offset, bool 
 		tex = FMaterial::ValidateTexture(sb->faces[0], false);
 		gl_RenderState.SetMaterial(tex, CLAMP_XY, 0, -1, false);
 		gl_RenderState.Apply();
-		glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(-1), 10);
+		GL(glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(-1), 10));
 	}
 
 	// top
 	tex = FMaterial::ValidateTexture(sb->faces[faces], false);
 	gl_RenderState.SetMaterial(tex, CLAMP_XY, 0, -1, false);
 	gl_RenderState.Apply();
-	glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(sb->fliptop? 6:5), 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(sb->fliptop? 6:5), 4));
 
 	// bottom
 	tex = FMaterial::ValidateTexture(sb->faces[faces+1], false);
 	gl_RenderState.SetMaterial(tex, CLAMP_XY, 0, -1, false);
 	gl_RenderState.Apply();
-	glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(4), 4);
+	GL(glDrawArrays(GL_TRIANGLE_STRIP, GLRenderer->mSkyVBO->FaceStart(4), 4));
 
 	gl_RenderState.EnableModelMatrix(false);
 }
@@ -550,7 +551,7 @@ void GLSkyPortal::DrawContents()
 			gl_RenderState.EnableTexture(false);
 			gl_RenderState.SetObjectColor(FadeColor);
 			gl_RenderState.Apply();
-			glDrawArrays(GL_TRIANGLES, 0, 12);
+			GL(glDrawArrays(GL_TRIANGLES, 0, 12));
 			gl_RenderState.EnableTexture(true);
 			gl_RenderState.SetObjectColor(0xffffffff);
 		}
