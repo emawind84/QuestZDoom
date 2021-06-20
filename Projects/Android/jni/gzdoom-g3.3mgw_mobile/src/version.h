@@ -97,9 +97,9 @@ const char *GetVersionString();
 
 
 // More stuff that needs to be different for derivatives.
-#define GAMENAME "LZDoom"
-#define WGAMENAME L"LZDoom"
-#define GAMENAMELOWERCASE "lzdoom"
+#define GAMENAME "QZDoom"
+#define WGAMENAME L"QZDoom"
+#define GAMENAMELOWERCASE "qzdoom"
 #define FORUM_URL "http://forum.zdoom.org/"
 #define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"
 
