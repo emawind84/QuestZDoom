@@ -213,8 +213,6 @@ void OpenGLFrameBuffer::Update()
 //==========================================================================
 
 CVAR(Bool, gl_finishbeforeswap, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
-CVAR(Bool, gl_finish, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
-CVAR(Bool, gl_sync, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
 extern int camtexcount;
 
 void OpenGLFrameBuffer::Swap()
@@ -222,15 +220,11 @@ void OpenGLFrameBuffer::Swap()
 	bool swapbefore = gl_finishbeforeswap && camtexcount == 0;
 	Finish.Reset();
 	Finish.Clock();
+#ifndef __MOBILE__
+	if (swapbefore) glFinish();
+#endif
 
-	if (gl_sync) 
-	{
-		GLRenderer->GPUDropSync();
-	}
-	else if (gl_finish && swapbefore)
-	{
-		glFinish(); // Don't appear to need this on the Quest 2
-	}
+    GLRenderer->GPUDropSync();
 
 	SwapBuffers();
 
@@ -239,11 +233,14 @@ void OpenGLFrameBuffer::Swap()
 	GLRenderer->NextLightBuffer();
     GLRenderer->GPUWaitSync();
 
-	if (gl_finish && !swapbefore) glFinish();
+#ifndef __MOBILE__
+	if (!swapbefore) glFinish();
+#endif
 
+#ifdef __MOBILE__ // touch screen changes state
     gl_RenderState.SetVertexBuffer(NULL);
     GLRenderer->mShaderManager->SetActiveShader(NULL);
-
+#endif
 	Finish.Unclock();
 	camtexcount = 0;
 	FHardwareTexture::UnbindAll();
