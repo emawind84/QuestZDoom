@@ -395,15 +395,17 @@ bool OpenGLFrameBuffer::Begin2D(bool copy3d)
 	gl_RenderState.mProjectionMatrix.ortho(0, GetWidth(), GetHeight(), 0, -1.0f, 1.0f);
 	gl_RenderState.ApplyMatrices();
 
-	glDisable(GL_DEPTH_TEST);
+	GL(glDisable(GL_DEPTH_TEST));
 
 	// Korshun: ENABLE AUTOMAP ANTIALIASING!!!
 	if (gl_aalines)
-		glEnable(GL_LINE_SMOOTH);
+	{
+		GL(glEnable(GL_LINE_SMOOTH));
+	}
 	else
 	{
-		glDisable(GL_MULTISAMPLE);
-		glDisable(GL_LINE_SMOOTH);
+		GL(glDisable(GL_MULTISAMPLE));
+		GL(glDisable(GL_LINE_SMOOTH));
 		glLineWidth(1.0);
 	}
 
