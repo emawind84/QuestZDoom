@@ -212,6 +212,7 @@ void OpenGLFrameBuffer::Update()
 //
 //==========================================================================
 
+CVAR(Bool, gl_finishbeforeswap, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
 CVAR(Bool, gl_finish, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
 CVAR(Bool, gl_sync, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
 extern int camtexcount;
