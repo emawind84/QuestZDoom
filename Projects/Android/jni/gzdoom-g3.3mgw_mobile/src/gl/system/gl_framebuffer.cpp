@@ -397,6 +397,7 @@ bool OpenGLFrameBuffer::Begin2D(bool copy3d)
 
 	glDisable(GL_DEPTH_TEST);
 
+#ifndef __MOBILE__
 	// Korshun: ENABLE AUTOMAP ANTIALIASING!!!
 	if (gl_aalines)
 		glEnable(GL_LINE_SMOOTH);
@@ -406,6 +407,7 @@ bool OpenGLFrameBuffer::Begin2D(bool copy3d)
 		glDisable(GL_LINE_SMOOTH);
 		glLineWidth(1.0);
 	}
+#endif
 
 	if (GLRenderer != NULL)
 			GLRenderer->Begin2D();
