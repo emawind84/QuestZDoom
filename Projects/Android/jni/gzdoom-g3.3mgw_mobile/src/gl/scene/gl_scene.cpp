@@ -181,7 +181,9 @@ void GLSceneDrawer::Set3DViewport(bool mainview)
 
 	glEnable(GL_SCISSOR_TEST);
 
+#ifndef __MOBILE__
 	glEnable(GL_MULTISAMPLE);
+#endif
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_ALWAYS,0,~0);	// default stencil
