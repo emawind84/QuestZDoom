@@ -239,7 +239,6 @@ void OpenGLFrameBuffer::Swap()
 	if (gl_finish && !swapbefore) glFinish();
 
     gl_RenderState.SetVertexBuffer(NULL);
-
 	Finish.Unclock();
 	camtexcount = 0;
 	FHardwareTexture::UnbindAll();
