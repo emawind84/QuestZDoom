@@ -74,8 +74,8 @@ void FGLDebug::Update()
 	for (auto &query : timeElapsedQueries)
 	{
 		GLuint timeElapsed = 0;
-		glGetQueryObjectuiv(query.second, GL_QUERY_RESULT, &timeElapsed);
-		glDeleteQueries(1, &query.second);
+		GL(glGetQueryObjectuiv(query.second, GL_QUERY_RESULT, &timeElapsed));
+		GL(glDeleteQueries(1, &query.second));
 
 		FString out;
 		out.Format("%s=%04.2f ms\n", query.first.GetChars(), timeElapsed / 1000000.0f);
@@ -134,8 +134,8 @@ void FGLDebug::PushGroup(const FString &name)
 	if (gpuStatActive)
 	{
 		GLuint queryHandle = 0;
-		glGenQueries(1, &queryHandle);
-		glBeginQuery(GL_TIME_ELAPSED, queryHandle);
+		GL(glGenQueries(1, &queryHandle));
+		GL(glBeginQuery(GL_TIME_ELAPSED, queryHandle));
 		timeElapsedQueries.push_back({ name, queryHandle });
 	}
 }
@@ -168,13 +168,13 @@ void FGLDebug::SetupBreakpointMode()
 	{
 		if (gl_debug_breakpoint)
 		{
-			glDebugMessageCallback(&FGLDebug::DebugCallback, this);
-			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			GL(glDebugMessageCallback(&FGLDebug::DebugCallback, this));
+			GL(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
 		}
 		else
 		{
-			glDebugMessageCallback(nullptr, nullptr);
-			glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			GL(glDebugMessageCallback(nullptr, nullptr));
+			GL(glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
 		}
 		mBreakpointMode = gl_debug_breakpoint;
 	}
@@ -231,7 +231,7 @@ void FGLDebug::OutputMessageLog()
 		return;
 
 	GLint maxDebugMessageLength = 0;
-	glGetIntegerv(GL_MAX_DEBUG_MESSAGE_LENGTH, &maxDebugMessageLength);
+	GL(glGetIntegerv(GL_MAX_DEBUG_MESSAGE_LENGTH, &maxDebugMessageLength));
 
 	const int maxMessages = 50;
 	const int messageLogSize = maxMessages * maxDebugMessageLength;
@@ -250,7 +250,7 @@ void FGLDebug::OutputMessageLog()
 
 	while (true)
 	{
-		GLuint numMessages = glGetDebugMessageLog(maxMessages, messageLogSize, &sources[0], &types[0], &ids[0], &severities[0], &lengths[0], &messageLog[0]);
+		GLuint numMessages = GL(glGetDebugMessageLog(maxMessages, messageLogSize, &sources[0], &types[0], &ids[0], &severities[0], &lengths[0], &messageLog[0]));
 		if (numMessages <= 0) break;
 
 		GLsizei offset = 0;

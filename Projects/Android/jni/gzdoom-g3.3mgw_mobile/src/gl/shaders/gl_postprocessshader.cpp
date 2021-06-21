@@ -194,16 +194,16 @@ void PostProcessShaderInstance::UpdateUniforms()
 			switch (pair->Value.Type)
 			{
 			case PostProcessUniformType::Float:
-				glUniform1f(location, (float)pair->Value.Values[0]);
+				GL(glUniform1f(location, (float)pair->Value.Values[0]));
 				break;
 			case PostProcessUniformType::Int:
-				glUniform1i(location, (int)pair->Value.Values[0]);
+				GL(glUniform1i(location, (int)pair->Value.Values[0]));
 				break;
 			case PostProcessUniformType::Vec2:
-				glUniform2f(location, (float)pair->Value.Values[0], (float)pair->Value.Values[1]);
+				GL(glUniform2f(location, (float)pair->Value.Values[0], (float)pair->Value.Values[1]));
 				break;
 			case PostProcessUniformType::Vec3:
-				glUniform3f(location, (float)pair->Value.Values[0], (float)pair->Value.Values[1], (float)pair->Value.Values[2]);
+				GL(glUniform3f(location, (float)pair->Value.Values[0], (float)pair->Value.Values[1], (float)pair->Value.Values[2]));
 				break;
 			default:
 				break;
@@ -227,7 +227,7 @@ void PostProcessShaderInstance::BindTextures()
 		FTexture *tex = TexMan(TexMan.CheckForTexture(name, ETextureType::Any));
 		if (tex && tex->UseType != ETextureType::Null)
 		{
-			glUniform1i(location, textureUnit);
+			GL(glUniform1i(location, textureUnit));
 
 			GL(glActiveTexture(GL_TEXTURE0 + textureUnit));
 			auto it = mTextureHandles.find(tex);
