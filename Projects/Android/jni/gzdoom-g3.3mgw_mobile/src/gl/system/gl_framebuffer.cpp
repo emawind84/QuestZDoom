@@ -226,7 +226,6 @@ void OpenGLFrameBuffer::Swap()
     }
 
     gl_RenderState.SetVertexBuffer(NULL);
-
 	Finish.Unclock();
 	camtexcount = 0;
 	FHardwareTexture::UnbindAll();
@@ -243,8 +242,8 @@ void OpenGLFrameBuffer::SetVSync(bool vsync)
 {
 	// Switch to the default frame buffer because some drivers associate the vsync state with the bound FB object.
 	GLint oldDrawFramebufferBinding = 0, oldReadFramebufferBinding = 0;
-	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oldDrawFramebufferBinding);
-	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &oldReadFramebufferBinding);
+	GL(glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oldDrawFramebufferBinding));
+	GL(glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &oldReadFramebufferBinding));
 	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
 	GL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
 

@@ -415,8 +415,8 @@ void F2DDrawer::Draw()
 			gl_SetRenderStyle(dt->mRenderStyle, !dt->mMasked, false);
 			gl_RenderState.SetMaterial(dt->mTexture, CLAMP_XY_NOMIP, dt->mTranslation, -1, dt->mAlphaTexture);
 
-			glEnable(GL_SCISSOR_TEST);
-			glScissor(dt->mScissor[0], dt->mScissor[1], dt->mScissor[2], dt->mScissor[3]);
+			GL(glEnable(GL_SCISSOR_TEST));
+			GL(glScissor(dt->mScissor[0], dt->mScissor[1], dt->mScissor[2], dt->mScissor[3]));
 
 			gl_RenderState.AlphaFunc(GL_GEQUAL, 0.f);
 			gl_RenderState.Apply();
@@ -433,8 +433,8 @@ void F2DDrawer::Draw()
 			}
 
 			const auto &viewport = GLRenderer->mScreenViewport;
-			glScissor(viewport.left, viewport.top, viewport.width, viewport.height);
-			glDisable(GL_SCISSOR_TEST);
+			GL(glScissor(viewport.left, viewport.top, viewport.width, viewport.height));
+			GL(glDisable(GL_SCISSOR_TEST));
 			gl_RenderState.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			gl_RenderState.SetTextureMode(TM_MODULATE);
 			break;
