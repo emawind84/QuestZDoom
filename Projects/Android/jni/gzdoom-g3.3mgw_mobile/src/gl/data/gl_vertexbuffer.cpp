@@ -32,6 +32,7 @@
 #include "m_argv.h"
 #include "c_cvars.h"
 #include "g_levellocals.h"
+#include "g_game.h"
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_debug.h"
 #include "gl/renderer/gl_renderer.h"
@@ -281,6 +282,7 @@ void FFlatVertexBuffer::Map()
 		GL(map = (FFlatVertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, bytesize, GL_MAP_WRITE_BIT|GL_MAP_UNSYNCHRONIZED_BIT));
 		if (map == nullptr)
 		{
+			G_DoQuickSave();
 			I_Error("ERROR: glMapBufferRange failed to map");
 		}
 	}

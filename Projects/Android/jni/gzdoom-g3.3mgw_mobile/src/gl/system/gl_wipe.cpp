@@ -220,7 +220,7 @@ bool OpenGLFrameBuffer::WipeDo(int ticks)
 		{
 			GLRenderer->mBuffers->BindCurrentFB();
 			const auto &bounds = GLRenderer->mScreenViewport;
-			glViewport(bounds.left, bounds.top, bounds.width, bounds.height);
+			GL(glViewport(bounds.left, bounds.top, bounds.width, bounds.height));
 		}
 
 		done = ScreenWipe->Run(ticks, this);

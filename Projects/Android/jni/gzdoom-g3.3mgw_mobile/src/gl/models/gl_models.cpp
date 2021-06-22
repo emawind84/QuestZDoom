@@ -67,7 +67,7 @@ VSMatrix FGLModelRenderer::GetViewToWorldMatrix()
 
 void FGLModelRenderer::BeginDrawModel(AActor *actor, FSpriteModelFrame *smf, const VSMatrix &objectToWorldMatrix, bool mirrored)
 {
-	glDepthFunc(GL_LEQUAL);
+	GL(glDepthFunc(GL_LEQUAL));
 	gl_RenderState.EnableTexture(true);
 	// [BB] In case the model should be rendered translucent, do back face culling.
 	// This solves a few of the problems caused by the lack of depth sorting.
@@ -87,14 +87,14 @@ void FGLModelRenderer::EndDrawModel(AActor *actor, FSpriteModelFrame *smf)
 {
 	gl_RenderState.EnableModelMatrix(false);
 
-	glDepthFunc(GL_LESS);
+	GL(glDepthFunc(GL_LESS));
 	if (!(actor->RenderStyle == LegacyRenderStyles[STYLE_Normal]) && !(smf->flags & MDL_DONTCULLBACKFACES))
 		glDisable(GL_CULL_FACE);
 }
 
 void FGLModelRenderer::BeginDrawHUDModel(AActor *actor, const VSMatrix &objectToWorldMatrix, bool mirrored)
 {
-	glDepthFunc(GL_LEQUAL);
+	GL(glDepthFunc(GL_LEQUAL));
 
 	/* hack the depth range to prevent view model from poking into walls */
     gldepthmin = 0;
@@ -118,7 +118,7 @@ void FGLModelRenderer::EndDrawHUDModel(AActor *actor)
 {
 	gl_RenderState.EnableModelMatrix(false);
 
-	glDepthFunc(GL_LESS);
+	GL(glDepthFunc(GL_LESS));
 	if (!(actor->RenderStyle == LegacyRenderStyles[STYLE_Normal]))
 		glDisable(GL_CULL_FACE);
 
