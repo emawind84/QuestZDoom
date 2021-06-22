@@ -39,7 +39,7 @@ FSamplerManager::FSamplerManager()
 {
 	if (gl.flags & RFL_SAMPLER_OBJECTS)
 	{
-		glGenSamplers(7, mSamplers);
+		GL(glGenSamplers(7, mSamplers));
 		SetTextureFilterMode();
 		glSamplerParameteri(mSamplers[5], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glSamplerParameteri(mSamplers[5], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -69,7 +69,7 @@ FSamplerManager::~FSamplerManager()
 	if (gl.flags & RFL_SAMPLER_OBJECTS)
 	{
 		UnbindAll();
-		glDeleteSamplers(7, mSamplers);
+		GL(glDeleteSamplers(7, mSamplers));
 	}
 }
 
@@ -79,7 +79,7 @@ void FSamplerManager::UnbindAll()
 	{
 		for (int i = 0; i < FHardwareTexture::MAX_TEXTURES; i++)
 		{
-			glBindSampler(i, 0);
+			GL(glBindSampler(i, 0));
 		}
 	}
 }
@@ -89,12 +89,12 @@ uint8_t FSamplerManager::Bind(int texunit, int num, int lastval)
 	if (gl.flags & RFL_SAMPLER_OBJECTS)
 	{
 		unsigned int samp = mSamplers[num];
-		glBindSampler(texunit, samp);
+		GL(glBindSampler(texunit, samp));
 		return 255;
 	}
 	else
 	{
-		glActiveTexture(GL_TEXTURE0 + texunit);
+		GL(glActiveTexture(GL_TEXTURE0 + texunit));
 		switch (num)
 		{
 		case CLAMP_NONE:
@@ -165,7 +165,7 @@ uint8_t FSamplerManager::Bind(int texunit, int num, int lastval)
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
 			break;
 		}
-		glActiveTexture(GL_TEXTURE0);
+		GL(glActiveTexture(GL_TEXTURE0));
 		return num;
 	}
 }

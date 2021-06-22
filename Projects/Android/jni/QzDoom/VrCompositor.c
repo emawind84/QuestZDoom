@@ -322,7 +322,7 @@ static bool ovrProgram_Create( ovrProgram * program, const char * vertexSource, 
 	{
 		char name[32];
 		sprintf( name, "Texture%i", i );
-		program->Textures[i] = glGetUniformLocation( program->Program, name );
+		program->Textures[i] = GL(glGetUniformLocation( program->Program, name ));
 		if ( program->Textures[i] != -1 )
 		{
 			GL( glUniform1i( program->Textures[i], i ) );
@@ -481,7 +481,7 @@ ovrLayerProjection2 ovrRenderer_RenderGroundPlaneToEyeBuffer( ovrRenderer * rend
         GL( glUseProgram( scene->Program.Program ) );
 
 		ovrMatrix4f viewProjMatrix = ovrMatrix4f_Multiply( &tracking->Eye[eye].ProjectionMatrix, &tracking->Eye[eye].ViewMatrix );
-		glUniformMatrix4fv(	scene->Program.UniformLocation[UNIFORM_VIEW_PROJ_MATRIX], 1, GL_TRUE, &viewProjMatrix.M[0][0] );
+		GL( glUniformMatrix4fv(scene->Program.UniformLocation[UNIFORM_VIEW_PROJ_MATRIX], 1, GL_TRUE, &viewProjMatrix.M[0][0] ));
 
 		GL( glEnable( GL_SCISSOR_TEST ) );
 		GL( glDepthMask( GL_TRUE ) );

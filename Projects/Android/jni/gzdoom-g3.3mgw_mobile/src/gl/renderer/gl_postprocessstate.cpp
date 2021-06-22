@@ -76,15 +76,15 @@ void FGLPostProcessState::SaveTextureBindings(unsigned int numUnits)
 		unsigned int i = textureBinding.Size();
 
 		GLint texture;
-		glActiveTexture(GL_TEXTURE0 + i);
-		glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
+		GL(glActiveTexture(GL_TEXTURE0 + i));
+		GL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture));
 		GL(glBindTexture(GL_TEXTURE_2D, 0));
 		textureBinding.Push(texture);
 
 		if (gl.flags & RFL_SAMPLER_OBJECTS)
 		{
 			GLint sampler;
-			glGetIntegerv(GL_SAMPLER_BINDING, &sampler);
+			GL(glGetIntegerv(GL_SAMPLER_BINDING, &sampler));
 			GL(glBindSampler(i, 0));
 			samplerBinding.Push(sampler);
 		}
@@ -124,15 +124,15 @@ FGLPostProcessState::~FGLPostProcessState()
 	else
 		glDisable(GL_MULTISAMPLE);
 
-	glBlendEquationSeparate(blendEquationRgb, blendEquationAlpha);
-	glBlendFuncSeparate(blendSrcRgb, blendDestRgb, blendSrcAlpha, blendDestAlpha);
+	GL(glBlendEquationSeparate(blendEquationRgb, blendEquationAlpha));
+	GL(glBlendFuncSeparate(blendSrcRgb, blendDestRgb, blendSrcAlpha, blendDestAlpha));
 
-	glUseProgram(currentProgram);
+	GL(glUseProgram(currentProgram));
 
 	// Fully unbind to avoid incomplete texture warnings from Nvidia's driver when gl_debug_level 4 is active
 	for (unsigned int i = 0; i < textureBinding.Size(); i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
+		GL(glActiveTexture(GL_TEXTURE0 + i));
 		GL(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
@@ -143,9 +143,9 @@ FGLPostProcessState::~FGLPostProcessState()
 
 	for (unsigned int i = 0; i < textureBinding.Size(); i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
+		GL(glActiveTexture(GL_TEXTURE0 + i));
 		GL(glBindTexture(GL_TEXTURE_2D, textureBinding[i]));
 	}
 
-	glActiveTexture(activeTex);
+	GL(glActiveTexture(activeTex));
 }

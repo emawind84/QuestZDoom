@@ -459,10 +459,10 @@ void FGLRenderBuffers::CreateEyeBuffers(int eye)
 		return;
 
 	GLint activeTex, textureBinding, frameBufferBinding;
-	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTex);
-	glActiveTexture(GL_TEXTURE0);
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding);
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &frameBufferBinding);
+	GL(glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTex));
+	GL(glActiveTexture(GL_TEXTURE0));
+	GL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding));
+	GL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &frameBufferBinding));
 
 	while (mEyeFBs.Size() <= unsigned(eye))
 	{
@@ -676,14 +676,14 @@ void FGLRenderBuffers::ClearFrameBuffer(bool stencil, bool depth)
 	GLboolean scissorEnabled;
 	GLint stencilValue;
 	GLdouble depthValue;
-	glGetBooleanv(GL_SCISSOR_TEST, &scissorEnabled);
-	glGetIntegerv(GL_STENCIL_CLEAR_VALUE, &stencilValue);
+	GL(glGetBooleanv(GL_SCISSOR_TEST, &scissorEnabled));
+	GL(glGetIntegerv(GL_STENCIL_CLEAR_VALUE, &stencilValue));
 #ifdef __MOBILE__
     GLfloat t;
-    glGetFloatv(GL_DEPTH_CLEAR_VALUE, &t);
+    GL(glGetFloatv(GL_DEPTH_CLEAR_VALUE, &t));
     depthValue = t;
 #else
-	glGetDoublev(GL_DEPTH_CLEAR_VALUE, &depthValue);
+	GL(glGetDoublev(GL_DEPTH_CLEAR_VALUE, &depthValue));
 #endif
 	glDisable(GL_SCISSOR_TEST);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -695,8 +695,8 @@ void FGLRenderBuffers::ClearFrameBuffer(bool stencil, bool depth)
 	if (depth)
 		flags |= GL_DEPTH_BUFFER_BIT;
 	glClear(flags);
-	glClearStencil(stencilValue);
-	glClearDepth(depthValue);
+	GL(glClearStencil(stencilValue));
+	GL(glClearDepth(depthValue));
 	if (scissorEnabled)
 		glEnable(GL_SCISSOR_TEST);
 }
@@ -784,7 +784,7 @@ void FGLRenderBuffers::BindDitherTexture(int texunit)
 		glActiveTexture(GL_TEXTURE0 + texunit);
 		mDitherTexture = Create2DTexture("DitherTexture", GL_R32F, 8, 8, data);
 	}
-	glActiveTexture(GL_TEXTURE0 + texunit);
+	GL(glActiveTexture(GL_TEXTURE0 + texunit));
 	GL(glBindTexture(GL_TEXTURE_2D, mDitherTexture));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -807,7 +807,7 @@ void FGLRenderBuffers::BindShadowMapFB()
 void FGLRenderBuffers::BindShadowMapTexture(int texunit)
 {
 	CreateShadowMap();
-	glActiveTexture(GL_TEXTURE0 + texunit);
+	GL(glActiveTexture(GL_TEXTURE0 + texunit));
 	GL(glBindTexture(GL_TEXTURE_2D, mShadowMapTexture));
 }
 
@@ -826,10 +826,10 @@ void FGLRenderBuffers::CreateShadowMap()
 	ClearShadowMap();
 
 	GLint activeTex, textureBinding, frameBufferBinding;
-	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTex);
-	glActiveTexture(GL_TEXTURE0);
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding);
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &frameBufferBinding);
+	GL(glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTex));
+	GL(glActiveTexture(GL_TEXTURE0));
+	GL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding));
+	GL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &frameBufferBinding));
 
 	mShadowMapTexture = Create2DTexture("ShadowMap", GL_R32F, gl_shadowmap_quality, 1024);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
