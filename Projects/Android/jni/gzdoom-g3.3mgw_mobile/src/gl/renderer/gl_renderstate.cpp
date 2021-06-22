@@ -343,12 +343,12 @@ void FRenderState::Apply()
 		{
 			stSrcBlend = mSrcBlend;
 			stDstBlend = mDstBlend;
-			glBlendFunc(mSrcBlend, mDstBlend);
+			GL(glBlendFunc(mSrcBlend, mDstBlend));
 		}
 		if (mBlendEquation != stBlendEquation)
 		{
 			stBlendEquation = mBlendEquation;
-			glBlendEquation(mBlendEquation);
+			GL(glBlendEquation(mBlendEquation));
 		}
 	}
 

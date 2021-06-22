@@ -51,6 +51,7 @@
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
 #include "gl/system/gl_cvars.h"
+#include "gl/system/gl_debug.h"
 #include "gl/renderer/gl_lightdata.h"
 #include "gl/renderer/gl_renderstate.h"
 #include "gl/renderer/gl_renderbuffers.h"
@@ -171,23 +172,22 @@ void GLSceneDrawer::Set3DViewport(bool mainview)
 	// Always clear all buffers with scissor test disabled.
 	// This is faster on newer hardware because it allows the GPU to skip
 	// reading from slower memory where the full buffers are stored.
-	glDisable(GL_SCISSOR_TEST);
-	glClearColor(GLRenderer->mSceneClearColor[0], GLRenderer->mSceneClearColor[1], GLRenderer->mSceneClearColor[2], 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	GL(glDisable(GL_SCISSOR_TEST));
+	GL(glClearColor(GLRenderer->mSceneClearColor[0], GLRenderer->mSceneClearColor[1], GLRenderer->mSceneClearColor[2], 1.0f));
+	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 	const auto &bounds = GLRenderer->mSceneViewport;
-	glViewport(bounds.left, bounds.top, bounds.width, bounds.height);
-	glScissor(bounds.left, bounds.top, bounds.width, bounds.height);
+	GL(glViewport(bounds.left, bounds.top, bounds.width, bounds.height));
+	GL(glScissor(bounds.left, bounds.top, bounds.width, bounds.height));
 
-	glEnable(GL_SCISSOR_TEST);
-
+	GL(glEnable(GL_SCISSOR_TEST));
 #ifndef __MOBILE__
-	glEnable(GL_MULTISAMPLE);
+	GL(glEnable(GL_MULTISAMPLE));
 #endif
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_ALWAYS,0,~0);	// default stencil
-	glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
+	GL(glEnable(GL_DEPTH_TEST));
+	GL(glEnable(GL_STENCIL_TEST));
+	GL(glStencilFunc(GL_ALWAYS,0,~0));	// default stencil
+	GL(glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE));
 }
 
 //-----------------------------------------------------------------------------
