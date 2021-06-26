@@ -142,7 +142,7 @@ void OpenGLFrameBuffer::InitializeState()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
-	glDepthFunc(GL_LESS);
+	GL(glDepthFunc(GL_LESS));
 
 	glEnable(GL_DITHER);
 	glDisable(GL_CULL_FACE);
@@ -154,12 +154,12 @@ void OpenGLFrameBuffer::InitializeState()
 #ifndef __MOBILE__
 	glEnable(GL_DEPTH_CLAMP);
 #endif
-	glDisable(GL_DEPTH_TEST);
-	if (gl.legacyMode) glEnable(GL_TEXTURE_2D);
-	glDisable(GL_LINE_SMOOTH);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GL(glDisable(GL_DEPTH_TEST));
+	if (gl.legacyMode) GL(glEnable(GL_TEXTURE_2D));
+	GL(glDisable(GL_LINE_SMOOTH));
+	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	GLRenderer->Initialize(GetWidth(), GetHeight());
 	GLRenderer->SetOutputViewport(nullptr);

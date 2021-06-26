@@ -66,7 +66,7 @@ FGLPostProcessState::FGLPostProcessState()
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_SCISSOR_TEST);
-	glDisable(GL_BLEND);
+	GL(glDisable(GL_BLEND));
 }
 
 void FGLPostProcessState::SaveTextureBindings(unsigned int numUnits)
@@ -89,7 +89,7 @@ void FGLPostProcessState::SaveTextureBindings(unsigned int numUnits)
 			samplerBinding.Push(sampler);
 		}
 	}
-	glActiveTexture(GL_TEXTURE0);
+	GL(glActiveTexture(GL_TEXTURE0));
 }
 
 //-----------------------------------------------------------------------------

@@ -45,6 +45,7 @@
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
 #include "gl/system/gl_cvars.h"
+#include "gl/system/gl_debug.h"
 #include "gl/renderer/gl_lightdata.h"
 #include "gl/renderer/gl_renderstate.h"
 #include "gl/renderer/gl_renderer.h"
@@ -151,7 +152,7 @@ void GLSprite::CalculateVertices(FVector3 *v)
 		v[2] = mat * FVector3(x2, z, y1);
 		v[3] = mat * FVector3(x1, z, y1);
 
-		glEnable(GL_POLYGON_OFFSET_FILL);
+		GL(glEnable(GL_POLYGON_OFFSET_FILL));
 		glPolygonOffset(-1.0f, -128.0f);
 		return;
 	}
@@ -352,7 +353,7 @@ void GLSprite::Draw(int pass)
 		gl_GetRenderStyle(RenderStyle, false, false, &tm, &sb, &db, &be);
 		gl_RenderState.SetTextureMode(tm);
 
-		glEnable(GL_POLYGON_OFFSET_FILL);
+		GL(glEnable(GL_POLYGON_OFFSET_FILL));
 		glPolygonOffset(-1.0f, -128.0f);
 	}
 	if (RenderStyle.BlendOp != STYLEOP_Shadow)

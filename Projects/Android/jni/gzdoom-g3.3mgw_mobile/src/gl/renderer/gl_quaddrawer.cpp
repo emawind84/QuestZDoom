@@ -21,6 +21,7 @@
 //
 
 #include "gl/system/gl_system.h"
+#include "gl/system/gl_debug.h"
 #include "gl/shaders/gl_shader.h"
 #include "gl/renderer/gl_renderer.h"
 #include "gl/renderer/gl_renderstate.h"
@@ -65,5 +66,5 @@ void FQuadDrawer::DoRender(int type)
 	glUniformMatrix4fv(shader->texcoordmatrix_index, 1, false, matT);
 	glUniform1i(shader->quadmode_index, 1);
 	GLRenderer->mVBO->RenderArray(type, FFlatVertexBuffer::QUAD_INDEX, 4);
-	glUniform1i(shader->quadmode_index, 0);
+	GL(glUniform1i(shader->quadmode_index, 0));
 }

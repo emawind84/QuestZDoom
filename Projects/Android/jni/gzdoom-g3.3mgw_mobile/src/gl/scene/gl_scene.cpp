@@ -149,7 +149,7 @@ void GLSceneDrawer::SetViewArea()
 
 void GLSceneDrawer::Reset3DViewport()
 {
-	glViewport(GLRenderer->mScreenViewport.left, GLRenderer->mScreenViewport.top, GLRenderer->mScreenViewport.width, GLRenderer->mScreenViewport.height);
+	GL(glViewport(GLRenderer->mScreenViewport.left, GLRenderer->mScreenViewport.top, GLRenderer->mScreenViewport.width, GLRenderer->mScreenViewport.height));
 }
 
 //-----------------------------------------------------------------------------
@@ -344,7 +344,7 @@ void GLSceneDrawer::RenderScene(int recursion)
 	// Part 1: solid geometry. This is set up so that there are no transparent parts
 	glDepthFunc(GL_LESS);
 	gl_RenderState.AlphaFunc(GL_GEQUAL, 0.f);
-	glDisable(GL_POLYGON_OFFSET_FILL);
+	GL(glDisable(GL_POLYGON_OFFSET_FILL));
 
 	int pass;
 
@@ -430,7 +430,7 @@ void GLSceneDrawer::RenderScene(int recursion)
 	glDepthMask(true);
 
 	glPolygonOffset(0.0f, 0.0f);
-	glDisable(GL_POLYGON_OFFSET_FILL);
+	GL(glDisable(GL_POLYGON_OFFSET_FILL));
 	RenderAll.Unclock();
 
 }
@@ -913,7 +913,7 @@ sector_t * GLSceneDrawer::RenderViewpoint (AActor * camera, GL_IRECT * bounds, f
 
 				// This should be done after postprocessing, not before.
 				GLRenderer->mBuffers->BindCurrentFB();
-				glViewport(GLRenderer->mScreenViewport.left, GLRenderer->mScreenViewport.top, GLRenderer->mScreenViewport.width, GLRenderer->mScreenViewport.height);
+				GL(glViewport(GLRenderer->mScreenViewport.left, GLRenderer->mScreenViewport.top, GLRenderer->mScreenViewport.width, GLRenderer->mScreenViewport.height));
 
 				if (!toscreen)
 				{

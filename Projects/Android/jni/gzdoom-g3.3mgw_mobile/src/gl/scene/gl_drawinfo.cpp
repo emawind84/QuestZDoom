@@ -35,6 +35,7 @@
 #include "g_levellocals.h"
 
 #include "gl/system/gl_cvars.h"
+#include "gl/system/gl_debug.h"
 #include "gl/data/gl_data.h"
 #include "gl/data/gl_vertexbuffer.h"
 #include "gl/scene/gl_drawinfo.h"
@@ -1078,8 +1079,8 @@ void FDrawInfo::SetupFloodStencil(wallseg * ws)
 	int recursion = GLPortal::GetRecursion();
 
 	// Create stencil 
-	glStencilFunc(GL_EQUAL, recursion, ~0);		// create stencil
-	glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);		// increment stencil of valid pixels
+	GL(glStencilFunc(GL_EQUAL, recursion, ~0);)		// create stencil
+	GL(glStencilOp(GL_KEEP, GL_KEEP, GL_INCR));		// increment stencil of valid pixels
 	{
 		// Use revertible color mask, to avoid stomping on anaglyph 3D state
 		ScopedColorMask colorMask(0, 0, 0, 0); // glColorMask(0, 0, 0, 0);						// don't write to the graphics buffer
@@ -1096,12 +1097,12 @@ void FDrawInfo::SetupFloodStencil(wallseg * ws)
 		qd.Set(3, ws->x2, ws->z1, ws->y2, 0, 0);
 		qd.Render(GL_TRIANGLE_FAN);
 
-		glStencilFunc(GL_EQUAL, recursion + 1, ~0);		// draw sky into stencil
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);		// this stage doesn't modify the stencil
+		GL(glStencilFunc(GL_EQUAL, recursion + 1, ~0));		// draw sky into stencil
+		GL(glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP));		// this stage doesn't modify the stencil
 
 	} // glColorMask(1, 1, 1, 1);						// don't write to the graphics buffer
 	gl_RenderState.EnableTexture(true);
-	glDisable(GL_DEPTH_TEST);
+	GL(glDisable(GL_DEPTH_TEST));
 	glDepthMask(false);
 }
 
@@ -1129,7 +1130,7 @@ void FDrawInfo::ClearFloodStencil(wallseg * ws)
 		glStencilFunc(GL_EQUAL, recursion, ~0);
 		gl_RenderState.EnableTexture(true);
 	} // glColorMask(1, 1, 1, 1);
-	glEnable(GL_DEPTH_TEST);
+	GL(glEnable(GL_DEPTH_TEST));
 	glDepthMask(true);
 }
 

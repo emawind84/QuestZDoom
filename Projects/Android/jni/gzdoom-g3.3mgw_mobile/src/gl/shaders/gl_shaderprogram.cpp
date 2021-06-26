@@ -120,7 +120,7 @@ void FShaderProgram::CompileShader(ShaderType type)
 	glCompileShader(handle);
 
 	GLint status = 0;
-	glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
+	GL(glGetShaderiv(handle, GL_COMPILE_STATUS, &status));
 	if (status == GL_FALSE)
 	{
 		I_FatalError("Compile Shader '%s':\n%s\n", mShaderNames[type].GetChars(), GetShaderInfoLog(handle).GetChars());
@@ -129,7 +129,7 @@ void FShaderProgram::CompileShader(ShaderType type)
 	{
 		if (mProgram == 0)
 			mProgram = glCreateProgram();
-		glAttachShader(mProgram, handle);
+		GL(glAttachShader(mProgram, handle));
 	}
 }
 
@@ -165,10 +165,10 @@ void FShaderProgram::Link(const char *name)
 	if (binary.Size() > 0 && glProgramBinary)
 	{
 		if (mProgram == 0)
-			mProgram = glCreateProgram();
-		glProgramBinary(mProgram, binaryFormat, binary.Data(), binary.Size());
+			mProgram = GL(glCreateProgram());
+		GL(glProgramBinary(mProgram, binaryFormat, binary.Data(), binary.Size()));
 		GLint status = 0;
-		glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
+		GL(glGetProgramiv(mProgram, GL_LINK_STATUS, &status));
 		loadedFromBinary = (status == GL_TRUE);
 	}
 
@@ -177,10 +177,10 @@ void FShaderProgram::Link(const char *name)
 		CompileShader(Vertex);
 		CompileShader(Fragment);
 
-		glLinkProgram(mProgram);
+		GL(glLinkProgram(mProgram));
 
 		GLint status = 0;
-		glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
+		GL(glGetProgramiv(mProgram, GL_LINK_STATUS, &status));
 		if (status == GL_FALSE)
 		{
 			I_FatalError("Link Shader '%s':\n%s\n", name, GetProgramInfoLog(mProgram).GetChars());
@@ -205,7 +205,7 @@ void FShaderProgram::Link(const char *name)
 
 void FShaderProgram::SetAttribLocation(int index, const char *name)
 {
-	glBindAttribLocation(mProgram, index, name);
+	GL(glBindAttribLocation(mProgram, index, name));
 }
 
 //==========================================================================
@@ -216,7 +216,7 @@ void FShaderProgram::SetAttribLocation(int index, const char *name)
 
 void FShaderProgram::Bind()
 {
-	glUseProgram(mProgram);
+	GL(glUseProgram(mProgram));
 }
 
 //==========================================================================

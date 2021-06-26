@@ -193,8 +193,8 @@ bool GLPortal::Start(bool usestencil, bool doquery)
 		}
 	
 		// Create stencil 
-		glStencilFunc(GL_EQUAL,recursion,~0);		// create stencil
-		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);		// increment stencil of valid pixels
+		GL(glStencilFunc(GL_EQUAL,recursion,~0));		// create stencil
+		GL(glStencilOp(GL_KEEP, GL_KEEP, GL_INCR));		// increment stencil of valid pixels
 		{
 			ScopedColorMask colorMask(0, 0, 0, 0); // glColorMask(0,0,0,0);						// don't write to the graphics buffer
 			gl_RenderState.SetEffect(EFF_STENCIL);
@@ -212,25 +212,25 @@ bool GLPortal::Start(bool usestencil, bool doquery)
 				// If occlusion query is supported let's use it to avoid rendering portals that aren't visible
 				if (QueryObject)
 				{
-					glBeginQuery(GL_SAMPLES_PASSED, QueryObject);
+					GL(glBeginQuery(GL_SAMPLES_PASSED, QueryObject));
 				}
 				else doquery = false;	// some kind of error happened
 
 				DrawPortalStencil(STP_Stencil);
 
-				glEndQuery(GL_SAMPLES_PASSED);
+				GL(glEndQuery(GL_SAMPLES_PASSED));
 
 				// Clear Z-buffer
-				glStencilFunc(GL_EQUAL, recursion + 1, ~0);		// draw sky into stencil
-				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);		// this stage doesn't modify the stencil
+				GL(glStencilFunc(GL_EQUAL, recursion + 1, ~0));		// draw sky into stencil
+				GL(glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP));		// this stage doesn't modify the stencil
 				glDepthMask(true);							// enable z-buffer again
 				glDepthRange(1, 1);
-				glDepthFunc(GL_ALWAYS);
+				GL(glDepthFunc(GL_ALWAYS));
 				DrawPortalStencil(STP_DepthClear);
 
 				// set normal drawing mode
 				gl_RenderState.EnableTexture(true);
-				glDepthFunc(GL_LESS);
+				GL(glDepthFunc(GL_LESS));
 				// glColorMask(1, 1, 1, 1);
 				gl_RenderState.SetEffect(EFF_NONE);
 				glDepthRange(0, 1);
@@ -239,13 +239,13 @@ bool GLPortal::Start(bool usestencil, bool doquery)
 
 				if (QueryObject)
 				{
-					glGetQueryObjectuiv(QueryObject, GL_QUERY_RESULT, &sampleCount);
+					GL(glGetQueryObjectuiv(QueryObject, GL_QUERY_RESULT, &sampleCount));
 
 					if (sampleCount == 0) 	// not visible
 					{
 						// restore default stencil op.
-						glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-						glStencilFunc(GL_EQUAL, recursion, ~0);		// draw sky into stencil
+						GL(glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP));
+						GL(glStencilFunc(GL_EQUAL, recursion, ~0));		// draw sky into stencil
 						PortalAll.Unclock();
 						return false;
 					}
@@ -261,12 +261,12 @@ bool GLPortal::Start(bool usestencil, bool doquery)
 
 				glDepthMask(true);
 				DrawPortalStencil(STP_AllInOne);
-				glStencilFunc(GL_EQUAL, recursion + 1, ~0);		// draw sky into stencil
-				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);		// this stage doesn't modify the stencil
+				GL(glStencilFunc(GL_EQUAL, recursion + 1, ~0));		// draw sky into stencil
+				GL(glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP));		// this stage doesn't modify the stencil
 				gl_RenderState.EnableTexture(true);
 				// glColorMask(1,1,1,1);
 				gl_RenderState.SetEffect(EFF_NONE);
-				glDisable(GL_DEPTH_TEST);
+				GL(glDisable(GL_DEPTH_TEST));
 				glDepthMask(false);							// don't write to Z-buffer!
 			}
 		}
@@ -283,7 +283,7 @@ bool GLPortal::Start(bool usestencil, bool doquery)
 		else
 		{
 			glDepthMask(false);
-			glDisable(GL_DEPTH_TEST);
+			GL(glDisable(GL_DEPTH_TEST));
 		}
 	}
 
@@ -390,9 +390,9 @@ void GLPortal::End(bool usestencil)
 			glDepthFunc(GL_LEQUAL);
 			glDepthRange(0, 1);
 			glStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
-			glStencilFunc(GL_EQUAL, recursion, ~0);		// draw sky into stencil
+			GL(glStencilFunc(GL_EQUAL, recursion, ~0));		// draw sky into stencil
 			DrawPortalStencil(STP_DepthRestore);
-			glDepthFunc(GL_LESS);
+			GL(glDepthFunc(GL_LESS));
 
 
 			gl_RenderState.EnableTexture(true);
@@ -401,8 +401,8 @@ void GLPortal::End(bool usestencil)
 		recursion--;
 
 		// restore old stencil op.
-		glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-		glStencilFunc(GL_EQUAL,recursion,~0);		// draw sky into stencil
+		GL(glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP));
+		GL(glStencilFunc(GL_EQUAL,recursion,~0));		// draw sky into stencil
 	}
 	else
 	{

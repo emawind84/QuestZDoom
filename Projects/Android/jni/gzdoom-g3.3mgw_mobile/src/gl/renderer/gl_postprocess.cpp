@@ -291,10 +291,10 @@ void FGLRenderer::AmbientOccludeScene()
 
 	// Add SSAO back to scene texture:
 	mBuffers->BindSceneFB(false);
-	glViewport(mSceneViewport.left, mSceneViewport.top, mSceneViewport.width, mSceneViewport.height);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GL(glViewport(mSceneViewport.left, mSceneViewport.top, mSceneViewport.width, mSceneViewport.height));
+	GL(glEnable(GL_BLEND));
+	GL(glBlendEquation(GL_FUNC_ADD));
+	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	if (gl_ssao_debug != 0)
 	{
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -474,7 +474,7 @@ void FGLRenderer::BloomScene(int fixedcm)
 	mBloomCombineShader->Bind();
 	mBloomCombineShader->BloomTexture.Set(0);
 	RenderScreenQuad();
-	glViewport(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height);
+	GL(glViewport(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height));
 
 	FGLDebug::PopGroup();
 }
@@ -554,7 +554,7 @@ void FGLRenderer::BlurScene(float gameinfobluramount)
 	GL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mBuffers->GetCurrentFB()));
 	GL(glBlitFramebuffer(0, 0, level0.Width, level0.Height, viewport.left, viewport.top, viewport.width, viewport.height, GL_COLOR_BUFFER_BIT, GL_LINEAR));
 
-	glViewport(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height);
+	GL(glViewport(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height));
 
 	FGLDebug::PopGroup();
 }
@@ -598,7 +598,7 @@ void FGLRenderer::TonemapScene()
 	{
 		glActiveTexture(GL_TEXTURE1);
 		GL(glBindTexture(GL_TEXTURE_2D, mBuffers->ExposureTexture));
-		glActiveTexture(GL_TEXTURE0);
+		GL(glActiveTexture(GL_TEXTURE0));
 
 		mTonemapShader->ExposureTexture.Set(1);
 	}
@@ -729,7 +729,7 @@ void FGLRenderer::LensDistortScene()
 	mLensShader->CubicDistortionValue.Set(kcube);
 	RenderScreenQuad();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	mBuffers->NextTexture();
 
 	FGLDebug::PopGroup();
@@ -955,7 +955,7 @@ void FGLRenderer::ClearBorders()
 		glScissor(box.left + box.width, box.top, clientWidth - box.left - box.width, box.height);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
-	glDisable(GL_SCISSOR_TEST);
+	GL(glDisable(GL_SCISSOR_TEST));
 }
 
 
