@@ -256,7 +256,10 @@ FGLRenderer::~FGLRenderer()
 
 	if (syncBuff) delete []syncBuff;
 
-	if (mFBID != 0) glDeleteFramebuffers(1, &mFBID);
+	if (mFBID != 0) 
+	{
+		GL(glDeleteFramebuffers(1, &mFBID));
+	}
 	if (mVAOID != 0)
 	{
 		GL(glBindVertexArray(0));
@@ -437,8 +440,8 @@ void FGLRenderer::Begin2D()
 		else
 			mBuffers->BindCurrentFB();
 	}
-	glViewport(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height);
-	glScissor(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height);
+	GL(glViewport(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height));
+	GL(glScissor(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height));
 
 	gl_RenderState.EnableFog(false);
 }

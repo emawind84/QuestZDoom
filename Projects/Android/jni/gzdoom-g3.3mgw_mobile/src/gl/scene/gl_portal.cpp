@@ -1276,8 +1276,10 @@ void GLPortal::Initialize()
 {
 	assert(0 == QueryObject);
 #ifdef __MOBILE__
-    if(gl.glesVer >= 3 )
-	glGenQueries(1, &QueryObject);
+	if(gl.glesVer >= 3 ) 
+	{
+		GL(glGenQueries(1, &QueryObject));
+	}
 #endif
 }
 
@@ -1285,7 +1287,7 @@ void GLPortal::Shutdown()
 {
 	if (0 != QueryObject)
 	{
-		glDeleteQueries(1, &QueryObject);
+		GL(glDeleteQueries(1, &QueryObject));
 		QueryObject = 0;
 	}
 }
