@@ -156,7 +156,9 @@ void OpenGLFrameBuffer::InitializeState()
 #endif
 	GL(glDisable(GL_DEPTH_TEST));
 	if (gl.legacyMode) GL(glEnable(GL_TEXTURE_2D));
+#ifndef __MOBILE__
 	GL(glDisable(GL_LINE_SMOOTH));
+#endif
 	GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
 	GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
