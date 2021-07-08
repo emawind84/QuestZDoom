@@ -47,11 +47,11 @@ android {
     }
     compileSdkVersion = 24
     buildToolsVersion = '29.0.1'
-    buildTypes {
+/*    buildTypes {
         release {
             debuggable true
         }
-    }
+    }*/
 }
 
 dependencies {
