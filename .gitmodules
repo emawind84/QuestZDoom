@@ -1,4 +1,4 @@
 [submodule "gzdoom"]
 	path = Projects/Android/jni/gzdoom-g3.3mgw_mobile
 	url = https://github.com/emawind84/gzdoom.git
-	branch = questzdoom
+	branch = questzdoom-v3.86
