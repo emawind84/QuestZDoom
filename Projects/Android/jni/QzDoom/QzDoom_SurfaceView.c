@@ -1042,6 +1042,10 @@ static void ovrApp_HandleVrModeChanges( ovrApp * app )
 
 				ALOGV( "		vrapi_SetClockLevels( %d, %d )", app->CpuLevel, app->GpuLevel );
 
+				vrapi_SetExtraLatencyMode( app->Ovr, VRAPI_EXTRA_LATENCY_MODE_ON );
+
+				ALOGV( "		vrapi_SetExtraLatencyMode( ON )");
+
 				vrapi_SetPerfThread( app->Ovr, VRAPI_PERF_THREAD_TYPE_MAIN, app->MainThreadTid );
 
 				ALOGV( "		vrapi_SetPerfThread( MAIN, %d )", app->MainThreadTid );
