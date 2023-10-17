@@ -33,6 +33,7 @@ extern float cinemamodeYaw;
 extern float cinemamodePitch;
 
 extern bool weaponStabilised;
+extern bool twoHandedMode;
 
 int getGameState();
 int getMenuState();
@@ -126,6 +127,15 @@ void HandleInput_Default( int control_scheme, ovrInputStateTrackedRemote *pDomin
                                     pDominantTracking->Pose.position.y, 2) +
                                powf(pOffTracking->Pose.position.z -
                                     pDominantTracking->Pose.position.z, 2));
+
+        if (twoHandedMode)
+        {
+            if (distance < 0.50f) {
+                weaponStabilised = true;
+            } else {
+                weaponStabilised = false;
+            }
+        }
 
         //Turn on weapon stabilisation?
         if (vr_two_handed_weapons &&

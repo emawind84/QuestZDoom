@@ -52,6 +52,7 @@ vec3_t positionDeltaThisFrame;
 vec3_t weaponangles;
 vec3_t weaponoffset;
 bool weaponStabilised;
+bool twoHandedMode;
 
 vec3_t offhandangles;
 vec3_t offhandoffset;
