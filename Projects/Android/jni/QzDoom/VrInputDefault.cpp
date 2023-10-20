@@ -128,27 +128,14 @@ void HandleInput_Default( int control_scheme, ovrInputStateTrackedRemote *pDomin
                                powf(pOffTracking->Pose.position.z -
                                     pDominantTracking->Pose.position.z, 2));
 
-        if (twoHandedMode)
-        {
-            if (distance < 0.50f) {
-                weaponStabilised = true;
-            } else {
-                weaponStabilised = false;
-            }
-        }
-
         //Turn on weapon stabilisation?
-        if (vr_two_handed_weapons &&
-                (pOffTrackedRemoteNew->Buttons & xrButton_GripTrigger) !=
-            (pOffTrackedRemoteOld->Buttons & xrButton_GripTrigger)) {
-
-            if (pOffTrackedRemoteNew->Buttons & xrButton_GripTrigger) {
-                if (distance < 0.50f) {
-                    weaponStabilised = true;
-                }
-            } else {
-                weaponStabilised = false;
-            }
+        if (twoHandedMode || vr_two_handed_weapons 
+        && pOffTrackedRemoteNew->Buttons & xrButton_GripTrigger
+        && distance < 0.50f) 
+        {
+            weaponStabilised = true;
+        } else {
+            weaponStabilised = false;
         }
 
         //dominant hand stuff first
