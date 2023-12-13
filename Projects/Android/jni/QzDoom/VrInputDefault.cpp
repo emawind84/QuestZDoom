@@ -33,6 +33,7 @@ extern float cinemamodeYaw;
 extern float cinemamodePitch;
 
 extern bool weaponStabilised;
+extern bool twoHandedMode;
 
 int getGameState();
 int getMenuState();
@@ -128,17 +129,13 @@ void HandleInput_Default( int control_scheme, ovrInputStateTrackedRemote *pDomin
                                     pDominantTracking->Pose.position.z, 2));
 
         //Turn on weapon stabilisation?
-        if (vr_two_handed_weapons &&
-                (pOffTrackedRemoteNew->Buttons & xrButton_GripTrigger) !=
-            (pOffTrackedRemoteOld->Buttons & xrButton_GripTrigger)) {
-
-            if (pOffTrackedRemoteNew->Buttons & xrButton_GripTrigger) {
-                if (distance < 0.50f) {
-                    weaponStabilised = true;
-                }
-            } else {
-                weaponStabilised = false;
-            }
+        if (twoHandedMode || vr_two_handed_weapons 
+        && pOffTrackedRemoteNew->Buttons & xrButton_GripTrigger
+        && distance < 0.50f) 
+        {
+            weaponStabilised = true;
+        } else {
+            weaponStabilised = false;
         }
 
         //dominant hand stuff first
