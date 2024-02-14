@@ -1,6 +1,6 @@
 [submodule "gzdoom"]
 	path = Projects/Android/jni/gzdoom-g3.3mgw_mobile
-	url = https://github.com/DrBeef/gzdoom.git
+	url = https://github.com/emawind84/gzdoom.git
 	branch = questzdoom
 [submodule "Projects/Android/jni/SupportLibs/ZMusic"]
 	path = Projects/Android/jni/SupportLibs/ZMusic
