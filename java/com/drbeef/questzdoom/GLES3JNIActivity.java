@@ -219,6 +219,7 @@ import java.util.Locale;
 		new File(progdir, "mods").mkdirs();
 		new File(progdir, "wads").mkdirs();
 		new File(progdir, "soundfonts").mkdirs();
+		new File(progdir, "profiles").mkdirs();
 
 		copy_asset(progdir, "res/qzdoom.pk3", true);
 		copy_asset(progdir, "res/game_support.pk3", true);
@@ -227,6 +228,13 @@ import java.util.Locale;
 
 		copy_asset(progdir, "mods/Ultimate-Cheat-Menu.zip", true);
 		copy_asset(progdir, "mods/laser-sight-0.5.5-vr.pk3", true);
+		
+		copy_asset(progdir, "profiles/commandline_Doom.txt", false);
+		copy_asset(progdir, "profiles/commandline_Doom 2.txt", false);
+		copy_asset(progdir, "profiles/commandline_Harmony.txt", false);
+		copy_asset(progdir, "profiles/commandline_Heretic.txt", false);
+		copy_asset(progdir, "profiles/commandline_Hexen.txt", false);
+		copy_asset(progdir, "profiles/commandline_Strife.txt", false);
 
 		copy_asset(progdir + "/soundfonts", "qzdoom.sf2", false);
 		copy_asset(progdir + "/fm_banks", "GENMIDI.GS.wopl", false);

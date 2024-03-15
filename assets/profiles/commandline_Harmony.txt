@@ -1,0 +1,1 @@
+qzdoom --supersampling 1.0 --msaa 1 -iwad harm1.wad -file laser-sight-0.5.5-vr.pk3 -file Ultimate-Cheat-Menu.zip +logfile questzdoom.log
