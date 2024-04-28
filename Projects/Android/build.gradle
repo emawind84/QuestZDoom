@@ -17,7 +17,7 @@ android {
         // Gradle replaces the manifest package with this value, which must
         // be unique on a system.  If you don't change it, a new app
         // will replace an older one.
-        applicationId "com.drbeef." + project.archivesBaseName
+        applicationId "com.drbeef.lzdoom." + project.archivesBaseName
 
         // override app plugin abiFilters for both 32 and 64-bit support
         externalNativeBuild {
@@ -53,7 +53,7 @@ android {
 
     ndkVersion = "21.4.7075529"
 
-    compileSdkVersion = 24
+    compileSdkVersion = 26
 
 /*    buildTypes {
         release {
