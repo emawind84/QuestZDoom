@@ -68,7 +68,7 @@ import java.util.Locale;
 	private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_ID = 2;
 
 	private String commandLineParams;
-	private String progdir = "/sdcard/QuestZDoom";
+	private String progdir = "/sdcard/Selaco";
 
 	private SurfaceView mView;
 	private SurfaceHolder mSurfaceHolder;
@@ -222,19 +222,21 @@ import java.util.Locale;
 		new File(progdir, "profiles").mkdirs();
 
 		copy_asset(progdir, "res/qzdoom.pk3", true);
-		copy_asset(progdir, "res/game_support.pk3", true);
-		copy_asset(progdir, "res/lights.pk3", true);
-		copy_asset(progdir, "res/brightmaps.pk3", true);
+		// copy_asset(progdir, "res/game_support.pk3", true);
+		// copy_asset(progdir, "res/lights.pk3", true);
+		// copy_asset(progdir, "res/brightmaps.pk3", true);
 
 		copy_asset(progdir, "mods/Ultimate-Cheat-Menu.zip", true);
 		copy_asset(progdir, "mods/laser-sight-0.5.5-vr.pk3", true);
+		copy_asset(progdir, "mods/selaco-vr.pk3", true);
+
 		
-		copy_asset(progdir, "profiles/commandline_Doom.txt", false);
-		copy_asset(progdir, "profiles/commandline_Doom 2.txt", false);
-		copy_asset(progdir, "profiles/commandline_Harmony.txt", false);
-		copy_asset(progdir, "profiles/commandline_Heretic.txt", false);
-		copy_asset(progdir, "profiles/commandline_Hexen.txt", false);
-		copy_asset(progdir, "profiles/commandline_Strife.txt", false);
+		// copy_asset(progdir, "profiles/commandline_Doom.txt", false);
+		// copy_asset(progdir, "profiles/commandline_Doom 2.txt", false);
+		// copy_asset(progdir, "profiles/commandline_Harmony.txt", false);
+		// copy_asset(progdir, "profiles/commandline_Heretic.txt", false);
+		// copy_asset(progdir, "profiles/commandline_Hexen.txt", false);
+		// copy_asset(progdir, "profiles/commandline_Strife.txt", false);
 
 		copy_asset(progdir + "/soundfonts", "qzdoom.sf2", false);
 		copy_asset(progdir + "/fm_banks", "GENMIDI.GS.wopl", false);
@@ -277,9 +279,9 @@ import java.util.Locale;
 		//to allow the launcher app to do its thing, otherwise it would crash anyway
 		//Check that launcher is installed too
         boolean hasIWADs = ((new File(progdir, "wads").listFiles().length) > 0);
-		boolean hasLauncher = new File(progdir, "no_launcher").exists() || //Allow users to run without launcher if they _really_ want to
-				isPackageInstalled("com.Baggyg.QuestZDoom_Launcher", this.getPackageManager());
-		mNativeHandle = GLES3JNILib.onCreate( this, commandLineParams, hasIWADs, hasLauncher );
+		// boolean hasLauncher = new File(progdir, "no_launcher").exists() || //Allow users to run without launcher if they _really_ want to
+		// 		isPackageInstalled("com.Baggyg.QuestZDoom_Launcher", this.getPackageManager());
+		mNativeHandle = GLES3JNILib.onCreate( this, commandLineParams, hasIWADs, true );
 	}
 
 	public void copy_asset(String path, String name, boolean force) {

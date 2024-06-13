@@ -246,7 +246,7 @@ void VR_Init()
 
 	cinemamode = false;
 
-	chdir("/sdcard/QuestZDoom");
+	chdir("/sdcard/Selaco");
 }
 
 void * AppThreadFunction(void * parm ) {
