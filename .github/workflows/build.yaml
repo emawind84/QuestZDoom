@@ -47,7 +47,7 @@ jobs:
       #     token: ${{ secrets.GH_PAT }}
       #     path: ''
 
-      - name: Checkout QuestZDoom
+      - name: Checkout SelacoVR
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
@@ -201,7 +201,7 @@ jobs:
 
       - name: Prepare signed APK
         shell: bash
-        run: mv --force '${{steps.sign_app_apk.outputs.signedFile}}' questzdoom-${{ matrix.build_folder }}.apk
+        run: mv --force '${{steps.sign_app_apk.outputs.signedFile}}' selacovr-${{ matrix.build_folder }}.apk
         if: ${{ steps.sign_app_apk.outcome == 'success' }}
         working-directory: ${{ matrix.progdir }}/build/outputs/apk/${{ matrix.build_folder }}
 
