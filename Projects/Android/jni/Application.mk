@@ -1,4 +1,4 @@
-APP_PLATFORM := android-19
+APP_PLATFORM := android-29
 
 APP_CFLAGS += -Wl,--no-undefined, -march=armv8+crc
 
@@ -13,7 +13,7 @@ APP_ALLOW_MISSING_DEPS=true
 
 APP_SHORT_COMMANDS :=true
 
-APP_MODULES := qzdoom 
+APP_MODULES := qzdoom openxr_loader
 APP_STL := c++_shared
 
 
