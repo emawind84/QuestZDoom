@@ -12,6 +12,8 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
