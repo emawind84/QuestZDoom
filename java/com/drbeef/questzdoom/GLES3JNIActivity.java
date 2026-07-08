@@ -10,10 +10,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.os.Environment;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -50,8 +53,7 @@ import java.util.Locale;
 
 		try
 		{
-			//Load manufacturer specific loader
-			System.loadLibrary("openxr_loader_" + manufacturer);
+			System.loadLibrary("openxr_loader");
 			setenv("OPENXR_HMD", manufacturer, true);
 		} catch (Exception e)
 		{}
@@ -66,6 +68,7 @@ import java.util.Locale;
 	private int permissionCount = 0;
 	private static final int READ_EXTERNAL_STORAGE_PERMISSION_ID = 1;
 	private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_ID = 2;
+	private static final int MANAGE_EXTERNAL_STORAGE_PERMISSION_ID = 3;
 
 	private String commandLineParams;
 	private String progdir = "/sdcard/QuestZDoom";
@@ -73,6 +76,8 @@ import java.util.Locale;
 	private SurfaceView mView;
 	private SurfaceHolder mSurfaceHolder;
 	private long mNativeHandle;
+	private boolean createStarted = false;
+	private boolean requestedManageExternalStorage = false;
 
 	public void shutdown() {
 		if (Build.VERSION.SDK_INT >= 21) {
@@ -173,32 +178,57 @@ import java.util.Locale;
 
 	/** Initializes the Activity only if the permission has been granted. */
 	private void checkPermissionsAndInitialize() {
-		// Boilerplate for checking runtime permissions in Android.
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-				!= PackageManager.PERMISSION_GRANTED){
-			ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE},
-					WRITE_EXTERNAL_STORAGE_PERMISSION_ID);
+		if (createStarted) {
+			return;
 		}
-		else
-		{
-			// Permissions have already been granted.
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			if (!Environment.isExternalStorageManager()) {
+				Log.w(APPLICATION, "MANAGE_EXTERNAL_STORAGE is required for /sdcard/QuestZDoom access.");
+				if (!requestedManageExternalStorage) {
+					requestedManageExternalStorage = true;
+					Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+					intent.setData(Uri.parse("package:" + getPackageName()));
+					try {
+						startActivityForResult(intent, MANAGE_EXTERNAL_STORAGE_PERMISSION_ID);
+					} catch (Exception e) {
+						startActivityForResult(
+								new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION),
+								MANAGE_EXTERNAL_STORAGE_PERMISSION_ID);
+					}
+				}
+				return;
+			}
+
 			create();
+			return;
 		}
+
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+				!= PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(
+					this,
+					new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+					WRITE_EXTERNAL_STORAGE_PERMISSION_ID);
+			return;
+		}
+
+		create();
 	}
 
 	/** Handles the user accepting the permission. */
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
 		if (requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION_ID) {
-			if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
-				create();
-			}
-			else {
-				finish();
-				System.exit(0);
-			}
+			checkPermissionsAndInitialize();
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == MANAGE_EXTERNAL_STORAGE_PERMISSION_ID) {
+			checkPermissionsAndInitialize();
 		}
 	}
 
@@ -212,6 +242,8 @@ import java.util.Locale;
 	}
 
 	public void create() {
+		createStarted = true;
+
 		copy_asset(progdir, "commandline.txt", false);
 
 		//Create all required folders
@@ -277,9 +309,9 @@ import java.util.Locale;
 		//to allow the launcher app to do its thing, otherwise it would crash anyway
 		//Check that launcher is installed too
         boolean hasIWADs = ((new File(progdir, "wads").listFiles().length) > 0);
-		boolean hasLauncher = new File(progdir, "no_launcher").exists() || //Allow users to run without launcher if they _really_ want to
-				isPackageInstalled("com.Baggyg.QuestZDoom_Launcher", this.getPackageManager());
-		mNativeHandle = GLES3JNILib.onCreate( this, commandLineParams, hasIWADs, hasLauncher );
+		// boolean hasLauncher = new File(progdir, "no_launcher").exists() || //Allow users to run without launcher if they _really_ want to
+		// 		isPackageInstalled("com.Baggyg.QuestZDoom_Launcher", this.getPackageManager());
+		mNativeHandle = GLES3JNILib.onCreate( this, commandLineParams, hasIWADs, true );
 	}
 
 	public void copy_asset(String path, String name, boolean force) {
@@ -396,7 +428,9 @@ import java.util.Locale;
 			GLES3JNILib.onDestroy(mNativeHandle);
 		}
 
-		externalHapticsServiceClient.stopBinding();
+		if (externalHapticsServiceClient != null) {
+			externalHapticsServiceClient.stopBinding();
+		}
 
 		super.onDestroy();
 		mNativeHandle = 0;

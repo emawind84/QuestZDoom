@@ -1,4 +1,5 @@
-Into this folder copy the libopenxr_loader.so for each HMD required to support, suffixed with the headset type:
+QuestZDoom uses the generic Khronos OpenXR loader from:
 
-libopenxr_loader_meta.so
-libopenxr_loader_pico.so
+Projects/AndroidPrebuilt/jni/libopenxr_loader.so
+
+Do not add per-HMD proprietary loader binaries here.
