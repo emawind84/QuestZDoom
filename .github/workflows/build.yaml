@@ -101,6 +101,9 @@ jobs:
 
       - name: Configure CMAKE
         shell: bash
+        env:
+          ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
+          ACTIONS_CACHE_URL: ${{ env.ACTIONS_CACHE_URL }}
         run: >
           cmake -B build
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} 
@@ -146,10 +149,10 @@ jobs:
           architecture: x64
 
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v3
       
       - name: Setup gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
         with:
           build-root-directory: ${{ matrix.progdir }}
           cache-read-only: true
@@ -168,7 +171,7 @@ jobs:
 
       - name: Sign app APK
         if: matrix.build_type == 'Release'
-        uses: ilharp/sign-android-release@v1
+        uses: ilharp/sign-android-release@v2
         id: sign_app_apk
         with:
           releaseDir: ${{ matrix.progdir }}/build/outputs/apk/release
@@ -176,7 +179,7 @@ jobs:
           keyAlias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
-          buildToolsVersion: 33.0.0
+          buildToolsVersion: 34.0.0
 
       - name: Prepare signed APK
         shell: bash
