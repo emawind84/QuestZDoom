@@ -2,31 +2,46 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		package="com.drbeef.lzdoom.questzdoom"
 		android:versionCode="35"
-		android:versionName="1.6.1" android:installLocation="auto" >
+		android:versionName="1.6.2" android:installLocation="auto" >
 
 	<!-- Tell the system this app requires OpenGL ES 3.1. -->
 	<uses-feature android:glEsVersion="0x00030001" android:required="true"/>
 
 	<uses-feature android:name="android.hardware.vr.headtracking" android:version="1"
 				  android:required="true" />
+	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
-	<application android:allowBackup="false" android:icon="@drawable/ic_qquest" android:label="@string/qzdoom">
+	<queries>
+		<provider android:authorities="org.khronos.openxr.runtime_broker" />
+		<provider android:authorities="org.khronos.openxr.system_runtime_broker" />
+	</queries>
+
+	<application android:allowBackup="false"
+			android:icon="@drawable/ic_qquest"
+			android:label="@string/qzdoom"
+			android:extractNativeLibs="true"
+			android:requestLegacyExternalStorage="true">
 
 		
 		<meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>
 
 		<!-- META QUEST -->
-		<meta-data android:name="com.oculus.supportedDevices" android:value="quest|quest2"/>
+		<meta-data android:name="com.oculus.supportedDevices" android:value="quest2|questpro|quest3"/>
 		<meta-data android:name="com.oculus.ossplash" android:value="true"/>
+		<meta-data android:name="com.oculus.dualcorecpuset" android:value="true" />
+		<meta-data android:name="com.oculus.trade_cpu_for_gpu_amount" android:value="-1" />
 
 		<!-- PICO XR -->
 		<meta-data android:name="pvr.app.type" android:value="vr" />
+		<meta-data android:name="pxr.controller" android:value="1" />
 
 		<!-- The activity is the built-in NativeActivity framework class. -->
 		<!-- launchMode is set to singleTask because there should never be multiple copies of the app running. -->
@@ -41,6 +56,7 @@
 				android:screenOrientation="landscape"
 				android:resizeableActivity="false"
 				android:excludeFromRecents="false"
+				android:exported="true"
 				android:configChanges="density|keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|uiMode">
 			<!-- Tell NativeActivity the name of the .so -->
 			<meta-data android:name="android.app.lib_name" android:value="QuestZDoom" />
@@ -49,6 +65,8 @@
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.LAUNCHER" />
+				<category android:name="com.oculus.intent.category.VR" />
+				<category android:name="org.khronos.openxr.intent.category.IMMERSIVE_HMD" />
 			</intent-filter>
 		</activity>
 	</application>
