@@ -165,6 +165,7 @@ typedef struct
     pthread_t		Thread;
     surfaceMessageQueue	MessageQueue;
     ANativeWindow * NativeWindow;
+    volatile bool   IsRunning;
 } ovrAppThread;
 
 
