@@ -166,7 +166,7 @@ jobs:
       - name: Build with gradle
         id: gradle_build
         shell: bash
-        run: ./gradlew :Projects:Android:assemble${{ matrix.build_type }}
+        run: ./gradlew :assemble${{ matrix.build_type }}
         working-directory: ${{ matrix.progdir }}
 
       - name: Sign app APK
