@@ -251,6 +251,7 @@ void VR_Init()
 
 void * AppThreadFunction(void * parm ) {
 	gAppThread = (ovrAppThread *) parm;
+	gAppThread->IsRunning = true;
 
 	java.Vm = gAppThread->JavaVm;
 	java.Vm->AttachCurrentThread(&java.Env, NULL);
@@ -299,6 +300,8 @@ void * AppThreadFunction(void * parm ) {
 
 	//Ask Java to shut down
     VR_Shutdown();
+
+	gAppThread->IsRunning = false;
 
 	return NULL;
 }
@@ -719,7 +722,7 @@ JNIEXPORT void JNICALL Java_com_drbeef_questzdoom_GLES3JNILib_onSurfaceChanged( 
 		if ( appThread->NativeWindow != NULL )
 		{
 			srufaceMessage message;
-			surfaceMessage_Init(&message, MESSAGE_ON_SURFACE_DESTROYED, MQ_WAIT_PROCESSED);
+			surfaceMessage_Init(&message, MESSAGE_ON_SURFACE_DESTROYED, MQ_WAIT_NONE);
 			surfaceMessageQueue_PostMessage(&appThread->MessageQueue, &message);
 			ALOGV( "        ANativeWindow_release( NativeWindow )" );
 			ANativeWindow_release( appThread->NativeWindow );
@@ -745,8 +748,16 @@ JNIEXPORT void JNICALL Java_com_drbeef_questzdoom_GLES3JNILib_onSurfaceDestroyed
 {
 	ALOGV( "    GLES3JNILib::onSurfaceDestroyed()" );
 	ovrAppThread * appThread = (ovrAppThread *)((size_t)handle);
+	if (appThread == NULL || !appThread->IsRunning) { 
+		// If the thread loop isn't actively running, clean up window directly and exit
+		if (appThread && appThread->NativeWindow) {
+			ANativeWindow_release(appThread->NativeWindow);
+			appThread->NativeWindow = NULL;
+		}
+		return;
+	}
 	srufaceMessage message;
-	surfaceMessage_Init(&message, MESSAGE_ON_SURFACE_DESTROYED, MQ_WAIT_PROCESSED);
+	surfaceMessage_Init(&message, MESSAGE_ON_SURFACE_DESTROYED, MQ_WAIT_NONE);
 	surfaceMessageQueue_PostMessage(&appThread->MessageQueue, &message);
 	ALOGV( "        ANativeWindow_release( NativeWindow )" );
 	ANativeWindow_release( appThread->NativeWindow );
@@ -757,6 +768,7 @@ JNIEXPORT void JNICALL Java_com_drbeef_questzdoom_GLES3JNILib_prepareEnvironment
 	auto p = env->GetStringUTFChars(path, NULL);
 	progdir = p;
 	chdir(p);
+	env->ReleaseStringUTFChars(path, p);
 }
 
 }

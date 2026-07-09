@@ -7,11 +7,16 @@ import static android.system.Os.setenv;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
@@ -80,15 +85,25 @@ import java.util.Locale;
 	private boolean requestedManageExternalStorage = false;
 
 	public void shutdown() {
-		if (Build.VERSION.SDK_INT >= 21) {
-			// If yes, run the fancy new function to end the app and
-			//  remove it from the task list.
-			finishAndRemoveTask();
-		} else {
-			// If not, then just end the app without removing it from
-			//  the task list.
-			finish();
-		}
+		// Force the execution onto the main UI thread. 
+		// This breaks the synchronous link if called from a native C++ engine thread.
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			@Override
+			public void run() {
+				if (Build.VERSION.SDK_INT >= 21) {
+					// Finishes the activity and cleanly wipes it from the Recent Apps list
+					finishAndRemoveTask();
+				} else {
+					finish();
+				}
+				
+				// CRUCIAL FOR C++ ENGINES:
+				// Force kill the Linux process. If you don't do this, the Java windows close,
+				// but the background native C++ render loop continues to run invisibly.
+				// This stops the lingering "App isn't responding" popup permanently.
+				android.os.Process.killProcess(android.os.Process.myPid());
+			}
+		});
 	}
 
 	public void reload(String profile) {
@@ -96,7 +111,14 @@ import java.util.Locale;
 			copy_file(progdir + "/commandline_" + profile + ".txt", progdir + "/commandline.txt");
 			copy_file(progdir + "/profiles/commandline_" + profile + ".txt", progdir + "/commandline.txt");
 		}
-		restartApplication(this);
+		// 1. Instantly post to the main looper to free up the C++ thread
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			@Override
+			public void run() {
+				// 2. Safely trigger the restart now that the JNI call has returned
+				restartApplicationSecondMethod();
+			}
+		});
 	}
 
 	public void haptic_event(String event, int position, int intensity, float angle, float yHeight)  {
@@ -434,6 +456,8 @@ import java.util.Locale;
 
 		super.onDestroy();
 		mNativeHandle = 0;
+		// Signal your C++ loops to break first, then kill the PID if it hangs
+		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 	@Override public void surfaceCreated( SurfaceHolder holder )
