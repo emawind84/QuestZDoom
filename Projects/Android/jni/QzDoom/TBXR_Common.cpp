@@ -1178,6 +1178,7 @@ void ovrAppThread_Create( ovrAppThread * appThread, JNIEnv * env, jobject activi
 	appThread->ActivityClass = (jclass)env->NewGlobalRef( activityClass );
 	appThread->Thread = 0;
 	appThread->NativeWindow = NULL;
+	appThread->IsRunning = false;
 	surfaceMessageQueue_Create(&appThread->MessageQueue);
 
 	const int createErr = pthread_create( &appThread->Thread, NULL, AppThreadFunction, appThread );
@@ -1190,6 +1191,7 @@ void ovrAppThread_Create( ovrAppThread * appThread, JNIEnv * env, jobject activi
 void ovrAppThread_Destroy( ovrAppThread * appThread, JNIEnv * env )
 {
 	pthread_join( appThread->Thread, NULL );
+	appThread->IsRunning = false;
 	env->DeleteGlobalRef( appThread->ActivityObject );
 	env->DeleteGlobalRef( appThread->ActivityClass );
 	surfaceMessageQueue_Destroy(&appThread->MessageQueue);
