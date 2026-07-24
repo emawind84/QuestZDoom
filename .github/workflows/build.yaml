@@ -105,6 +105,7 @@ jobs:
         run: echo CMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
 
       - name: Cache vcpkg installed packages
+        id: vcpkg-cache
         if: runner.os == 'Windows'
         uses: actions/cache@v4
         with:
@@ -112,6 +113,16 @@ jobs:
           key: vcpkg-installed-${{ runner.os }}-${{ hashFiles('Projects/Android/jni/gzdoom-g3.3mgw_mobile/vcpkg.json') }}
           restore-keys: |
             vcpkg-installed-${{ runner.os }}-
+
+      - name: Pre-fetch bzip2 distfile from mirror
+        if: runner.os == 'Windows' && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        shell: bash
+        continue-on-error: true
+        run: |
+          mkdir -p "${{ env.VCPKG_ROOT }}/downloads"
+          curl -L --retry 5 --retry-delay 10 --fail \
+            -o "${{ env.VCPKG_ROOT }}/downloads/bzip2-1.0.8.tar.gz" \
+            https://github.com/emawind84/gzdoom/releases/download/ci_deps/bzip2-1.0.8.tar.gz
 
       - name: Install Dependencies
         shell: bash
