@@ -103,7 +103,16 @@ jobs:
         if: runner.os == 'Windows'
         shell: bash
         run: echo CMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake" >> $GITHUB_ENV
-    
+
+      - name: Cache vcpkg installed packages
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ${{ matrix.progdir }}/jni/gzdoom-g3.3mgw_mobile/build/vcpkg_installed
+          key: vcpkg-installed-${{ runner.os }}-${{ hashFiles('Projects/Android/jni/gzdoom-g3.3mgw_mobile/vcpkg.json') }}
+          restore-keys: |
+            vcpkg-installed-${{ runner.os }}-
+
       - name: Install Dependencies
         shell: bash
         run: |
@@ -126,12 +135,17 @@ jobs:
         env:
           ACTIONS_RUNTIME_TOKEN: ${{ env.ACTIONS_RUNTIME_TOKEN }}
           ACTIONS_CACHE_URL: ${{ env.ACTIONS_CACHE_URL }}
-        run: >
-          cmake -B build
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} 
-          -DCMAKE_PREFIX_PATH=`pwd`/../SupportLibs/zmusic_install
-          -DPK3_QUIET_ZIPDIR=ON ${{ matrix.extra_options }} 
-          .
+        run: |
+          for attempt in 1 2 3; do
+            cmake -B build \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+              -DCMAKE_PREFIX_PATH=`pwd`/../SupportLibs/zmusic_install \
+              -DPK3_QUIET_ZIPDIR=ON ${{ matrix.extra_options }} \
+              . && exit 0
+            echo "cmake configure failed (attempt $attempt/3), likely a transient vcpkg distfile download issue; retrying in 60s..." >&2
+            sleep 60
+          done
+          exit 1
         working-directory: ${{ matrix.progdir }}/jni/gzdoom-g3.3mgw_mobile
 
       - name: Prepare PK3 packages
