@@ -2099,20 +2099,19 @@ void TBXR_submitFrame()
 
 	TBXR_updateProjections();
 
-	XrFovf fov = {};
 	XrPosef viewTransform[2];
 
 	for (int eye = 0; eye < ovrMaxNumEyes; eye++) {
 		XrPosef xfHeadFromEye = gAppState.Projections[eye].pose;
 		XrPosef xfStageFromEye = XrPosef_Multiply(gAppState.xfStageFromHead, xfHeadFromEye);
 		viewTransform[eye] = XrPosef_Inverse(xfStageFromEye);
-        fov.angleLeft += gAppState.Projections[eye].fov.angleLeft / 2.0f;
-        fov.angleRight += gAppState.Projections[eye].fov.angleRight / 2.0f;
-        fov.angleUp += gAppState.Projections[eye].fov.angleUp / 2.0f;
-        fov.angleDown += gAppState.Projections[eye].fov.angleDown / 2.0f;
 	}
 
-	fov_y = (fabs(fov.angleUp) + fabs(fov.angleDown)) * 180.0f / M_PI;
+	// fov_y (QzDoom_GetFOV(), HUD/menu FOV readback only) doesn't need to be
+	// eye-specific; eye 0's actual vertical extent is a fine approximation.
+	// It is no longer used to build the per-eye compositor FOV below.
+	const XrFovf &fov0 = gAppState.Projections[0].fov;
+	fov_y = (fabs(fov0.angleUp) + fabs(fov0.angleDown)) * 180.0f / M_PI;
 
 
 	gAppState.LayerCount = 0;
@@ -2134,7 +2133,7 @@ void TBXR_submitFrame()
 			memset(&projection_layer_elements[eye], 0, sizeof(XrCompositionLayerProjectionView));
 			projection_layer_elements[eye].type = XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW;
 			projection_layer_elements[eye].pose = gAppState.xfStageFromHead;
-			projection_layer_elements[eye].fov = fov;
+			projection_layer_elements[eye].fov = gAppState.Projections[eye].fov;
 			memset(&projection_layer_elements[eye].subImage, 0, sizeof(XrSwapchainSubImage));
 			projection_layer_elements[eye].subImage.swapchain =
 					frameBuffer->ColorSwapChain.Handle;

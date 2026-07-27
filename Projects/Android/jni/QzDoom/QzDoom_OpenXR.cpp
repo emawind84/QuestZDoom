@@ -323,17 +323,18 @@ bool VR_GetVRProjection(int eye, float zNear, float zFar, float* projection)
 
     if (strstr(gAppState.OpenXRHMD, "meta") != NULL)
     {
-        XrFovf fov = {};
-        for (int eye = 0; eye < ovrMaxNumEyes; eye++)
-        {
-            fov.angleLeft += gAppState.Projections[eye].fov.angleLeft / 2.0f;
-            fov.angleRight += gAppState.Projections[eye].fov.angleRight / 2.0f;
-            fov.angleUp += gAppState.Projections[eye].fov.angleUp / 2.0f;
-            fov.angleDown += gAppState.Projections[eye].fov.angleDown / 2.0f;
-        }
+        // Use this eye's own runtime-reported FOV directly (same as the pico
+        // branch above) instead of averaging both eyes' angleLeft/angleRight
+        // into one shared symmetric FOV. That average mixed each eye's
+        // temporal (outward) angle with the other eye's nasal (inward) angle,
+        // which only happens to cancel out on headsets whose per-eye FOV is
+        // already close to left/right-symmetric (e.g. Quest 2). On headsets
+        // with more pronounced per-eye horizontal asymmetry (e.g. Quest 3's
+        // pancake lenses), it silently shrank the usable FOV on both outer
+        // edges, producing visible black bars there.
         XrMatrix4x4f_CreateProjectionFov(
                 &(gAppState.ProjectionMatrices[eye]), GRAPHICS_OPENGL_ES,
-                fov, zNear, zFar);
+                gAppState.Projections[eye].fov, zNear, zFar);
     }
 
 	memcpy(projection, gAppState.ProjectionMatrices[eye].m, 16 * sizeof(float));
