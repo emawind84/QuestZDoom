@@ -75,7 +75,7 @@ ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap:
 .btn.ghost:hover { border-color: var(--fg); filter: none; }
 .section { display: flex; flex-direction: column; gap: 16px; }
 .scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
-table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.95rem; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 0.95rem; }
 th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
 tr:last-child th, tr:last-child td { border-bottom: 0; }
 thead th { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
@@ -85,6 +85,11 @@ tbody th { font-weight: 600; white-space: nowrap; }
 .pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
 .pick > div { border-top: 3px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .pick .q { font-weight: 600; }
+.backend { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--key-blue); padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.backend .eyebrow { color: var(--key-blue); }
+.backend h3 { font-size: 1.6rem; font-weight: 800; }
+.val { font-family: var(--font-mono); font-size: 0.88rem; white-space: nowrap; }
+ol.order { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; max-width: 65ch; }
 .links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
 .foot { font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 6px; }
 code { font-family: var(--font-mono); font-size: 0.88em; }
@@ -110,7 +115,7 @@ img { max-width: 100%; }
     <h2 id="rel">Latest builds</h2>
     <div class="cards">
       <article class="card">
-        <div class="card-top"><span class="ver">v17</span><span class="tag">qzd17.3<br>Latest</span></div>
+        <div class="card-top"><span class="ver">v17</span><span class="tag">qzd17.3</span></div>
         <div class="card-body">
           <h3>Newest engine</h3>
           <div class="engine">GZDoom v4.14.3</div>
@@ -152,7 +157,7 @@ img { max-width: 100%; }
         <div class="card-body">
           <h3>Fastest on mobile</h3>
           <div class="engine">LZDoom, last version</div>
-          <div class="plat"><span class="chip">Standalone headsets only</span></div>
+          <div class="plat"><span class="chip">Meta Quest</span><span class="chip">Pico</span></div>
           <ul>
             <li>Recommended for speed when your mod is supported.</li>
             <li>OpenXR replaces the Oculus API; analog smooth turn; double bindings menu.</li>
@@ -172,11 +177,11 @@ img { max-width: 100%; }
     <h2 id="cmp">Side by side</h2>
     <div class="scroll" tabindex="0" role="region" aria-label="Release comparison table">
       <table>
-        <thead><tr><th></th><th>Engine base</th><th>PCVR</th><th>Meta Quest</th><th>Pico</th><th>Best for</th></tr></thead>
+        <thead><tr><th></th><th>Engine base</th><th>PCVR</th><th>Meta Quest</th><th>Pico</th></tr></thead>
         <tbody>
-          <tr><th><span class="dot"></span>v17 · 17.3</th><td>GZDoom v4.14.3</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Newest mods, Quest 3, handhelds</td></tr>
-          <tr><th><span class="dot y"></span>v15 · 15.10</th><td>GZDoom 4.12.2</td><td>Yes</td><td>Yes</td><td>Yes</td><td>A settled GZDoom 4.12 setup</td></tr>
-          <tr><th><span class="dot r"></span>v13 · 13.9</th><td>LZDoom, last version</td><td>No</td><td>Yes</td><td>Yes</td><td>Maximum frame rate on weaker devices</td></tr>
+          <tr><th><span class="dot"></span>v17 · 17.3</th><td>GZDoom v4.14.3</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+          <tr><th><span class="dot y"></span>v15 · 15.10</th><td>GZDoom 4.12.2</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+          <tr><th><span class="dot r"></span>v13 · 13.9</th><td>LZDoom, last version</td><td>No</td><td>Yes</td><td>Yes</td></tr>
         </tbody>
       </table>
     </div>
@@ -190,6 +195,39 @@ img { max-width: 100%; }
       <div><span class="q">My mod misbehaves on v17.</span><p>Try v15. Custom shaders can be toggled in the quick menu or post-processing menu if a mod breaks under strict GLES rules.</p></div>
       <div><span class="q">The game runs too slowly.</span><p>Try v13 if your mod supports LZDoom, and read the performance settings page.</p></div>
     </div>
+  </section>
+
+  <section class="section" aria-labelledby="perf">
+    <h2 id="perf">Performance tips</h2>
+    <div class="backend">
+      <span class="eyebrow">Biggest single change</span>
+      <h3>Switch to OpenGL Lite</h3>
+      <p>Set <code>vid_preferbackend = 2</code> to use the OpenGL ES renderer, called OpenGL Lite in the menus. It is built for weaker GPUs and headset hardware, with lighter GPU work, 8-bit textures and a simpler rendering path. <code>vid_preferbackend = 0</code> is the older desktop-style OpenGL path. It is usually slower on mobile hardware, so keep it for desktop testing or compatibility.</p>
+    </div>
+    <div class="scroll" tabindex="0" role="region" aria-label="Recommended performance settings">
+      <table>
+        <thead><tr><th>Setting</th><th>Try</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><th>Render the skydome</th><td class="val">Off</td><td>Swaps in a cheap coloured sky and cuts GPU cost.</td></tr>
+          <tr><th>Reflections</th><td class="val">Off</td><td>Expensive, and one of the first things to turn off on mobile VR.</td></tr>
+          <tr><th>Light shadowmaps</th><td class="val">Off</td><td>Generating them is costly and rarely worth it in a headset.</td></tr>
+          <tr><th>Dynamic lights</th><td class="val">Disabled</td><td>One of the heaviest costs in VR. Keep them off on standalone unless you are tuning for one scene.</td></tr>
+          <tr><th>Sprite Cull Distance</th><td class="val">about 2000</td><td>Farther sprites add GPU work. Lower it in busy scenes.</td></tr>
+          <tr><th>Wall Cull Distance</th><td class="val">about 3000</td><td>Helps in large maps and open areas.</td></tr>
+          <tr><th>Post-processing</th><td class="val">Off or low</td><td>Every extra fullscreen pass runs twice, once per eye.</td></tr>
+          <tr><th>Refresh Rate</th><td class="val">72 or 90 Hz</td><td>Start at your headset's stable rate and lower it if the scene stutters.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>If culling makes things pop in, turn on Global fade to hide it. For the full list of settings, see the <a href="https://github.com/emawind84/QuestZDoom/wiki/QuestZDoom-Performance-Settings">performance settings wiki page</a>.</p>
+    <h3>Suggested order</h3>
+    <ol class="order">
+      <li>Switch to <code>vid_preferbackend = 2</code>.</li>
+      <li>Turn off the skydome and reflections.</li>
+      <li>Turn off light shadowmaps and reduce dynamic light counts.</li>
+      <li>Lower the sprite and wall cull distances.</li>
+      <li>Reduce post-processing, then adjust the refresh rate.</li>
+    </ol>
   </section>
 
   <section class="section" aria-labelledby="more">
