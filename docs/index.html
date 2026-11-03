@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuestZDoom Downloads</title>
+<meta name="description" content="Download QuestZDoom v17, v15 and v13: VR ports of GZDoom and LZDoom for PCVR, Meta Quest and Pico.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow spec-sheet column; three release "keycards" in a grid, then a comparison table and a picker. Boldness lives in the keycard colours and the condensed display type. */
+:root {
+  --bg: #eceef0;
+  --surface: #f8f9fa;
+  --fg: #1a1f24;
+  --muted: #566069;
+  --line: #c9cfd5;
+  --key-blue: #1f5fbf;
+  --key-yellow: #b88400;
+  --key-red: #c22b2b;
+  --on-key: #ffffff;
+  --accent: #1f5fbf;
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181c; --surface: #1c2227; --fg: #e6e9ec; --muted: #9aa5af; --line: #323b43;
+    --key-blue: #5b9bff; --key-yellow: #f0b429; --key-red: #ff6b6b; --on-key: #10151a; --accent: #5b9bff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181c; --surface: #1c2227; --fg: #e6e9ec; --muted: #9aa5af; --line: #323b43;
+  --key-blue: #5b9bff; --key-yellow: #f0b429; --key-red: #ff6b6b; --on-key: #10151a; --accent: #5b9bff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-block: 40px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+h1, h2, h3 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(3rem, 9vw, 5.5rem); font-weight: 800; }
+h2 { font-size: 1.9rem; font-weight: 800; }
+p { margin: 0; max-width: 65ch; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.head { display: flex; flex-direction: column; gap: 16px; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+.notice { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--key-yellow); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; max-width: 720px; }
+.notice strong { font-weight: 600; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 20px; }
+.card { --key: var(--key-blue); background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; min-width: 0; }
+.card.k-yellow { --key: var(--key-yellow); }
+.card.k-red { --key: var(--key-red); }
+.card-top { background: var(--key); color: var(--on-key); padding: 16px 18px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.card-top .ver { font-family: var(--font-display); font-weight: 800; font-size: 3.2rem; line-height: 0.9; }
+.card-top .tag { font-family: var(--font-mono); font-size: 0.8rem; text-align: right; }
+.card-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.card-body h3 { font-size: 1.25rem; font-weight: 700; }
+.engine { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); }
+.plat { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; padding: 3px 8px; border: 1px solid var(--key); color: var(--fg); }
+ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; }
+.card-actions { margin-top: auto; padding-top: 6px; display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-block; font-weight: 600; font-size: 0.95rem; text-decoration: none; padding: 9px 14px; border: 2px solid var(--key); background: var(--key); color: var(--on-key); }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.btn:hover { filter: brightness(1.08); }
+.btn.ghost:hover { border-color: var(--fg); filter: none; }
+.section { display: flex; flex-direction: column; gap: 16px; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.95rem; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child th, tr:last-child td { border-bottom: 0; }
+thead th { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tbody th { font-weight: 600; white-space: nowrap; }
+.dot { display: inline-block; width: 10px; height: 10px; margin-right: 8px; background: var(--key-blue); }
+.dot.y { background: var(--key-yellow); } .dot.r { background: var(--key-red); }
+.pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.pick > div { border-top: 3px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.pick .q { font-weight: 600; }
+.links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.foot { font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+code { font-family: var(--font-mono); font-size: 0.88em; }
+html { color-scheme: light; }
+@media (prefers-color-scheme: dark) { html:not([data-theme="light"]) { color-scheme: dark; } }
+body { margin: 0; }
+img { max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="eyebrow">emawind84 / QuestZDoom</span>
+    <h1>QuestZDoom Downloads</h1>
+    <p class="lede">VR ports of the GZDoom and LZDoom engines with full 6DoF. v17 and v15 run on PCVR and on standalone Meta Quest and Pico headsets. v13 is for standalone headsets only.</p>
+    <div class="notice">
+      <strong>Can't install the game?</strong>
+      <span>These are unofficial builds. Uninstall the official QuestZDoom first. v13.2 and later use a separate app ID so older versions can sit alongside each other.</span>
+    </div>
+  </header>
+
+  <section class="section" aria-labelledby="rel">
+    <h2 id="rel">Latest builds</h2>
+    <div class="cards">
+      <article class="card">
+        <div class="card-top"><span class="ver">v17</span><span class="tag">qzd17.3<br>Latest</span></div>
+        <div class="card-body">
+          <h3>Newest engine</h3>
+          <div class="engine">GZDoom v4.14.3</div>
+          <div class="plat"><span class="chip">PCVR</span><span class="chip">Meta Quest</span><span class="chip">Pico</span></div>
+          <ul>
+            <li>Quest 3 black bars fixed: each eye now uses its real field of view.</li>
+            <li>GLES renderer ("OpenGL Lite") gained full VR/OpenXR support and custom shaders.</li>
+            <li>Mali ARM64 handheld fixes: invisible geometry, screen wipe, buffer errors.</li>
+            <li>Corrupted screenshots and save thumbnails fixed on Adreno devices.</li>
+          </ul>
+          <div class="card-actions">
+            <a class="btn" href="https://github.com/emawind84/QuestZDoom/releases/tag/qzd17.3">Download 17.3</a>
+            <a class="btn ghost" href="https://github.com/emawind84/QuestZDoom/compare/qzd17.2...qzd17.3">Changes</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card k-yellow">
+        <div class="card-top"><span class="ver">v15</span><span class="tag">qzd15.10</span></div>
+        <div class="card-body">
+          <h3>Stable GZDoom 4.12</h3>
+          <div class="engine">GZDoom 4.12.2</div>
+          <div class="plat"><span class="chip">PCVR</span><span class="chip">Meta Quest</span><span class="chip">Pico</span></div>
+          <ul>
+            <li>Receives the same GLES, Quest 3 and Mali fixes as v17 (15.9 and 15.10).</li>
+            <li>Camera no longer freezes in the death state; <code>HmdPosition</code> available in ZScript.</li>
+            <li>Profile switching restarts handled earlier in the main loop.</li>
+            <li>Known issue: screenshots and save images do not work with the OpenXR integration.</li>
+          </ul>
+          <div class="card-actions">
+            <a class="btn" href="https://github.com/emawind84/QuestZDoom/releases/tag/qzd15.10">Download 15.10</a>
+            <a class="btn ghost" href="https://github.com/emawind84/QuestZDoom/compare/qzd15.9...qzd15.10">Changes</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card k-red">
+        <div class="card-top"><span class="ver">v13</span><span class="tag">qzd13.9</span></div>
+        <div class="card-body">
+          <h3>Fastest on mobile</h3>
+          <div class="engine">LZDoom, last version</div>
+          <div class="plat"><span class="chip">Standalone headsets only</span></div>
+          <ul>
+            <li>Recommended for speed when your mod is supported.</li>
+            <li>OpenXR replaces the Oculus API; analog smooth turn; double bindings menu.</li>
+            <li>Profiles can live in a <code>profiles</code> folder.</li>
+            <li>Known issue: screenshots and save images do not work with OpenXR.</li>
+          </ul>
+          <div class="card-actions">
+            <a class="btn" href="https://github.com/emawind84/QuestZDoom/releases/tag/qzd13.9">Download 13.9</a>
+            <a class="btn ghost" href="https://github.com/emawind84/QuestZDoom/compare/qzd13.8...qzd13.9">Changes</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cmp">
+    <h2 id="cmp">Side by side</h2>
+    <div class="scroll" tabindex="0" role="region" aria-label="Release comparison table">
+      <table>
+        <thead><tr><th></th><th>Engine base</th><th>PCVR</th><th>Meta Quest</th><th>Pico</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><th><span class="dot"></span>v17 · 17.3</th><td>GZDoom v4.14.3</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Newest mods, Quest 3, handhelds</td></tr>
+          <tr><th><span class="dot y"></span>v15 · 15.10</th><td>GZDoom 4.12.2</td><td>Yes</td><td>Yes</td><td>Yes</td><td>A settled GZDoom 4.12 setup</td></tr>
+          <tr><th><span class="dot r"></span>v13 · 13.9</th><td>LZDoom, last version</td><td>No</td><td>Yes</td><td>Yes</td><td>Maximum frame rate on weaker devices</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pick">
+    <h2 id="pick">Which one?</h2>
+    <div class="pick">
+      <div><span class="q">I just want the best build.</span><p>Take v17. It has the newest engine and every fix listed above.</p></div>
+      <div><span class="q">I play on PC.</span><p>Use v17 or v15. v13 does not support PCVR.</p></div>
+      <div><span class="q">My mod misbehaves on v17.</span><p>Try v15. Custom shaders can be toggled in the quick menu or post-processing menu if a mod breaks under strict GLES rules.</p></div>
+      <div><span class="q">The game runs too slowly.</span><p>Try v13 if your mod supports LZDoom, and read the performance settings page.</p></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="more">
+    <h2 id="more">Guides and extras</h2>
+    <div class="links">
+      <a href="https://github.com/emawind84/QuestZDoom/wiki/Full-Changelog">Full changelog</a>
+      <a href="https://github.com/emawind84/QuestZDoom/wiki/QuestZDoom-Performance-Settings">Performance settings</a>
+      <a href="https://github.com/emawind84/QuestZDoom/wiki/QuestZDoom-Key-Mapping">Key mapping</a>
+      <a href="https://github.com/emawind84/QuestZDoom/wiki/Release-11:-API-Changes">API changes</a>
+      <a href="https://github.com/emawind84/questzdoom_profiles">Profile collection</a>
+      <a href="https://github.com/emawind84/QuestZDoom/releases/tag/mod_fix">Mods and fixes</a>
+      <a href="https://github.com/emawind84/QuestZDoom/releases">All releases</a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span><strong>Ashes 2063:</strong> to fix motorcycle turning, set Keep Momentum Threshold to 0.8 or lower in the Experimental Menu, or disable Slidey Movements. Snap-turn angle 4 or 5 works well for smooth turning.</span>
+    <span>With OpenXR the weapon sits slightly offset. Adjust it under VR Options, VR Weapon Options, just after Fat Item Width.</span>
+  </footer>
+</div>
+</body>
+</html>
