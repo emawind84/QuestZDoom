@@ -100,6 +100,9 @@ img { max-width: 100%; }
 .banner { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
 .engine-row { display: flex; align-items: center; gap: 12px; }
 .engine-logo { width: 56px; height: 56px; flex: none; }
+.disclaimer { display: flex; flex-direction: column; gap: 6px; max-width: 65ch; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+.disclaimer strong { color: var(--fg); font-weight: 600; }
+.doom-logo { display: block; width: 96px; height: auto; max-width: 100%; }
 </style>
 </head>
 <body>
@@ -232,6 +235,12 @@ img { max-width: 100%; }
   <footer class="foot">
     <span><strong>Ashes 2063:</strong> to fix motorcycle turning, set Keep Momentum Threshold to 0.8 or lower in the Experimental Menu, or disable Slidey Movements. Snap-turn angle 4 or 5 works well for smooth turning.</span>
     <span>With OpenXR the weapon sits slightly offset. Adjust it under VR Options, VR Weapon Options, just after Fat Item Width.</span>
+    <div class="disclaimer">
+      <img class="doom-logo" src="assets/doom-logo.png" alt="DOOM" width="96" height="59">
+      <strong>Disclaimer</strong>
+      <span>'QuestZDoom' is not affiliated, associated, authorized, endorsed by, or in any way officially connected with ID Software or Bethesda, or any of its subsidiaries or its affiliates. No copyrighted assets are included within the install.</span>
+      <span>If you have any queries please contact us at: <a href="mailto:emawind84@gmail.com">emawind84@gmail.com</a></span>
+    </div>
   </footer>
 </div>
 </body>
