@@ -97,13 +97,17 @@ html { color-scheme: light; }
 @media (prefers-color-scheme: dark) { html:not([data-theme="light"]) { color-scheme: dark; } }
 body { margin: 0; }
 img { max-width: 100%; }
+.banner { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
+.engine-row { display: flex; align-items: center; gap: 12px; }
+.engine-logo { width: 56px; height: 56px; flex: none; }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <img class="banner" src="assets/banner.jpg" alt="QuestZDoom" width="1920" height="534">
   <header class="head">
     <span class="eyebrow">emawind84 / QuestZDoom</span>
-    <h1>QuestZDoom Downloads</h1>
+    <h1>Downloads</h1>
     <p class="lede">VR ports of the GZDoom and LZDoom engines with full 6DoF. v17 and v15 run on PCVR and on standalone Meta Quest and Pico headsets. v13 is for standalone headsets only.</p>
     <div class="notice">
       <strong>Can't install the game?</strong>
@@ -118,14 +122,8 @@ img { max-width: 100%; }
         <div class="card-top"><span class="ver">v17</span><span class="tag">qzd17.3</span></div>
         <div class="card-body">
           <h3>Newest engine</h3>
-          <div class="engine">GZDoom v4.14.3</div>
+          <div class="engine-row"><img class="engine-logo" src="assets/gzdoom.png" alt="GZDoom" width="56" height="56"><div class="engine">GZDoom v4.14.3</div></div>
           <div class="plat"><span class="chip">PCVR</span><span class="chip">Meta Quest</span><span class="chip">Pico</span></div>
-          <ul>
-            <li>Quest 3 black bars fixed: each eye now uses its real field of view.</li>
-            <li>GLES renderer ("OpenGL Lite") gained full VR/OpenXR support and custom shaders.</li>
-            <li>Mali ARM64 handheld fixes: invisible geometry, screen wipe, buffer errors.</li>
-            <li>Corrupted screenshots and save thumbnails fixed on Adreno devices.</li>
-          </ul>
           <div class="card-actions">
             <a class="btn" href="https://github.com/emawind84/QuestZDoom/releases/tag/qzd17.3">Download 17.3</a>
             <a class="btn ghost" href="https://github.com/emawind84/QuestZDoom/compare/qzd17.2...qzd17.3">Changes</a>
@@ -137,14 +135,8 @@ img { max-width: 100%; }
         <div class="card-top"><span class="ver">v15</span><span class="tag">qzd15.10</span></div>
         <div class="card-body">
           <h3>Stable GZDoom 4.12</h3>
-          <div class="engine">GZDoom 4.12.2</div>
+          <div class="engine-row"><img class="engine-logo" src="assets/gzdoom.png" alt="GZDoom" width="56" height="56"><div class="engine">GZDoom 4.12.2</div></div>
           <div class="plat"><span class="chip">PCVR</span><span class="chip">Meta Quest</span><span class="chip">Pico</span></div>
-          <ul>
-            <li>Receives the same GLES, Quest 3 and Mali fixes as v17 (15.9 and 15.10).</li>
-            <li>Camera no longer freezes in the death state; <code>HmdPosition</code> available in ZScript.</li>
-            <li>Profile switching restarts handled earlier in the main loop.</li>
-            <li>Known issue: screenshots and save images do not work with the OpenXR integration.</li>
-          </ul>
           <div class="card-actions">
             <a class="btn" href="https://github.com/emawind84/QuestZDoom/releases/tag/qzd15.10">Download 15.10</a>
             <a class="btn ghost" href="https://github.com/emawind84/QuestZDoom/compare/qzd15.9...qzd15.10">Changes</a>
@@ -156,14 +148,8 @@ img { max-width: 100%; }
         <div class="card-top"><span class="ver">v13</span><span class="tag">qzd13.9</span></div>
         <div class="card-body">
           <h3>Fastest on mobile</h3>
-          <div class="engine">LZDoom, last version</div>
+          <div class="engine-row"><img class="engine-logo" src="assets/lzdoom.png" alt="LZDoom" width="56" height="56"><div class="engine">LZDoom, last version</div></div>
           <div class="plat"><span class="chip">Meta Quest</span><span class="chip">Pico</span></div>
-          <ul>
-            <li>Recommended for speed when your mod is supported.</li>
-            <li>OpenXR replaces the Oculus API; analog smooth turn; double bindings menu.</li>
-            <li>Profiles can live in a <code>profiles</code> folder.</li>
-            <li>Known issue: screenshots and save images do not work with OpenXR.</li>
-          </ul>
           <div class="card-actions">
             <a class="btn" href="https://github.com/emawind84/QuestZDoom/releases/tag/qzd13.9">Download 13.9</a>
             <a class="btn ghost" href="https://github.com/emawind84/QuestZDoom/compare/qzd13.8...qzd13.9">Changes</a>
